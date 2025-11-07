@@ -1,0 +1,37 @@
+---
+import { getPublishedPosts, getPostLocale } from '@/lib/posts';
+import { defaultLocale, getTranslations, type Locale } from '@/lib/i18n';
+import { createLocaleHref } from '@/lib/routes';
+
+interface Props {
+  slug: string;
+  locale: Locale;
+}
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+
+  return posts.map((post) => {
+    const date = post.data.pubDate;
+    const year = String(date.getUTCFullYear());
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const slug = post.slug.split('/').pop() ?? post.slug;
+
+    return {
+      params: { year, month, slug },
+      props: {
+        slug: post.slug,
+        locale: getPostLocale(post),
+      },
+    };
+  });
+}
+
+const { slug: postSlug, locale: postLocale } = Astro.props as Props;
+const requestLocale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const targetLocale = requestLocale === postLocale ? requestLocale : postLocale;
+const translations = getTranslations(targetLocale);
+const redirectPath = `${translations.paths.posts}/${postSlug}`;
+
+return Astro.redirect(createLocaleHref(targetLocale, redirectPath));
+---

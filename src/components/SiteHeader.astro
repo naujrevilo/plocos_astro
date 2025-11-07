@@ -1,0 +1,330 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+import SearchBar from "./SearchBar.astro";
+import {
+  getTranslations,
+  locales,
+  defaultLocale,
+  type Locale,
+} from "../lib/i18n";
+import { createLocaleHref } from "../lib/routes";
+
+interface Props {
+  currentPath?: string;
+  locale: Locale;
+}
+
+const normalisePath = (value: string) => {
+  if (value === "/") {
+    return "/";
+  }
+  return value.endsWith("/") ? value : `${value}/`;
+};
+
+const toSegmentKey = (translation: ReturnType<typeof getTranslations>) => {
+  const mapping = new Map<string, keyof typeof translation.paths>();
+  for (const [key, segment] of Object.entries(translation.paths) as [
+    keyof typeof translation.paths,
+    string,
+  ][]) {
+    if (segment) {
+      mapping.set(segment, key);
+    }
+  }
+  return mapping;
+};
+
+const { currentPath = "/", locale } = Astro.props as Props;
+const translations = getTranslations(locale);
+const navItems = translations.navigation;
+const activePath = normalisePath(currentPath);
+const homeHref = createLocaleHref(locale);
+const navAriaLabel =
+  locale === "es" ? "Navegación principal" : "Primary navigation";
+
+const isActive = (href: string) => {
+  const target = normalisePath(href);
+  if (target === "/") {
+    return activePath === "/";
+  }
+  return activePath.startsWith(target);
+};
+
+const stripLocalePrefix = (path: string) => {
+  if (path === "/") {
+    return "";
+  }
+  const trimmed = path.replace(/\/+$/, "");
+  const withoutLeading = trimmed.replace(/^\//, "");
+  const segments = withoutLeading.split("/").filter(Boolean);
+  if (segments.length === 0) {
+    return "";
+  }
+  if (locale !== defaultLocale && segments[0] === locale) {
+    segments.shift();
+  }
+  return segments.join("/");
+};
+
+const computeLocaleHref = (targetLocale: Locale) => {
+  const basePath = stripLocalePrefix(currentPath);
+  const currentSegments = basePath ? basePath.split("/") : [];
+
+  if (currentSegments.length === 0) {
+    return createLocaleHref(targetLocale);
+  }
+
+  const currentMapping = toSegmentKey(translations);
+  const segmentKey = currentMapping.get(currentSegments[0]);
+  if (segmentKey) {
+    const targetTranslation = getTranslations(targetLocale);
+    const targetSegment = targetTranslation.paths[segmentKey];
+    currentSegments[0] = targetSegment ?? currentSegments[0];
+  }
+
+  const nextPath = currentSegments.join("/");
+  return createLocaleHref(targetLocale, nextPath);
+};
+
+const languageOptions = locales.map((code) => ({
+  code,
+  label: translations.site.localeNames[code],
+  href: computeLocaleHref(code),
+}));
+---
+
+<header class="site-header relative w-full text-text-primary">
+  <div class="header-spacer" aria-hidden="true"></div>
+  <div
+    class="header-bar border-b border-border-subtle bg-surface-base/95 backdrop-blur"
+    data-header-bar
+  >
+    <div class="mx-auto w-full max-w-6xl px-4">
+      <div
+        class="header-row flex flex-col gap-4 py-4 transition-all duration-300 md:flex-row md:items-center md:justify-between"
+        data-header-row
+      >
+        <div
+          class="header-lead flex w-full flex-wrap items-center gap-4 md:w-auto"
+        >
+          <a
+            href={homeHref}
+            class="logo-link inline-flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+            aria-label={translations.site.title}
+          >
+            <img
+              src="/logo.svg"
+              alt="Logo PLOCOS"
+              class="logo-mark w-28 sm:w-26 md:w-26 lg:w32 max-lg:left-10 max-sm:hidden lg:absolute"
+              loading="lazy"
+            />
+          </a>
+          <nav
+            class="primary-nav flex w-full flex-wrap items-center gap-2 text-sm font-medium text-text-secondary md:w-auto md:flex-nowrap md:gap-3 md:text-base"
+            aria-label={navAriaLabel}
+          >
+            {
+              navItems.map((item) => {
+                const href = createLocaleHref(locale, item.path);
+                const active = isActive(href);
+                const baseClasses =
+                  "inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-[0.9rem] transition whitespace-nowrap md:text-base";
+                const variant = active
+                  ? "border-accent bg-accent text-surface-base shadow-outline"
+                  : "border-border-subtle bg-surface-elevated text-text-secondary hover:border-accent hover:text-text-primary";
+                return (
+                  <a
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    class={`${baseClasses} ${variant}`}
+                  >
+                    <span>{item.label}</span>
+                    {item.id === "categories" && (
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 10 6"
+                        class={`h-2.5 w-2.5 transition ${active ? "fill-surface-base" : "fill-text-secondary"}`}
+                      >
+                        <path
+                          d="M1 1.5 5 5l4-3.5"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </a>
+                );
+              })
+            }
+          </nav>
+        </div>
+        <div
+          class="header-tools flex w-full flex-col items-stretch gap-3 md:w-auto md:flex-row md:items-center md:justify-end md:gap-4"
+        >
+          <SearchBar />
+          <div class="flex shrink-0 items-center gap-2 md:gap-3">
+            <ThemeToggle />
+            <label
+              class="inline-flex items-center gap-2 text-sm text-text-secondary"
+            >
+              <span class="sr-only">{translations.site.language.srLabel}</span>
+              <select
+                class="h-10 rounded-2xl border border-border-subtle bg-surface-elevated px-3 text-sm font-medium text-text-secondary transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                aria-label={translations.site.language.label}
+                data-language-select
+              >
+                {
+                  languageOptions.map((option) => (
+                    <option
+                      value={option.href}
+                      selected={option.code === locale}
+                    >
+                      {option.label}
+                    </option>
+                  ))
+                }
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<script is:inline>
+  const setupHeader = () => {
+    const header = document.querySelector("header.site-header");
+    if (!(header instanceof HTMLElement)) {
+      return undefined;
+    }
+
+    const bar = header.querySelector("[data-header-bar]");
+    const languageSelect = header.querySelector("[data-language-select]");
+    const handleLanguageChange = (event) => {
+      const target =
+        event.target instanceof HTMLSelectElement
+          ? event.target
+          : languageSelect;
+      if (!(target instanceof HTMLSelectElement)) {
+        return;
+      }
+      const { value } = target;
+      if (typeof value === "string" && value.length > 0) {
+        window.location.href = value;
+      }
+    };
+
+    if (languageSelect instanceof HTMLSelectElement) {
+      languageSelect.addEventListener("change", handleLanguageChange);
+    }
+
+    if (!(bar instanceof HTMLElement)) {
+      return () => {
+        if (languageSelect instanceof HTMLSelectElement) {
+          languageSelect.removeEventListener("change", handleLanguageChange);
+        }
+      };
+    }
+
+    const applyHeight = () => {
+      const measured = bar.offsetHeight;
+      if (measured > 0) {
+        header.style.setProperty("--header-height", `${measured}px`);
+      }
+    };
+
+    const handleScroll = () => {
+      header.classList.toggle("is-scrolled", window.scrollY > 12);
+    };
+
+    const handleResize = () => {
+      applyHeight();
+      handleScroll();
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize, { passive: true });
+
+    let resizeObserver;
+    if ("ResizeObserver" in window) {
+      resizeObserver = new ResizeObserver(() => {
+        applyHeight();
+      });
+      resizeObserver.observe(bar);
+    }
+
+    applyHeight();
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+      resizeObserver?.disconnect();
+      if (languageSelect instanceof HTMLSelectElement) {
+        languageSelect.removeEventListener("change", handleLanguageChange);
+      }
+    };
+  };
+
+  let cleanup = setupHeader();
+
+  const reinitialise = () => {
+    cleanup?.();
+    cleanup = setupHeader();
+  };
+
+  document.addEventListener("astro:before-swap", () => {
+    cleanup?.();
+    cleanup = undefined;
+  });
+
+  document.addEventListener("astro:after-swap", reinitialise);
+  document.addEventListener("astro:page-load", reinitialise);
+
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      reinitialise();
+    }
+  });
+</script>
+<style>
+  .site-header {
+    --header-height: 5.5rem;
+  }
+
+  .site-header .header-spacer {
+    height: var(--header-height);
+  }
+
+  .site-header .header-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 60;
+    transition:
+      box-shadow 200ms ease,
+      background-color 200ms ease;
+    box-shadow: none;
+  }
+
+  .site-header.is-scrolled .header-bar {
+    box-shadow: 0 18px 30px -26px rgba(78, 61, 131, 0.6);
+  }
+
+  .site-header .logo-link .logo-mark {
+    transition: transform 200ms ease;
+  }
+
+  .site-header.is-scrolled .logo-link .logo-mark {
+    transform: scale(0.92);
+  }
+
+  @media (max-width: 767px) {
+    .site-header {
+      --header-height: 7rem;
+    }
+  }
+</style>

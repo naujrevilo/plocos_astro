@@ -1,0 +1,158 @@
+---
+const label = 'Buscar en Plocos';
+---
+<div class="relative">
+  <button
+    type="button"
+    class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated text-text-secondary transition hover:border-accent hover:text-text-primary"
+    data-search-open
+    aria-label={label}
+  >
+    <span aria-hidden="true">⌕</span>
+  </button>
+  <dialog
+    data-search-dialog
+    class="backdrop:bg-black/50 rounded-3xl border border-border-subtle bg-surface-base p-0 shadow-contemplation"
+  >
+    <div class="flex w-[min(32rem,90vw)] flex-col gap-4 px-5 py-4">
+      <div class="flex items-center gap-3">
+        <div class="flex flex-1 items-center gap-3 rounded-full border border-border-subtle bg-surface-elevated px-4 py-2">
+          <span aria-hidden="true" class="text-text-secondary">⌕</span>
+          <input
+            type="search"
+            placeholder="Buscar publicaciones, etiquetas o ideas"
+            class="w-full bg-transparent text-sm text-text-primary placeholder:text-text-secondary focus:outline-none"
+            data-search-input
+            autocomplete="off"
+          />
+        </div>
+        <button
+          type="button"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border-subtle text-text-secondary transition hover:border-accent hover:text-text-primary"
+          data-search-close
+          aria-label="Cerrar buscador"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="max-h-72 overflow-auto rounded-2xl border border-border-subtle bg-surface-elevated" data-search-results></div>
+      <p class="text-center text-sm text-text-secondary" data-search-empty hidden>
+        No encontramos coincidencias. Ajusta los términos o prueba otra categoría.
+      </p>
+    </div>
+  </dialog>
+</div>
+<script is:inline>
+  const root = document.currentScript?.previousElementSibling;
+  if (!(root instanceof HTMLElement)) {
+    throw new Error('search dialog container not found');
+  }
+
+  const openButton = root.querySelector('[data-search-open]');
+  const dialog = root.querySelector('[data-search-dialog]');
+  const input = root.querySelector('[data-search-input]');
+  const closeButton = root.querySelector('[data-search-close]');
+  const resultsBox = root.querySelector('[data-search-results]');
+  const emptyState = root.querySelector('[data-search-empty]');
+
+  if (!(openButton instanceof HTMLButtonElement) || !(dialog instanceof HTMLDialogElement) || !(input instanceof HTMLInputElement) || !(closeButton instanceof HTMLButtonElement) || !(resultsBox instanceof HTMLElement) || !(emptyState instanceof HTMLElement)) {
+    throw new Error('search dialog setup failed');
+  }
+
+  let dataset = [];
+  let loaded = false;
+
+  const renderResults = (items) => {
+    resultsBox.innerHTML = '';
+    if (items.length === 0) {
+      emptyState.hidden = false;
+      return;
+    }
+
+    emptyState.hidden = true;
+    const fragment = document.createDocumentFragment();
+
+    items.slice(0, 30).forEach((item) => {
+      const anchor = document.createElement('a');
+      anchor.className = 'flex flex-col gap-2 border-b border-border-subtle px-4 py-3 text-left transition hover:bg-surface-muted';
+      anchor.href = `/posts/${item.slug}/`;
+
+      const title = document.createElement('span');
+      title.className = 'text-sm font-semibold text-text-primary';
+      title.textContent = item.title;
+
+      const summary = document.createElement('span');
+      summary.className = 'text-xs text-text-secondary opacity-90';
+      summary.textContent = item.summary || item.excerpt || '';
+
+      const meta = document.createElement('span');
+      meta.className = 'text-[0.65rem] uppercase tracking-wider text-text-secondary opacity-80';
+      meta.textContent = item.pubDate;
+
+      anchor.append(title, summary, meta);
+      fragment.appendChild(anchor);
+    });
+
+    resultsBox.appendChild(fragment);
+  };
+
+  const normaliseText = (value) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+
+  const search = (query) => {
+    const normalised = normaliseText(query.trim());
+    if (!normalised) {
+      renderResults(dataset.slice(0, 10));
+      return;
+    }
+
+    const matches = dataset.filter((item) => item.keywords.includes(normalised));
+    renderResults(matches);
+  };
+
+  const ensureData = async () => {
+    if (loaded) {
+      return;
+    }
+
+    const response = await fetch('/api/posts.json');
+    const payload = await response.json();
+    dataset = payload.map((item) => {
+      return {
+        ...item,
+        pubDate: new Date(item.pubDate).toLocaleDateString('es-CO', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }),
+        keywords: typeof item.keywords === 'string' && item.keywords.length > 0
+          ? item.keywords
+          : normaliseText([item.title, item.summary, ...(item.labels || [])].join(' ')),
+      };
+    });
+    loaded = true;
+    renderResults(dataset.slice(0, 10));
+  };
+
+  openButton.addEventListener('click', async () => {
+    await ensureData();
+    dialog.showModal();
+    input.value = '';
+    search('');
+    input.focus();
+  });
+
+  closeButton.addEventListener('click', () => {
+    dialog.close();
+    openButton.focus();
+  });
+
+  dialog.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    dialog.close();
+    openButton.focus();
+  });
+
+  input.addEventListener('input', (event) => {
+    search(event.target.value);
+  });
+</script>

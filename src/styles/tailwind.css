@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --surface-base: #f5f1e6;
+  --surface-muted: #ede4d4;
+  --surface-elevated: #e3d9c4;
+  --surface-overlay: rgba(55, 70, 108, 0.08);
+  --border-subtle: rgba(71, 60, 45, 0.14);
+  --border-strong: rgba(71, 60, 45, 0.26);
+  --text-primary: #1f1a16;
+  --text-secondary: #564c40;
+  --text-accent: #394874;
+  --accent: #7a63d9;
+  --accent-soft: rgba(122, 99, 217, 0.18);
+  --accent-muted: rgba(122, 99, 217, 0.32);
+  --shadow-soft: rgba(25, 20, 38, 0.16);
+  --prose-body: var(--text-secondary);
+  --prose-headings: var(--text-primary);
+  --prose-links: var(--accent);
+  --prose-bold: var(--text-primary);
+  --prose-quotes: rgba(122, 99, 217, 0.7);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --surface-base: #121218;
+  --surface-muted: #191922;
+  --surface-elevated: #21212b;
+  --surface-overlay: rgba(198, 169, 106, 0.12);
+  --border-subtle: rgba(238, 222, 192, 0.13);
+  --border-strong: rgba(238, 222, 192, 0.28);
+  --text-primary: #f3ede2;
+  --text-secondary: #cbc1b2;
+  --text-accent: #d7c291;
+  --accent: #d7a94b;
+  --accent-soft: rgba(215, 169, 75, 0.25);
+  --accent-muted: rgba(215, 169, 75, 0.38);
+  --shadow-soft: rgba(3, 2, 10, 0.5);
+  --prose-body: var(--text-secondary);
+  --prose-headings: var(--text-primary);
+  --prose-links: var(--accent);
+  --prose-bold: var(--text-primary);
+  --prose-quotes: rgba(215, 169, 75, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --surface-base: #121218;
+    --surface-muted: #191922;
+    --surface-elevated: #21212b;
+    --surface-overlay: rgba(198, 169, 106, 0.12);
+    --border-subtle: rgba(238, 222, 192, 0.13);
+    --border-strong: rgba(238, 222, 192, 0.28);
+    --text-primary: #f3ede2;
+    --text-secondary: #cbc1b2;
+    --text-accent: #d7c291;
+    --accent: #d7a94b;
+    --accent-soft: rgba(215, 169, 75, 0.25);
+    --accent-muted: rgba(215, 169, 75, 0.38);
+    --shadow-soft: rgba(3, 2, 10, 0.5);
+    --prose-body: var(--text-secondary);
+    --prose-headings: var(--text-primary);
+    --prose-links: var(--accent);
+    --prose-bold: var(--text-primary);
+    --prose-quotes: rgba(215, 169, 75, 0.7);
+  }
+}
+
+body {
+  @apply bg-surface-base text-text-primary antialiased;
+  background: var(--surface-base);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+a {
+  @apply text-accent underline decoration-transparent transition-colors duration-200;
+}
+
+a:hover {
+  @apply decoration-accent;
+}
+
+.prose {
+  @apply max-w-none text-text-secondary;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  @apply text-text-primary;
+}
+
+.prose p {
+  @apply text-text-secondary;
+}
+
+.prose a {
+  @apply text-accent underline decoration-accent;
+}
+
+.prose img {
+  @apply rounded-xl shadow-xl;
+}
+
+.prose blockquote {
+  @apply border border-accent-muted bg-surface-muted text-text-primary;
+}

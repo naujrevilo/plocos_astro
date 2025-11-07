@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getPublishedPosts, groupPostsByLabel } from '../../lib/posts';
+import { labelToSlug } from '../../lib/taxonomy';
+import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
+import { createLocaleHref } from '../../lib/routes';
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const posts = await getPublishedPosts({ locale });
+const labels = groupPostsByLabel(posts);
+const translations = getTranslations(locale);
+const copy = translations.labelsList;
+const labelPath = translations.paths.labels;
+---
+<BaseLayout title={copy.metaTitle} description={copy.metaDescription}>
+  <section class="mx-auto flex max-w-6xl flex-col gap-12 px-4 py-16">
+    <div class="max-w-3xl space-y-4">
+      <h1 class="text-4xl font-bold tracking-tight text-text-primary">{copy.title}</h1>
+      <p class="text-lg leading-relaxed text-text-secondary">
+        {copy.description}
+      </p>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {labels.map((item) => (
+        <a
+          href={createLocaleHref(locale, `${labelPath}/${labelToSlug(item.label)}`)}
+          class="group flex flex-col rounded-2xl border border-border-subtle bg-surface-elevated px-6 py-5 transition hover:border-accent"
+        >
+          <span class="text-sm uppercase tracking-wider text-text-secondary opacity-70">{copy.badge}</span>
+          <h2 class="text-2xl font-semibold text-text-primary group-hover:text-accent">
+            {item.label}
+          </h2>
+          <p class="mt-3 text-sm text-text-secondary">
+            {item.count} {item.count === 1 ? copy.count.singular : copy.count.plural}
+          </p>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

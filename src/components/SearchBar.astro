@@ -1,0 +1,267 @@
+---
+import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
+import { createLocaleHref } from '../lib/routes';
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const translations = getTranslations(locale);
+const { label, placeholder, empty, error } = translations.search;
+const dateLocale = locale === 'en' ? 'en-US' : 'es-CO';
+const postsBase = createLocaleHref(locale, translations.paths.posts);
+---
+<div class="relative w-full md:max-w-lg lg:max-w-xl" data-search-root data-locale={locale} data-date-locale={dateLocale} data-post-base={postsBase}>
+  <form
+    class="flex items-stretch overflow-hidden rounded-2xl border border-border-subtle bg-surface-elevated shadow-outline transition focus-within:border-accent focus-within:shadow-contemplation"
+    role="search"
+    data-search-form
+  >
+    <label for="site-search" class="sr-only">{label}</label>
+    <input
+      id="site-search"
+      type="search"
+      name="q"
+      class="w-full bg-transparent px-4 py-2 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none"
+      placeholder={placeholder}
+      autocomplete="off"
+      data-search-input
+    />
+    <button
+      type="submit"
+      class="inline-flex items-center justify-center bg-accent px-3 text-sm font-semibold uppercase tracking-wide text-surface-base transition hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      aria-label={label}
+      data-search-submit
+    >
+      <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 fill-current">
+        <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.71.71l.27.28v.79l5 4.99L20.49 19zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" />
+      </svg>
+    </button>
+  </form>
+  <div
+    class="absolute right-0 top-full z-50 mt-3 hidden w-full min-w-[18rem] overflow-hidden rounded-2xl border border-border-subtle bg-surface-elevated shadow-contemplation"
+    data-search-panel
+  >
+    <div class="flex flex-col" data-search-results></div>
+    <p class="px-4 py-6 text-center text-sm text-text-secondary" data-search-empty hidden>
+      {empty}
+    </p>
+    <p class="px-4 py-6 text-center text-sm text-text-secondary" data-search-error hidden>
+      {error}
+    </p>
+  </div>
+</div>
+<script is:inline>
+  const root = document.currentScript?.previousElementSibling;
+  if (!(root instanceof HTMLElement)) {
+    throw new Error('search bar root missing');
+  }
+
+  const locale = root.dataset.locale ?? 'es';
+  const dateLocale = root.dataset.dateLocale ?? (locale === 'en' ? 'en-US' : 'es-CO');
+  const postsBase = root.dataset.postBase ?? '/posts/';
+
+  const form = root.querySelector('[data-search-form]');
+  const input = root.querySelector('[data-search-input]');
+  const panel = root.querySelector('[data-search-panel]');
+  const resultsBox = root.querySelector('[data-search-results]');
+  const emptyState = root.querySelector('[data-search-empty]');
+  const errorState = root.querySelector('[data-search-error]');
+
+  if (
+    !(form instanceof HTMLFormElement) ||
+    !(input instanceof HTMLInputElement) ||
+    !(panel instanceof HTMLElement) ||
+    !(resultsBox instanceof HTMLElement) ||
+    !(emptyState instanceof HTMLElement) ||
+    !(errorState instanceof HTMLElement)
+  ) {
+    throw new Error('search bar setup failed');
+  }
+
+  let dataset = [];
+  let loaded = false;
+  let loading = false;
+
+  const openPanel = () => {
+    panel.classList.remove('hidden');
+    panel.setAttribute('data-open', 'true');
+  };
+
+  const closePanel = () => {
+    panel.classList.add('hidden');
+    panel.removeAttribute('data-open');
+  };
+
+  const normaliseText = (value) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+
+  const renderResults = (items) => {
+    resultsBox.innerHTML = '';
+    errorState.hidden = true;
+
+    if (items.length === 0) {
+      emptyState.hidden = false;
+      return;
+    }
+
+    emptyState.hidden = true;
+    const fragment = document.createDocumentFragment();
+
+    items.slice(0, 12).forEach((item) => {
+      const entry = document.createElement('a');
+      entry.className = 'focus-visible:ring-accent focus-visible:ring-offset-surface-base group flex flex-col gap-2 border-b border-border-subtle px-4 py-3 text-left transition hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+      entry.href = `${postsBase}${item.slug}/`;
+      entry.tabIndex = -1;
+
+      const title = document.createElement('span');
+      title.className = 'text-sm font-semibold text-text-primary group-hover:text-accent';
+      title.textContent = item.title;
+
+      const summary = document.createElement('span');
+      summary.className = 'text-xs text-text-secondary opacity-90';
+      summary.textContent = item.summary || item.excerpt || '';
+
+      const meta = document.createElement('span');
+      meta.className = 'text-[0.65rem] uppercase tracking-wider text-text-secondary opacity-80';
+      meta.textContent = item.pubDate;
+
+      entry.append(title, summary, meta);
+      fragment.appendChild(entry);
+    });
+
+    resultsBox.appendChild(fragment);
+  };
+
+  const filterResults = (query) => {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      resultsBox.innerHTML = '';
+      emptyState.hidden = true;
+      errorState.hidden = true;
+      closePanel();
+      return;
+    }
+
+    if (!loaded) {
+      return;
+    }
+
+    const normalised = normaliseText(trimmed);
+    const tokens = normalised.split(/\s+/).filter(Boolean);
+    const matches = dataset.filter((item) => tokens.every((token) => item.keywords.includes(token)));
+    renderResults(matches);
+    openPanel();
+  };
+
+  const ensureData = async () => {
+    if (loaded || loading) {
+      return;
+    }
+
+    loading = true;
+    try {
+      const response = await fetch('/api/posts.json');
+      if (!response.ok) {
+        throw new Error('network error');
+      }
+      const payload = await response.json();
+      dataset = payload.map((item) => ({
+        ...item,
+        pubDate: new Date(item.pubDate).toLocaleDateString(dateLocale, {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }),
+        keywords:
+          typeof item.keywords === 'string' && item.keywords.length > 0
+            ? item.keywords
+            : normaliseText([item.title, item.summary, ...(item.labels || [])].join(' ')),
+      }));
+      loaded = true;
+      emptyState.hidden = true;
+      errorState.hidden = true;
+    } catch (error) {
+      resultsBox.innerHTML = '';
+      emptyState.hidden = true;
+      errorState.hidden = false;
+      if (input.value.trim()) {
+        openPanel();
+      }
+    } finally {
+      loading = false;
+    }
+  };
+
+  const activateFirstResult = () => {
+    const first = resultsBox.querySelector('a');
+    if (first instanceof HTMLAnchorElement) {
+      first.focus();
+    }
+  };
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const first = resultsBox.querySelector('a');
+    if (first instanceof HTMLAnchorElement) {
+      first.click();
+    }
+  });
+
+  input.addEventListener('focus', async () => {
+    await ensureData();
+    if (input.value.trim()) {
+      filterResults(input.value);
+    }
+  });
+
+  input.addEventListener('input', async (event) => {
+    await ensureData();
+    filterResults(event.target.value);
+  });
+
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      activateFirstResult();
+    }
+    if (event.key === 'Escape') {
+      closePanel();
+      input.blur();
+    }
+  });
+
+  resultsBox.addEventListener('keydown', (event) => {
+    if (!(event.target instanceof HTMLAnchorElement)) {
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      const next = event.target.nextElementSibling;
+      if (next instanceof HTMLAnchorElement) {
+        next.focus();
+      }
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      const previous = event.target.previousElementSibling;
+      if (previous instanceof HTMLAnchorElement) {
+        previous.focus();
+      } else {
+        input.focus();
+      }
+    } else if (event.key === 'Escape') {
+      closePanel();
+      input.focus();
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!root.contains(event.target)) {
+      closePanel();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && panel.hasAttribute('data-open')) {
+      closePanel();
+      input.blur();
+    }
+  });
+</script>

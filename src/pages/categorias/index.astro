@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCategories, type CategoryEntry } from '../../lib/categories';
+import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
+import { createLocaleHref } from '../../lib/routes';
+
+const categories = await getCategories();
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const translations = getTranslations(locale);
+const copy = translations.categories;
+const categoryPath = translations.paths.categories;
+---
+<BaseLayout title={copy.metaTitle} description={copy.metaDescription}>
+  <section class="mx-auto flex max-w-6xl flex-col gap-12 px-4 py-16">
+    <div class="max-w-3xl space-y-4">
+      <h1 class="text-4xl font-bold tracking-tight text-text-primary">{copy.title}</h1>
+      <p class="text-lg leading-relaxed text-text-secondary">
+        {copy.description}
+      </p>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {categories.map((category) => (
+        <a
+          href={createLocaleHref(locale, `${categoryPath}/${category.slug}`)}
+          class="group flex flex-col gap-3 rounded-2xl border border-border-subtle bg-surface-elevated px-6 py-6 transition hover:border-accent"
+          style={{ '--card-accent': category.data.color ?? 'var(--accent)' }}
+        >
+          <span class="text-xs uppercase tracking-[0.3em] text-text-secondary opacity-70">
+            {copy.badge}
+          </span>
+          <h2 class="text-2xl font-semibold text-text-primary group-hover:text-accent">
+            {category.data.title}
+          </h2>
+          {category.data.description && (
+            <p class="text-sm leading-relaxed text-text-secondary">
+              {category.data.description}
+            </p>
+          )}
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

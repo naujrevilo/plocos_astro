@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { getCategories, filterPostsByCategory } from '../../../lib/categories';
+import { getPublishedPosts } from '../../../lib/posts';
+import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
+import { createLocaleHref } from '../../../lib/routes';
+
+export async function getStaticPaths() {
+  const categories = await getCategories();
+  return categories.map((category) => ({
+    params: { category: category.slug },
+  }));
+}
+
+const { category } = Astro.params;
+const categories = await getCategories();
+const currentCategory = categories.find((item) => item.slug === category);
+
+if (!currentCategory) {
+  throw new Error(`Categoría no encontrada: ${category}`);
+}
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const posts = filterPostsByCategory(currentCategory, await getPublishedPosts({ locale }));
+const translations = getTranslations(locale);
+const categoriesCopy = translations.categories;
+const fallbackPrefix = categoriesCopy.fallbackDescriptionPrefix;
+const description = currentCategory.data.description ?? `${fallbackPrefix} ${currentCategory.data.title}.`;
+const renderedCategory = await currentCategory.render();
+const { Content } = renderedCategory;
+const pageTitle = `${currentCategory.data.title} · ${categoriesCopy.title}`;
+const backHref = createLocaleHref(locale, translations.paths.categories);
+const badge = categoriesCopy.badge;
+const emptyMessage = categoriesCopy.empty;
+const countStrings = categoriesCopy.count;
+---
+<BaseLayout title={pageTitle} description={description}>
+  <section class="mx-auto max-w-5xl px-4 py-16">
+    <div class="space-y-4 pb-10">
+      <a href={backHref} class="inline-flex items-center gap-2 text-sm text-text-accent transition hover:text-accent">
+        {categoriesCopy.backLink}
+      </a>
+      <div class="space-y-3">
+        <p class="text-sm uppercase tracking-[0.3em] text-text-secondary opacity-70">{badge}</p>
+        <h1 class="text-4xl font-bold tracking-tight text-text-primary">{currentCategory.data.title}</h1>
+        <p class="text-sm text-text-secondary">
+          {posts.length === 0
+            ? emptyMessage
+            : `${posts.length} ${posts.length === 1 ? countStrings.singular : countStrings.plural}`}
+        </p>
+        {currentCategory.data.description && (
+          <p class="text-base leading-relaxed text-text-secondary">{currentCategory.data.description}</p>
+        )}
+        <div class="prose">
+          <Content />
+        </div>
+      </div>
+    </div>
+
+    {posts.length > 0 && (
+      <div class="grid gap-6 md:grid-cols-2">
+        {posts.map((post) => (
+          <PostCard post={post} />
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>

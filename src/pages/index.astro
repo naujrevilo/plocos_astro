@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPublishedPosts } from '../lib/posts';
+import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
+import { createLocaleHref } from '../lib/routes';
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const posts = await getPublishedPosts({ locale });
+const latestPosts = posts.slice(0, 12);
+const translations = getTranslations(locale);
+const home = translations.home;
+const categoriesHref = createLocaleHref(locale, translations.paths.categories);
+---
+<BaseLayout title={home.metaTitle} description={home.metaDescription}>
+	<section class="relative overflow-hidden">
+		<div
+			class="absolute inset-0"
+			style="background: radial-gradient(80% 60% at 50% 0%, rgba(122,99,217,0.22), transparent 70%);"
+			aria-hidden="true"
+		/>
+		<div class="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 py-20">
+			<div class="max-w-3xl space-y-6">
+				<p class="text-sm font-semibold uppercase tracking-[0.4em] text-text-secondary opacity-70">
+					{home.strapline}
+				</p>
+				<h1 class="text-4xl font-bold leading-tight tracking-tight text-text-primary md:text-5xl">
+					{home.heading}
+				</h1>
+				<p class="text-lg leading-relaxed text-text-secondary">
+					{home.description}
+				</p>
+				<div class="flex flex-wrap gap-3 text-sm text-text-secondary">
+					{home.tags.map((tag) => (
+						<span class="rounded-full border border-border-subtle bg-surface-muted px-4 py-1 uppercase tracking-wide">
+							{tag}
+						</span>
+					))}
+				</div>
+			</div>
+			<div class="grid gap-6 md:grid-cols-2">
+				{latestPosts.map((post) => (
+					<PostCard post={post} />
+				))}
+			</div>
+					<div class="flex items-center justify-center pt-4">
+						<a
+							href={categoriesHref}
+							class="inline-flex items-center gap-2 rounded-full border border-accent-muted bg-accent-soft px-6 py-3 text-sm font-semibold text-text-accent transition hover:border-accent hover:text-text-primary"
+						>
+							{home.cta}
+							<span aria-hidden="true">→</span>
+						</a>
+					</div>
+		</div>
+	</section>
+</BaseLayout>
