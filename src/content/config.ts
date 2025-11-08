@@ -36,7 +36,7 @@ const postsCollection = defineCollection({
     updatedDate: frontmatterDate.optional(),
     labels: z.array(z.string()).default([]),
     categories: z.array(z.string()).default([]),
-    author: z.string().max(120).default('MSD'),
+    author: z.string().max(120).default('Michel Saer'),
     language: z.enum(['es', 'en']).default('es'),
     translationKey: z.string().max(120).optional(),
     summary: z.string().max(1000).optional(),
