@@ -1,25 +1,76 @@
 ---
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
+import SocialIcon from './icons/SocialIcon.astro';
+import rawContactData from '../data/contact.json';
+
+type SocialId = 'facebook' | 'instagram' | 'x';
+
+type SocialLink = {
+  id: SocialId;
+  label: string;
+  url: string;
+};
+
+type ContactData = {
+  email: string;
+  donation: {
+    formAction: string;
+    method: string;
+    target: string;
+    hostedButtonId: string;
+    businessEmail: string;
+    buttonImage: string;
+    pixelImage: string;
+  };
+  social: SocialLink[];
+};
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const currentYear = new Date().getFullYear();
-const { rights, archive, contactEmail, rss, terms: termsLabel } = translations.footer;
+const { rights, contactLabel, rss, terms: termsLabel, donate, follow } = translations.footer;
+const contactData = rawContactData as ContactData;
 const termsHref = createLocaleHref(locale, translations.paths.terms);
+const donationLink = `${contactData.donation.formAction}?hosted_button_id=${encodeURIComponent(contactData.donation.hostedButtonId)}`;
+const socialLinks = contactData.social;
+const socialAnchorClass =
+  'group inline-flex items-center gap-2 rounded-full border border-border-subtle px-3 py-1.5 text-sm text-text-primary transition hover:border-accent hover:text-text-primary hover:shadow-contemplation';
 ---
 <footer class="border-t border-border-subtle bg-surface-base">
-  <div class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-sm text-text-secondary md:flex-row md:items-center md:justify-between">
+  <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 text-sm text-text-secondary md:flex-row md:items-center md:justify-between">
     <p>© {currentYear} Plocos. {rights}</p>
-    <div class="flex flex-wrap gap-x-4 gap-y-2">
-  <a href={termsHref} class="transition-colors hover:text-accent">{termsLabel}</a>
-      <a href="/rss.xml" class="transition-colors hover:text-accent">{rss}</a>
-      <a href="https://www.plocos.com" rel="noopener noreferrer" class="transition-colors hover:text-accent">
-        {archive}
-      </a>
-      <a href={`mailto:${contactEmail}`} class="transition-colors hover:text-accent">
-        {contactEmail}
-      </a>
+    <div class="flex flex-col gap-4 md:items-end">
+      <nav aria-label="Footer links" class="flex flex-wrap gap-x-4 gap-y-2 md:justify-end">
+        <a href={termsHref} class="transition-colors hover:text-accent">{termsLabel}</a>
+        <a href="/rss.xml" class="transition-colors hover:text-accent">{rss}</a>
+        <a
+          href={`mailto:${contactData.email}`}
+          class="transition-colors hover:text-accent"
+          title={`${contactLabel}: ${contactData.email}`}
+        >
+          {contactData.email}
+        </a>
+        <a href={donationLink} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent">
+          {donate}
+        </a>
+      </nav>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end">
+        <span class="font-semibold text-text-primary">{follow}:</span>
+        {socialLinks.map((social) => (
+          <a
+            href={social.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class={socialAnchorClass}
+          >
+            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-surface-muted text-text-primary transition group-hover:bg-accent group-hover:text-surface-base">
+              <SocialIcon name={social.id} />
+            </span>
+            <span class="font-medium">{social.label}</span>
+          </a>
+        ))}
+      </div>
     </div>
   </div>
 </footer>

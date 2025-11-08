@@ -1,0 +1,29 @@
+{
+  "email": "expresatura@plocos.com",
+  "donation": {
+    "formAction": "https://www.paypal.com/donate",
+    "method": "post",
+    "target": "_blank",
+    "hostedButtonId": "DUU6VLKWL72SA",
+    "businessEmail": "michelsaer@gmail.com",
+    "buttonImage": "https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif",
+    "pixelImage": "https://www.paypal.com/en_CO/i/scr/pixel.gif"
+  },
+  "social": [
+    {
+      "id": "facebook",
+      "label": "Facebook",
+      "url": "https://www.facebook.com/profile.php?id=61582701510355"
+    },
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "url": "https://www.instagram.com/_plocos/"
+    },
+    {
+      "id": "x",
+      "label": "X",
+      "url": "https://x.com/_Plocos"
+    }
+  ]
+}

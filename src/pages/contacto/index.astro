@@ -1,39 +1,104 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
+import SocialIcon from '../../components/icons/SocialIcon.astro';
+import rawContactData from '../../data/contact.json';
+
+type SocialId = 'facebook' | 'instagram' | 'x';
+
+type SocialLink = {
+  id: SocialId;
+  label: string;
+  url: string;
+};
+
+type ContactData = {
+  email: string;
+  donation: {
+    formAction: string;
+    method: string;
+    target: string;
+    hostedButtonId: string;
+    businessEmail: string;
+    buttonImage: string;
+    pixelImage: string;
+  };
+  social: SocialLink[];
+};
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const contact = translations.contact;
-const contactEmail = translations.footer.contactEmail;
-const archiveLabel = contact.originalArchiveLabel;
+const contactData = rawContactData as ContactData;
 const emailLabel = contact.emailLabel;
+const cardClasses = 'rounded-3xl border border-border-subtle bg-surface-elevated px-6 py-5';
+const donationNotice = contact.donationNotice.replace('{{email}}', contactData.donation.businessEmail);
+const socialLinks = contactData.social;
+const socialAnchorClass =
+  'group flex items-center gap-3 rounded-full border border-border-subtle px-4 py-2 text-sm text-text-primary transition hover:border-accent hover:text-text-primary hover:shadow-contemplation';
 ---
 <BaseLayout title={contact.metaTitle} description={contact.metaDescription}>
-  <section class="mx-auto max-w-3xl space-y-6 px-4 py-16 text-text-secondary">
-    <h1 class="text-4xl font-bold tracking-tight text-text-primary">{contact.title}</h1>
-    <p>
-      {contact.intro}
-    </p>
-    <div class="rounded-3xl border border-border-subtle bg-surface-elevated px-6 py-5">
+  <section class="mx-auto max-w-3xl space-y-8 px-4 py-16 text-text-secondary">
+    <header class="space-y-3">
+      <h1 class="text-4xl font-bold tracking-tight text-text-primary">{contact.title}</h1>
+      <p>{contact.intro}</p>
+    </header>
+
+    <div class={cardClasses}>
       <h2 class="text-lg font-semibold text-text-primary">{contact.channelsHeading}</h2>
       <ul class="mt-3 space-y-3 text-sm">
         <li>
           <span class="font-semibold text-text-primary">{emailLabel}:</span>
-          <a class="ml-2 text-text-accent underline decoration-transparent transition hover:decoration-accent" href={`mailto:${contactEmail}`}>
-            {contactEmail}
-          </a>
-        </li>
-        <li>
-          <span class="font-semibold text-text-primary">{archiveLabel}:</span>
-          <a class="ml-2 text-text-accent underline decoration-transparent transition hover:decoration-accent" href="https://www.plocos.com" target="_blank" rel="noopener noreferrer">
-            www.plocos.com
+          <a class="ml-2 text-text-accent underline decoration-transparent transition hover:decoration-accent" href={`mailto:${contactData.email}`}>
+            {contactData.email}
           </a>
         </li>
       </ul>
     </div>
-    <p class="text-sm opacity-80">
-      {contact.note}
-    </p>
+
+    <div class={cardClasses}>
+      <h2 class="text-lg font-semibold text-text-primary">{contact.donationHeading}</h2>
+      <p class="mt-3 text-sm">{contact.donationDescription}</p>
+      <form
+        class="mt-4 inline-block"
+        action={contactData.donation.formAction}
+        method={contactData.donation.method}
+        target={contactData.donation.target}
+      >
+        <input type="hidden" name="hosted_button_id" value={contactData.donation.hostedButtonId} />
+        <input
+          type="image"
+          src={contactData.donation.buttonImage}
+          alt={contact.donationButtonLabel}
+          class="h-12 w-auto"
+        />
+        <img src={contactData.donation.pixelImage} alt="" width="1" height="1" />
+      </form>
+      <p class="mt-2 text-xs opacity-80">{donationNotice}</p>
+    </div>
+
+    <div class={cardClasses}>
+      <h2 class="text-lg font-semibold text-text-primary">{contact.socialHeading}</h2>
+      <p class="mt-3 text-sm">{contact.socialDescription}</p>
+      <ul class="mt-4 flex flex-wrap gap-3 text-sm">
+        {socialLinks.map((social) => (
+          <li>
+            <a
+              class={socialAnchorClass}
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-surface-muted text-text-primary transition group-hover:bg-accent group-hover:text-surface-base">
+                <SocialIcon name={social.id} />
+              </span>
+              <span class="font-medium">{social.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <p class="text-sm opacity-80">{contact.note}</p>
   </section>
 </BaseLayout>

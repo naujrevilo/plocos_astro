@@ -42,10 +42,11 @@ interface Translation {
   };
   footer: {
     rights: string;
-    archive: string;
-    contactEmail: string;
+    contactLabel: string;
     rss: string;
     terms: string;
+    donate: string;
+    follow: string;
   };
   home: {
     metaTitle: string;
@@ -69,7 +70,12 @@ interface Translation {
     intro: string;
     channelsHeading: string;
     emailLabel: string;
-    originalArchiveLabel: string;
+    donationHeading: string;
+    donationDescription: string;
+    donationButtonLabel: string;
+    donationNotice: string;
+    socialHeading: string;
+    socialDescription: string;
     note: string;
   };
   about: {
@@ -187,10 +193,11 @@ export const translations: Record<Locale, Translation> = {
     },
     footer: {
       rights: 'Todos los derechos reservados.',
-      archive: 'Archivo original',
-      contactEmail: 'contacto@plocos.com',
+      contactLabel: 'Correo',
       rss: 'RSS',
       terms: 'Términos del sitio',
+      donate: 'Apoyar con PayPal',
+      follow: 'Redes',
     },
     home: {
       metaTitle: 'Plocos · Arte, ideas y narrativas',
@@ -215,11 +222,19 @@ export const translations: Record<Locale, Translation> = {
       title: 'Contacto',
       intro:
         'Plocos es un laboratorio vivo que abraza el intercambio crítico y la colaboración creativa. Escríbenos para conversar sobre exposiciones, publicaciones, residencias o proyectos educativos.',
-      channelsHeading: 'Canales activos',
-      emailLabel: 'Correo electrónico',
-      originalArchiveLabel: 'Archivo original',
+  channelsHeading: 'Canales activos',
+  emailLabel: 'Correo electrónico',
+      donationHeading: 'Apoyo y donaciones',
+      donationDescription:
+        'Si quieres impulsar nuevas residencias, publicaciones o líneas de investigación en Plocos, puedes realizar un aporte único mediante PayPal. Cada contribución fortalece este archivo comunitario.',
+      donationButtonLabel: 'Donar con PayPal',
+      donationNotice:
+        'La cuenta receptora temporal en PayPal es {{email}} mientras actualizamos la infraestructura de donaciones.',
+      socialHeading: 'Redes y comunidad',
+      socialDescription:
+        'Sigue el proceso creativo, las exposiciones itinerantes y las activaciones educativas de Plocos en estos espacios digitales.',
       note:
-        'Si buscas licencias de obra, colaboraciones curatoriales o material pedagógico, comparte el contexto y los plazos estimados para responder con la precisión que mereces.',
+        'Respondemos a cada mensaje en un máximo de 72 horas hábiles. Si tu solicitud es urgente, indica el plazo en el asunto del correo.',
     },
     about: {
       metaTitle: 'Nuestra razón de ser · Plocos',
@@ -396,10 +411,11 @@ export const translations: Record<Locale, Translation> = {
     },
     footer: {
       rights: 'All rights reserved.',
-      archive: 'Original archive',
-      contactEmail: 'contact@plocos.com',
+      contactLabel: 'Email',
       rss: 'RSS',
       terms: 'Site terms',
+      donate: 'Support via PayPal',
+      follow: 'Social',
     },
     home: {
       metaTitle: 'Plocos · Art, ideas, and narratives',
@@ -424,11 +440,19 @@ export const translations: Record<Locale, Translation> = {
       title: 'Contact',
       intro:
         'Plocos is a living laboratory that embraces critical exchange and creative collaboration. Write to us about exhibitions, publications, residencies, or educational projects.',
-      channelsHeading: 'Active channels',
-      emailLabel: 'Email',
-      originalArchiveLabel: 'Original archive',
+  channelsHeading: 'Active channels',
+  emailLabel: 'Email',
+      donationHeading: 'Support and donations',
+      donationDescription:
+        'If you want to fuel new residencies, publications, or research lines at Plocos, you can make a one-time contribution through PayPal. Every contribution nurtures this community archive.',
+      donationButtonLabel: 'Donate with PayPal',
+      donationNotice:
+        'The temporary PayPal receiving account is {{email}} while we update our donation infrastructure.',
+      socialHeading: 'Social channels',
+      socialDescription:
+        'Follow Plocos’ creative process, traveling exhibitions, and educational activations across these spaces.',
       note:
-        'For licensing, curatorial collaborations, or educational material, share the context and timeline so we can respond with the care you deserve.',
+        'We reply to every message within 72 business hours. If your request is time-sensitive, include the deadline in the email subject.',
     },
     about: {
       metaTitle: 'Our purpose · Plocos',
