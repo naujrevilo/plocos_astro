@@ -21,13 +21,14 @@ const author = data.author ?? 'Michel Saer (MSD)';
 const labelPath = translations.paths.labels;
 const formattedDate = formatDate(data.pubDate, locale);
 const imageAltPrefix = translations.posts.imageAlt;
+const heroImageAlt = data.heroImageAlt?.trim() || `${imageAltPrefix} ${data.title}`;
 ---
 <article class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-elevated shadow-contemplation transition hover:border-accent">
   {data.heroImage && (
     <a href={postUrl} class="block overflow-hidden">
       <img
         src={data.heroImage}
-        alt={`${imageAltPrefix} ${data.title}`}
+        alt={heroImageAlt}
         loading="lazy"
         class="h-60 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
       />

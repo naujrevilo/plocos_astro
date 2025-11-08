@@ -1,4 +1,33 @@
 import { defineConfig } from "tinacms";
+import CategoryMultiSelect from "./components/CategoryMultiSelect";
+
+const slugifyValue = (value: string) =>
+  value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/_/g, "-")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .toLowerCase();
+
+const datePrefix = (input: unknown) => {
+  if (!input) return null;
+  const date =
+    input instanceof Date ? input : typeof input === "string" ? new Date(input) : null;
+  if (!date || Number.isNaN(date.getTime())) return null;
+  const year = String(date.getFullYear());
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+type PostFormValues = {
+  title?: string | null;
+  pubDate?: string | Date | null;
+} & Record<string, unknown>;
+
 
 // Configuración mínima de TinaCMS para el flujo local actual. Mantenerla
 // alineada con el esquema de Astro (`src/content/config.ts`) cuando se
@@ -26,6 +55,27 @@ export default defineConfig({
         label: "Publicaciones",
         path: "src/content/posts/",
         format: "md",
+        defaultItem: () => {
+          const now = new Date().toISOString();
+          return {
+            pubDate: now,
+            language: "es",
+            draft: false,
+            labels: [] as string[],
+            categories: [] as string[],
+            author: "Michel Saer",
+          };
+        },
+        ui: {
+          filename: {
+            readonly: true,
+            slugify: (values: PostFormValues) => {
+              const date = datePrefix(values?.pubDate) ?? datePrefix(new Date());
+              const titleSlug = slugifyValue(String(values?.title ?? "entrada"));
+              return `${date ?? "0000-00-00"}-${titleSlug}`;
+            },
+          },
+        },
         fields: [
           { type: "string", name: "title", label: "Título", required: true },
           { type: "datetime", name: "pubDate", label: "Fecha de publicación", required: true },
@@ -33,13 +83,30 @@ export default defineConfig({
           { type: "string", name: "language", label: "Idioma" },
           { type: "string", name: "summary", label: "Resumen" },
           { type: "string", name: "author", label: "Autor" },
-          { type: "string", name: "label", label: "Etiquetas", list: true },
-          { type: "string", name: "categories", label: "Categorías", list: true },
+          { type: "string", name: "labels", label: "Etiquetas", list: true },
+          {
+            type: "string",
+            name: "categories",
+            label: "Categorías",
+            list: true,
+            ui: {
+              // Usa un componente custom para listar categorías desde la API de Tina y mantener slugs en frontmatter.
+              component: CategoryMultiSelect as any,
+            } as any,
+          },
           { type: "image", name: "heroImage", label: "Imagen destacada" },
+          {
+            type: "string",
+            name: "heroImageAlt",
+            label: "Texto alternativo de la imagen",
+            ui: {
+              component: "textarea",
+            },
+          },
           { type: "boolean", name: "draft", label: "Borrador" },
           { type: "string", name: "translationKey", label: "Clave de traducción" },
           { type: "string", name: "originalUrl", label: "URL original" },
-          { type: "string", name: "body", label: "Contenido", isBody: true },
+          { type: "rich-text", name: "body", label: "Contenido", isBody: true },
         ],
       },
       {

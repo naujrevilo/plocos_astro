@@ -41,6 +41,7 @@ const postsCollection = defineCollection({
     translationKey: z.string().max(120).optional(),
     summary: z.string().max(1000).optional(),
     heroImage: z.string().optional(),
+    heroImageAlt: z.string().max(200).optional(),
     originalUrl: z.string().url().optional(),
     draft: z.boolean().default(false),
   }),

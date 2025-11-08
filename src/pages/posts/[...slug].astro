@@ -75,6 +75,7 @@ const shareLinks = {
   instagram: `https://www.instagram.com/?url=${encodedShareUrl}`,
   email: `mailto:?subject=${emailSubject}&body=${emailBody}`,
 };
+const heroImageAlt = data.heroImageAlt?.trim() || `${postCopy.imageAlt} ${data.title}`;
 const previousHref = previousPost
   ? createLocaleHref(locale, `${translations.paths.posts}/${previousPost.slug}`)
   : null;
@@ -128,7 +129,7 @@ const nextHref = nextPost ? createLocaleHref(locale, `${translations.paths.posts
 
     {data.heroImage && (
       <figure class="my-10 overflow-hidden rounded-3xl border border-border-subtle bg-surface-muted shadow-contemplation">
-        <img src={data.heroImage} alt={`${postCopy.imageAlt} ${data.title}`} class="w-full object-cover" />
+        <img src={data.heroImage} alt={heroImageAlt} class="w-full object-cover" />
       </figure>
     )}
 

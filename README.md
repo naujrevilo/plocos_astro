@@ -35,10 +35,17 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 El esquema de Tina se define en `tina/config.ts` y refleja la estructura actual del contenido:
 
 - `posts`: campos principales (`title`, `pubDate`, `language`, `summary`, `author`, `label` como lista de etiquetas, `categories`, `heroImage`, `draft`, `translationKey`, `originalUrl`, `body`).
+- `posts`: campos principales (`title`, `pubDate`, `language`, `summary`, `author`, `label` como lista de etiquetas, `categories`, `heroImage`, `heroImageAlt`, `draft`, `translationKey`, `originalUrl`, `body`).
 - `categories`: metadatos de categorías (`title`, `description`, `color`, `featured`, `body`).
 - `authors`: fichas de autores (`title`, `role`, `bio`, `portrait`, `body`).
 
 En paralelo, `src/content/config.ts` valida el frontmatter mediante Zod al momento de compilar Astro. Asegúrate de mantener ambos esquemas sincronizados cuando agregues campos.
+
+### Personalizaciones del panel TinaCMS
+
+- El selector de categorías usa un componente React (`tina/components/CategoryMultiSelect.tsx`) que consulta la API GraphQL local para mostrar las categorías disponibles en formato de casillas horizontal, guardando los slugs originales en frontmatter.
+- El campo `body` de los posts está configurado como `rich-text`, habilitando un editor visual con formato enriquecido en el panel.
+- El campo `heroImageAlt` permite registrar texto alternativo personalizado para la imagen destacada desde el panel, manteniendo un fallback automático con el título del post.
 
 ## Estructura destacada
 
