@@ -26,6 +26,7 @@ interface Translation {
     about: string;
     labels: string;
     posts: string;
+    terms: string;
   };
   navigation: NavigationItem[];
   search: {
@@ -44,6 +45,7 @@ interface Translation {
     archive: string;
     contactEmail: string;
     rss: string;
+    terms: string;
   };
   home: {
     metaTitle: string;
@@ -111,6 +113,7 @@ interface Translation {
     imageAlt: string;
     defaultDescriptionPrefix: string;
     navigation: {
+      terms: 'terms',
       heading: string;
       previous: string;
       next: string;
@@ -122,6 +125,17 @@ interface Translation {
       instagram: string;
       email: string;
     };
+  };
+  terms: {
+    metaTitle: string;
+    metaDescription: string;
+    title: string;
+    updatedLabel: string;
+    updatedValue: string;
+    introduction: string;
+  sections: { heading: string; body: string; bullets?: string[] }[];
+    contactNotice: string;
+    contactLinkLabel: string;
   };
 }
 
@@ -147,6 +161,7 @@ export const translations: Record<Locale, Translation> = {
       about: 'nuestra-razon-de-ser',
       labels: 'labels',
       posts: 'posts',
+      terms: 'terminos',
     },
     navigation: [
       { id: 'home', label: 'Inicio', path: '' },
@@ -175,6 +190,7 @@ export const translations: Record<Locale, Translation> = {
       archive: 'Archivo original',
       contactEmail: 'contacto@plocos.com',
       rss: 'RSS',
+      terms: 'Términos del sitio',
     },
     home: {
       metaTitle: 'Plocos · Arte, ideas y narrativas',
@@ -266,6 +282,7 @@ export const translations: Record<Locale, Translation> = {
       imageAlt: 'Ilustración de',
       defaultDescriptionPrefix: 'Entrada publicada el',
       navigation: {
+        terms: 'terms',
         heading: 'Navegación',
         previous: '← Publicación anterior',
         next: 'Siguiente publicación →',
@@ -277,6 +294,59 @@ export const translations: Record<Locale, Translation> = {
         instagram: 'Compartir en Instagram',
         email: 'Enviar por correo',
       },
+    },
+    terms: {
+      metaTitle: 'Términos del sitio · Plocos',
+      metaDescription:
+        'Condiciones de uso y lineamientos editoriales del archivo digital Plocos.',
+      title: 'Términos del sitio',
+      updatedLabel: 'Última actualización',
+      updatedValue: '8 de noviembre de 2025',
+      introduction:
+        'Al acceder a Plocos aceptas los lineamientos que protegen este archivo y orientan su uso responsable.',
+      sections: [
+        {
+          heading: 'Uso editorial del contenido',
+          body:
+            'Las obras publicadas en Plocos —textos, imágenes y cualquier expresión artística— son propiedad exclusiva del autor salvo indicación contraria. El archivo se ofrece para consulta personal, educativa y cultural; cualquier reutilización requiere autorización escrita solicitada por los canales de contacto oficiales.',
+        },
+        {
+          heading: 'Usos expresamente prohibidos',
+          body:
+            'No está permitido distribuir ni alojar el material de Plocos en soportes que vulneren la ética de este archivo. En particular, queda prohibido reutilizarlo en proyectos que:',
+          bullets: [
+            'Infrinjan o contravengan la dignidad humana y sus principios.',
+            'Violen los derechos de niños, niñas y adolescentes.',
+            'Sean inconstitucionales o contrarios a la ley.',
+            'Limiten la libertad de expresión en cualquiera de sus formas.',
+            'Promuevan violencia, explotación sexual, terrorismo, racismo, obscenidad o material pornográfico.',
+            'Difundan enlaces P2P, torrents, descargas directas u otros esquemas destinados a lucrar con material protegido.',
+          ],
+        },
+        {
+          heading: 'Derechos de autor',
+          body:
+            'Toda obra conserva sus derechos. Cualquier reproducción aprobada debe citar la fuente, preservar la integridad de la pieza y respetar el contexto original.',
+        },
+        {
+          heading: 'Contribuciones y comentarios',
+          body:
+            'Si compartes material o anotaciones con el archivo, podremos ajustar estilo y formato para mantener la coherencia editorial. El envío de contenido implica que cuentas con los permisos necesarios.',
+        },
+        {
+          heading: 'Responsabilidad editorial',
+          body:
+            'El uso que terceras personas hagan del contenido —con o sin nuestro consentimiento— no implica respaldo de sus opiniones, mensajes o posturas. Rechazamos cualquier interpretación que busque vincular a Plocos con agendas ajenas.',
+        },
+        {
+          heading: 'Privacidad y datos',
+          body:
+            'No recolectamos datos personales más allá de la información indispensable para responder tus mensajes. Las métricas anónimas se revisan periódicamente para mejorar la experiencia.',
+        },
+      ],
+      contactNotice:
+        'Si necesitas claridad adicional o deseas tramitar permisos específicos, contáctanos y revisaremos tu solicitud.',
+      contactLinkLabel: 'Ir a contacto',
     },
   },
   en: {
@@ -300,6 +370,7 @@ export const translations: Record<Locale, Translation> = {
       about: 'our-purpose',
       labels: 'labels',
       posts: 'posts',
+      terms: 'terms',
     },
     navigation: [
       { id: 'home', label: 'Home', path: '' },
@@ -328,6 +399,7 @@ export const translations: Record<Locale, Translation> = {
       archive: 'Original archive',
       contactEmail: 'contact@plocos.com',
       rss: 'RSS',
+      terms: 'Site terms',
     },
     home: {
       metaTitle: 'Plocos · Art, ideas, and narratives',
@@ -419,6 +491,7 @@ export const translations: Record<Locale, Translation> = {
       imageAlt: 'Illustration of',
       defaultDescriptionPrefix: 'Entry published on',
       navigation: {
+        terms: 'terms',
         heading: 'Navigation',
         previous: '← Previous entry',
         next: 'Next entry →',
@@ -430,6 +503,59 @@ export const translations: Record<Locale, Translation> = {
         instagram: 'Share on Instagram',
         email: 'Send by email',
       },
+    },
+    terms: {
+      metaTitle: 'Site Terms · Plocos',
+      metaDescription:
+        'Usage guidelines and editorial policies for the Plocos digital archive.',
+      title: 'Site Terms',
+      updatedLabel: 'Last updated',
+      updatedValue: 'November 8, 2025',
+      introduction:
+        'By accessing Plocos you agree to the guidelines that protect this archive and ensure responsible use.',
+      sections: [
+        {
+          heading: 'Editorial use of the content',
+          body:
+            'Works published on Plocos—texts, images, and every form of artistic expression—remain the exclusive property of the author unless otherwise noted. The archive is provided for personal, educational, and cultural reference; any reuse requires written permission requested through our official contact channels.',
+        },
+        {
+          heading: 'Explicitly prohibited uses',
+          body:
+            'The material may not be distributed or hosted in contexts that compromise the ethics of this archive. In particular, it cannot be reused in projects that:',
+          bullets: [
+            'Infringe or undermine human dignity and its principles.',
+            'Violate the rights of children and adolescents.',
+            'Are unconstitutional or unlawful.',
+            'Restrict freedom of expression in any of its forms.',
+            'Promote violence, sexual exploitation, terrorism, racism, obscenity, or pornographic material.',
+            'Distribute P2P links, torrents, direct downloads, or other schemes intended to profit from copyrighted works.',
+          ],
+        },
+        {
+          heading: 'Copyright',
+          body:
+            'Every work retains its copyright. Any approved reproduction must credit the source, preserve the integrity of the piece, and respect the original context.',
+        },
+        {
+          heading: 'Contributions and feedback',
+          body:
+            'When you share materials or notes with the archive, we may adjust style and formatting to maintain editorial coherence. Submitting content assumes you hold the necessary permissions.',
+        },
+        {
+          heading: 'Editorial responsibility',
+          body:
+            'The way third parties use this content—whether or not we granted permission—does not imply that Plocos endorses their opinions, messages, or agendas. We reject any interpretation that attempts to link the archive to unrelated initiatives.',
+        },
+        {
+          heading: 'Privacy and data',
+          body:
+            'We do not collect personal data beyond what is essential to reply to your messages. Anonymous metrics are reviewed periodically to improve the experience.',
+        },
+      ],
+      contactNotice:
+        'If you need further clarification or want to process specific permissions, get in touch and we will review your request.',
+      contactLinkLabel: 'Contact us',
     },
   },
 };

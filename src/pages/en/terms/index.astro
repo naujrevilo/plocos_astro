@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
+import { createLocaleHref } from '../../../lib/routes';
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const translations = getTranslations(locale);
+const terms = translations.terms;
+const contactHref = createLocaleHref(locale, translations.paths.contact);
+const toSectionId = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+---
+<BaseLayout title={terms.metaTitle} description={terms.metaDescription}>
+  <article class="mx-auto max-w-3xl space-y-10 px-4 py-16 text-text-secondary">
+    <header class="space-y-4">
+      <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">{terms.title}</h1>
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-text-secondary opacity-80">
+        {terms.updatedLabel}: {terms.updatedValue}
+      </p>
+      <p class="text-base leading-relaxed">
+        {terms.introduction}
+      </p>
+    </header>
+
+    <div class="space-y-6">
+      {terms.sections.map((item) => (
+        <section class="space-y-2" aria-labelledby={`terms-${toSectionId(item.heading)}`}>
+          <h2 id={`terms-${toSectionId(item.heading)}`} class="text-xl font-semibold text-text-primary">
+            {item.heading}
+          </h2>
+          <p class="leading-relaxed">
+            {item.body}
+          </p>
+          {item.bullets && item.bullets.length > 0 && (
+            <ul class="list-disc space-y-2 pl-6 text-sm leading-relaxed text-text-secondary/90 sm:text-base">
+              {item.bullets.map((point) => (
+                <li>{point}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ))}
+    </div>
+
+    <div class="rounded-3xl border border-border-subtle bg-surface-elevated px-6 py-6 shadow-contemplation">
+      <p class="text-sm leading-relaxed">
+        {terms.contactNotice}
+      </p>
+      <a
+        href={contactHref}
+        class="mt-4 inline-flex items-center justify-center rounded-full border border-border-subtle bg-surface-muted px-5 py-2 text-sm font-semibold uppercase tracking-widest text-text-secondary transition hover:border-accent hover:text-text-primary"
+      >
+        {terms.contactLinkLabel}
+      </a>
+    </div>
+  </article>
+</BaseLayout>
