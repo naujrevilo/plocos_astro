@@ -1,5 +1,5 @@
 ---
-title: Michel Saer (MSD)
+title: Michel Saer
 role: Artista visual y narrador
 bio: >-
   Curador de Plocos, Michel Saer desarrolla un lenguaje que mezcla artes
@@ -7,6 +7,3 @@ bio: >-
   contemporánea desde el Caribe.
 ---
 
-## Michel Saer (MSD)
-
-Narrativa híbrida entre observación y memoria, con énfasis en procesos creativos y pensamiento crítico.
