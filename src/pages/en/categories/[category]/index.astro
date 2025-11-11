@@ -1,7 +1,13 @@
 ---
 import BaseLayout from '../../../../layouts/BaseLayout.astro';
 import PostCard from '../../../../components/PostCard.astro';
-import { getCategories, filterPostsByCategory } from '../../../../lib/categories';
+import {
+	getCategories,
+	filterPostsByCategory,
+	getCategoryBody,
+	getCategoryDescription,
+	getCategoryTitle,
+} from '../../../../lib/categories';
 import { getPublishedPosts } from '../../../../lib/posts';
 import { defaultLocale, getTranslations, type Locale } from '../../../../lib/i18n';
 import { createLocaleHref } from '../../../../lib/routes';
@@ -21,15 +27,20 @@ if (!currentCategory) {
 	throw new Error(`Categoría no encontrada: ${category}`);
 }
 
-const posts = filterPostsByCategory(currentCategory, await getPublishedPosts());
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const posts = filterPostsByCategory(currentCategory, await getPublishedPosts({ locale }));
 const translations = getTranslations(locale);
 const categoriesCopy = translations.categories;
 const fallbackPrefix = categoriesCopy.fallbackDescriptionPrefix;
-const description = currentCategory.data.description ?? `${fallbackPrefix} ${currentCategory.data.title}.`;
+const categoryTitle = getCategoryTitle(currentCategory, locale);
+const categoryDescription = getCategoryDescription(currentCategory, locale);
+const description = categoryDescription ?? `${fallbackPrefix} ${categoryTitle}.`;
 const renderedCategory = await currentCategory.render();
 const { Content } = renderedCategory;
-const pageTitle = `${currentCategory.data.title} · ${categoriesCopy.title}`;
+const englishBody = getCategoryBody(currentCategory, locale);
+const englishBodyHtml = englishBody ?? null;
+const shouldRenderHtml = locale === 'en' && Boolean(englishBodyHtml);
+const pageTitle = `${categoryTitle} · ${categoriesCopy.title}`;
 const backHref = createLocaleHref(locale, translations.paths.categories);
 const badge = categoriesCopy.badge;
 const emptyMessage = categoriesCopy.empty;
@@ -43,18 +54,22 @@ const countStrings = categoriesCopy.count;
 			</a>
 			<div class="space-y-3">
 				<p class="text-sm uppercase tracking-[0.3em] text-text-secondary opacity-70">{badge}</p>
-				<h1 class="text-4xl font-bold tracking-tight text-text-primary">{currentCategory.data.title}</h1>
+				<h1 class="text-4xl font-bold tracking-tight text-text-primary">{categoryTitle}</h1>
 				<p class="text-sm text-text-secondary">
 					{posts.length === 0
 						? emptyMessage
 						: `${posts.length} ${posts.length === 1 ? countStrings.singular : countStrings.plural}`}
 				</p>
-				{currentCategory.data.description && (
-					<p class="text-base leading-relaxed text-text-secondary">{currentCategory.data.description}</p>
+				{categoryDescription && (
+					<p class="text-base leading-relaxed text-text-secondary">{categoryDescription}</p>
 				)}
-				<div class="prose">
-					<Content />
-				</div>
+				{shouldRenderHtml ? (
+					<div class="prose" set:html={englishBodyHtml}></div>
+				) : (
+					<div class="prose">
+						<Content />
+					</div>
+				)}
 			</div>
 		</div>
 

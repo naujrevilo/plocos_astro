@@ -1,6 +1,11 @@
 ---
 title: Nomás que la vida
+title_en: Nothing but Life
 description: La Vida en la tierra es el fenómeno en el que el ser humano brota y se sumerge...
+description_en: Life on Earth is the phenomenon in which humanity appears, immerses itself, and seeks meaning; a mystery that remains wondrous and unsettling.
+body_en: |
+  <p>Life on Earth is the phenomenon in which human beings sprout and submerge. For some it is a miracle, for others a biological process; for most it is simply “nothing but life,” and yet it never ceases to be a marvelous and disquieting mystery. As a recent creature in the evolutionary span, humanity defines life across spectra that range from the biological—the ability to adapt and reproduce—to the philosophical—the search for meaning and the experience of consciousness—and to the spiritual—the longing for a transcendent dimension.</p>
+  <p>In its existential journey, humanity feeds on truths and realities in order to build meaning. That journey resembles an existential weaning: a step toward intellectual and psychic autonomy that, like any weaning, is marked by anxiety and a sense of loss. In this section we explore the dualities, dimensions, and illusions that define us, offering tools to understand and construct our own existence and to approach reality with greater intimacy.</p>
 color: "#7a63d9"
 featured: true
 labels:

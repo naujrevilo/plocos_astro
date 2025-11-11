@@ -51,7 +51,10 @@ const categoriesCollection = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
+    title_en: z.string().optional(),
     description: z.string().max(500).optional(),
+    description_en: z.string().max(500).optional(),
+    body_en: z.string().optional(),
     color: z.string().optional(),
     featured: z.boolean().default(false),
     labels: z.array(z.string()).default([]),

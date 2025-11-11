@@ -1,6 +1,11 @@
 ---
 title: Ex lateribus cogite
+title_en: Ex lateribus cogite
 description: Ex lateribus cogite invita a desafiar los modos habituales del pensar.
+description_en: Ex lateribus cogite invites you to challenge habitual modes of thought and explore unfamiliar angles of reflection.
+body_en: |
+  <p>Ex lateribus cogite—“think from the edges”—encourages us to defy habitual frameworks. Can we approach reflection from unconventional angles and question established assumptions? This space values philosophical creativity and the ability to look at what we already know from unexpected perspectives, opening the door to fresh interpretations and disruptive questions.</p>
+  <p>It frames thinking as an open, creative practice that resists clinging to unmovable dogmas. Here, flexibility, empathy, and a willingness to understand nuance prevail over the need to proclaim absolute truths, embracing a world rich in complexity.</p>
 color: "#d7a94b"
 featured: false
 labels:

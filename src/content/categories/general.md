@@ -1,6 +1,10 @@
 ---
 title: General
+title_en: General
 description: Bitácora de notas, comunicados y ensayos breves que sostienen la memoria cotidiana del proyecto.
+description_en: Logbook of notes, announcements, and short essays that sustain the project’s daily memory.
+body_en: |
+  <p>An open space for thoughts in transit, process notes, and messages addressed to the Plocos community.</p>
 color: "#6f7c99"
 featured: false
 labels:

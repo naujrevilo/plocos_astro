@@ -1,6 +1,10 @@
 ---
 title: Galería
+title_en: Gallery
 description: Galería constituye un espacio visual y simbólico en el portal...
+description_en: Gallery is a visual and symbolic space inside the portal, curating images, illustrations, and poetic compositions in dialogue with Plocos.
+body_en: |
+  <p>Gallery is a visual and symbolic space within the portal where images, illustrations, and poetic compositions converge. At times they echo the philosophical themes explored elsewhere; at others they highlight the artistic voice of Plocos. Here you can wander through a curated selection of my works and inhabit a sensorial, reflective experience. Thank you for visiting.</p>
 color: "#b97ccf"
 featured: false
 labels:

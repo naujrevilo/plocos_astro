@@ -83,14 +83,12 @@ interface Translation {
     metaDescription: string;
     title: string;
     paragraphs: string[];
-    principlesHeading: string;
-    principles: string[];
   };
   categories: {
     metaTitle: string;
     metaDescription: string;
     title: string;
-    description: string;
+    description: string[];
     badge: string;
     backLink: string;
     empty: string;
@@ -241,28 +239,22 @@ export const translations: Record<Locale, Translation> = {
       metaDescription: 'Propósito y visión del archivo Plocos.',
       title: 'Nuestra razón de ser',
       paragraphs: [
-        'Plocos es un territorio creativo donde la filosofía dialoga con la imagen, la poesía y la memoria caribe. Esta versión digital ofrece una experiencia pensada para la lectura lenta, la contemplación y el pensamiento crítico.',
-        'Cada texto, ilustración y manifiesto se publica en un formato legible, con tipografías cálidas, colores evocadores y fichas curatoriales que facilitan la investigación. Las categorías permiten navegar por temas, símbolos y recorridos emocionales.',
-        'El panel editorial basado en Decap CMS facilita la creación colaborativa de nuevos episodios, autores invitados y rutas temáticas, mientras que Astro asegura un sitio estático veloz y sostenible preparado para preservarse en el tiempo.',
-      ],
-      principlesHeading: 'Principios de diseño',
-      principles: [
-        'Luz tenue y contrastes mesurados para priorizar la lectura reflexiva.',
-        'Estructura modular que conecta categorías, autores y líneas curatoriales.',
-        'Experiencia accesible con soporte para modos claro, oscuro y sistema.',
-        'Flujo editorial simple basado en Markdown para mantener viva la voz de Plocos.',
+        'Ploco: No es únicamente un término de mi ideación, o la idea que origino esta propuesta virtual, es el ancla para generar nuevos pensamientos o inclusive, ideas. Un "Bloque de Pensamiento" (fusión de las palabras pensamiento del español y bloc del francés), y elemento central de este portal de arte y filosofía. Es una pieza de contenido, un argumento riguroso, una elucubración o un verso simbólico, diseñada para desatar la reflexión en el lector.',
+        'Nace con la intención de establecer un diálogo distinto, de modo sintético y universal, ofrecer un concepto denso y concreto que el lector pueda integrar a su propia experiencia, transformando o enriqueciendo su pensar. Es una apuesta deliberada por la revelación sobre la simple narrativa, que busca convertir la distracción en una conexión profundamente pertinente.',        
       ],
     },
     categories: {
       metaTitle: 'Categorías · Plocos',
-      metaDescription: 'Explora las categorías curatoriales que organizan la obra de Plocos.',
-      title: 'Categorías curatoriales',
-      description:
-        'Cada categoría es una puerta de entrada al archivo: manifiestos filosóficos, diarios lumínicos, exhibiciones, instructivos y refranes que componen la memoria de Plocos.',
+      metaDescription: 'Explora las categorías que organizan la obra de Plocos.',
+      title: 'Categorías',
+      description: [
+        'Se toparán con una inclinación por el uso del latín las categorías de este portal; por ejemplo, "Ex lateribus cogite", que traduce: Piensa desde los lados/fuera del molde. La pretensión no es confundir, sino crear un espacio que busca posicionarse como intelectual y reflexivo. No solo visual ya que es analítico y discursivo. Que usa conceptos que valoran la escritura ya sea como herramienta de análisis (filosofía) o como fin en sí misma (arte literario). En esencia busca conexiones enfocándose en la interacción entre el pensamiento (Prosa) y la creación (Arte).',
+        'Y, aun cuando procuré mantener una redacción culta, articulada y soportada en una base de lectura filosófica, conservando una originalidad conceptual, también adapté el ploco (Bloque de pensamiento) que aborda temas complejos desde ángulos frescos, pero bajo principios de síntesis y universalidad. Ellos, en ocasiones reducidos a una única imagen o verso simbólico, buscan la conexión emocional o estética inmediata con el internauta. Son expresiones cortas, altamente compartibles y fáciles de digerir, que pretenden un "anclaje" del lector con una mínima inversión de tiempo, que además cumplen a cabalidad la promesa de fusionar arte y pensamiento.',
+      ],
       badge: 'Categoría',
       backLink: '← Todas las categorías',
       empty: 'No hay publicaciones asociadas aún, prueba el buscador o explora otras categorías.',
-        fallbackDescriptionPrefix: 'Archivo curatorial',
+        fallbackDescriptionPrefix: 'Archivo',
       count: {
         singular: 'publicación seleccionada.',
         plural: 'publicaciones seleccionadas.',
@@ -392,7 +384,7 @@ export const translations: Record<Locale, Translation> = {
       { id: 'categories', label: 'Categories', path: 'categories' },
       { id: 'blog', label: 'Blog', path: 'blog' },
       { id: 'contact', label: 'Contact', path: 'contact' },
-      { id: 'about', label: 'Our purpose', path: 'our-purpose' },
+      { id: 'about', label: 'Our reason for being', path: 'our-purpose' },
     ],
     search: {
       label: 'Search Plocos',
@@ -455,32 +447,28 @@ export const translations: Record<Locale, Translation> = {
         'We reply to every message within 72 business hours. If your request is time-sensitive, include the deadline in the email subject.',
     },
     about: {
-      metaTitle: 'Our purpose · Plocos',
+      metaTitle: 'Our reason for being · Plocos',
       metaDescription: 'Purpose and vision of the Plocos archive.',
-      title: 'Our purpose',
+      title: 'Our reason for being',
       paragraphs: [
-        'Plocos is a creative territory where philosophy converses with image, poetry, and Caribbean memory. This digital version is designed for slow reading, contemplation, and critical thinking.',
-        'Each text, illustration, and manifesto is published in a legible format with warm typography, evocative colors, and curatorial cards that support research. Categories allow you to navigate themes, symbols, and emotional journeys.',
-        'The Decap CMS editorial panel enables collaborative creation of new episodes, guest authors, and thematic routes, while Astro keeps the site fast, sustainable, and ready to be preserved over time.',
-      ],
-      principlesHeading: 'Design principles',
-      principles: [
-        'Subtle light and measured contrast to prioritize reflective reading.',
-        'Modular structure connecting categories, authors, and curatorial lines.',
-        'Accessible experience with support for light, dark, and system modes.',
-        'Simple Markdown-based editorial flow to keep Plocos’ voice alive.',
+        'Ploco: It is not just a term of my own invention, or the idea that gave rise to this virtual proposal; it is the anchor for generating new thoughts and even ideas. A "Thought Block" (a fusion of the Spanish word for thought and the French word for block), and the central element of this art and philosophy portal. It is a piece of content, a rigorous argument, a musing, or a symbolic verse, designed to spark reflection in the reader.',
+
+        'It was created with the intention of establishing a different dialogue, in a synthetic and universal way, offering a dense and concrete concept that the reader can integrate into their own experience, transforming or enriching their thinking. It is a deliberate commitment to revelation over simple narrative, seeking to turn distraction into a deeply relevant connection.',
       ],
     },
     categories: {
       metaTitle: 'Categories · Plocos',
-      metaDescription: 'Explore the curatorial categories that organize Plocos’ work.',
-      title: 'Curatorial categories',
-      description:
-        'Each category is a portal into the archive: philosophical manifestos, luminous diaries, exhibitions, instructions, and sayings that shape Plocos’ memory.',
+      metaDescription: 'Explore the categories that organize Plocos’ work.',
+      title: 'Categories',
+      description: [
+        'You will encounter a preference for the use of Latin in the categories of this portal; for example, "Ex lateribus cogite," which translates as: Think outside the box. The intention is not to confuse, but to create a space that seeks to position itself as intellectual and reflective. Not only visual, but also analytical and discursive. It uses concepts that value writing either as a tool for analysis (philosophy) or as an end in itself (literary art). In essence, it seeks connections by focusing on the interaction between thought (prose) and creation (art).',
+
+        'And, even though I tried to maintain a cultured, articulate style based on philosophical reading, while preserving conceptual originality, I also adapted the ploco (thought block), which addresses complex issues from fresh angles, but under the principles of synthesis and universality. These, sometimes reduced to a single image or symbolic verse, seek an immediate emotional or aesthetic connection with the internet user. They are short, highly shareable, and easy-to-digest expressions that aim to "anchor" the reader with a minimal investment of time, while also fully delivering on the promise of merging art and thought.',
+      ],
       badge: 'Category',
       backLink: '← All categories',
       empty: 'There are no publications yet. Try the search bar or explore other categories.',
-      fallbackDescriptionPrefix: 'Curatorial archive',
+      fallbackDescriptionPrefix: 'Archive',
       count: {
         singular: 'selected publication.',
         plural: 'selected publications.',

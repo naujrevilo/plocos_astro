@@ -12,13 +12,6 @@ const about = translations.about;
     {about.paragraphs.map((paragraph) => (
       <p>{paragraph}</p>
     ))}
-    <div class="rounded-3xl border border-border-subtle bg-surface-elevated p-6 text-sm text-text-secondary">
-      <h2 class="text-lg font-semibold text-text-primary">{about.principlesHeading}</h2>
-      <ul class="mt-3 space-y-2">
-        {about.principles.map((principle) => (
-          <li>{principle}</li>
-        ))}
-      </ul>
-    </div>
+    
   </section>
 </BaseLayout>
