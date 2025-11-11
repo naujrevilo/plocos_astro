@@ -1,4 +1,5 @@
 import typography from '@tailwindcss/typography';
+import defaultTheme from 'tailwindcss/defaultTheme.js';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -8,6 +9,12 @@ export default {
   ],
   darkMode: ['class', '[data-theme="dark"]'],
   theme: {
+    fontFamily: {
+      sans: ['"Noto Sans"', ...defaultTheme.fontFamily.sans],
+      serif: [...defaultTheme.fontFamily.serif],
+      mono: [...defaultTheme.fontFamily.mono],
+      heading: ['"Sarala"', '"Noto Sans"', ...defaultTheme.fontFamily.sans],
+    },
     extend: {
       colors: {
         surface: {
