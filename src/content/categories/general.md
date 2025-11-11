@@ -4,8 +4,9 @@ description: Bitácora de notas, comunicados y ensayos breves que sostienen la m
 color: "#6f7c99"
 featured: false
 labels:
-  - "GENERAL"
-  - "BLOG"
-  - "DIARIO"
+  - "General"
+  - "Blog"
+  - "Pensamientos"
+  - "Plocos"
 ---
 Espacio abierto para pensamientos en tránsito, registros de proceso y mensajes dirigidos a la comunidad Plocos.

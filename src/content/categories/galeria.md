@@ -1,12 +1,11 @@
 ---
 title: Galería
-description: Selección curada de piezas visuales, experimentos cromáticos y símbolos recurrentes.
+description: Galería constituye un espacio visual y simbólico en el portal...
 color: "#b97ccf"
 featured: false
 labels:
-  - "ARTE"
-  - "ARTE PLOCOS"
-  - "ARTEPLOCOS"
-  - "ART"
+  - "Arte"
+  - "Encuentros"
+  - "Exposiciones"
 ---
-Un recorrido visual por obras icónicas, variaciones de estilo y composiciones que habitan el imaginario de Plocos.
+Galería constituye un espacio visual y simbólico en el portal, donde convergen imágenes, ilustraciones y composiciones gráficas o versos propios. En ocasiones dialogan tanto con los temas filosóficos como con la expresión artística. Aquí, el visitante podrá recorrer una selección curada de mis obras, generando una experiencia sensorial y reflexiva. Gracias por visitarnos.
