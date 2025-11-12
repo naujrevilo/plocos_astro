@@ -11,6 +11,7 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 - **Imágenes**: bajo `public/images` (migradas) y `public/uploads` (nuevos assets del CMS).
 - **Tipografía**: Pilas personalizadas con Noto Sans (cuerpo) y Sarala (títulos) servidas desde `public/fonts`.
 - **UI social**: Botones de compartir y redes reducidos a íconos accesibles reutilizan el componente `SocialIcon`.
+- **Listado de blog**: `/blog` muestra 12 entradas recientes con paginación reutilizable (`paginate`) y navegación accesible.
 
 ## Scripts disponibles
 
@@ -94,6 +95,7 @@ scripts/              # Herramientas de migración y normalización (ignoradas e
 - Los canales de contacto (correo, donaciones y redes) se manejan desde `src/data/contact.json`.
 - `SiteFooter.astro` renderiza las redes como botones circulares con íconos y etiquetas accesibles.
 - `src/pages/posts/[...slug].astro` reutiliza las mismas redes para compartir publicaciones mediante botones de ícono único.
+- El listado del blog (`src/pages/blog`) usa `paginate` para dividir las entradas en páginas de 12 ítems y enlaces generados con `createLocaleHref`.
 
 ## Próximos pasos sugeridos
 

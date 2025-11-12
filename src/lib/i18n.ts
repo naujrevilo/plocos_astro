@@ -62,6 +62,12 @@ interface Translation {
     metaDescription: string;
     title: string;
     description: string;
+    pagination: {
+      ariaLabel: string;
+      previous: string;
+      next: string;
+      pageLabel: string;
+    };
   };
   contact: {
     metaTitle: string;
@@ -213,6 +219,12 @@ export const translations: Record<Locale, Translation> = {
       title: 'Blog',
       description:
         'Explora todas las entradas publicadas en el archivo. Usa el buscador superior para ir directo a palabras clave, etiquetas o preguntas específicas.',
+      pagination: {
+        ariaLabel: 'Paginación de entradas del blog',
+        previous: 'Anterior',
+        next: 'Siguiente',
+        pageLabel: 'Página {{page}}',
+      },
     },
     contact: {
       metaTitle: 'Contacto · Plocos',
@@ -425,6 +437,12 @@ export const translations: Record<Locale, Translation> = {
       title: 'Blog',
       description:
         'Browse every entry published in the archive. Use the search above to jump directly to keywords, tags, or specific questions.',
+      pagination: {
+        ariaLabel: 'Blog pagination',
+        previous: 'Previous',
+        next: 'Next',
+        pageLabel: 'Page {{page}}',
+      },
     },
     contact: {
       metaTitle: 'Contact · Plocos',

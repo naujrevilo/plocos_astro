@@ -1,24 +1,39 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import PostCard from '../../components/PostCard.astro';
-import { getPublishedPosts } from '../../lib/posts';
-import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
-import { createLocaleHref } from '../../lib/routes';
-import { paginate } from '../../lib/pagination';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { getPublishedPosts } from '../../../lib/posts';
+import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
+import { createLocaleHref } from '../../../lib/routes';
+import { paginate } from '../../../lib/pagination';
 
 const PAGE_SIZE = 12;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const blog = translations.blog;
-const allPosts = await getPublishedPosts({ locale });
-const pagination = paginate(allPosts, 1, PAGE_SIZE);
-const paginatedPosts = pagination.pageItems;
+const rawParam = Astro.params.page ?? '';
+const requestedPage = Number.parseInt(rawParam, 10);
 
 const createPageHref = (page: number) =>
   page === 1
     ? createLocaleHref(locale, translations.paths.blog)
     : createLocaleHref(locale, `${translations.paths.blog}/page/${page}`);
 
+if (!Number.isInteger(requestedPage)) {
+  return Astro.redirect(createPageHref(1));
+}
+
+if (requestedPage === 1) {
+  return Astro.redirect(createPageHref(1));
+}
+
+const allPosts = await getPublishedPosts({ locale });
+const pagination = paginate(allPosts, requestedPage, PAGE_SIZE);
+
+if (!pagination.isPageValid) {
+  return Astro.redirect(createPageHref(requestedPage < 1 ? 1 : pagination.totalPages));
+}
+
+const paginatedPosts = pagination.pageItems;
 const prevHref = pagination.currentPage > 1 ? createPageHref(pagination.currentPage - 1) : null;
 const nextHref = pagination.currentPage < pagination.totalPages ? createPageHref(pagination.currentPage + 1) : null;
 const pageLabel = (page: number) => blog.pagination.pageLabel.replace('{{page}}', String(page));
@@ -33,10 +48,13 @@ const pageLinks = Array.from({ length: pagination.totalPages }, (_, index) => {
 ---
 <BaseLayout title={blog.metaTitle} description={blog.metaDescription}>
   <section class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16">
-    <header class="max-w-3xl space-y-4">
+    <header class="max-w-3xl space-y-2">
       <h1 class="text-4xl font-bold tracking-tight text-text-primary">{blog.title}</h1>
       <p class="text-lg leading-relaxed text-text-secondary">
         {blog.description}
+      </p>
+      <p class="text-sm text-text-secondary/80">
+        {pageLabel(pagination.currentPage)} · {pagination.totalPages}
       </p>
     </header>
 
