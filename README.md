@@ -83,6 +83,7 @@ scripts/              # Herramientas de migración y normalización (ignoradas e
 - Los assets del panel (desarrollo) viven en `http://localhost:4101`; verifica firewall o proxys si el panel no carga.
 - Dependabot y auditorías de seguridad pueden manejarse por separado; ninguna corrección automática se aplica desde este repositorio.
 - La carpeta `.github/` se reserva para instrucciones locales y permanece fuera de control de versiones (misma lógica para `scripts/`).
+- Si Astro arroja `PAGE_SIZE is not defined` al construir `/blog/page/[page]`, exporta la constante `PAGE_SIZE` en `src/pages/blog/page/[page].astro`; `getStaticPaths` se ejecuta fuera del alcance interno del componente.
 
 ### Tipografía personalizada
 

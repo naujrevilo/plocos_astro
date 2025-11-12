@@ -2,11 +2,29 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PostCard from '../../../components/PostCard.astro';
 import { getPublishedPosts } from '../../../lib/posts';
-import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
+import { defaultLocale, getTranslations, locales, type Locale } from '../../../lib/i18n';
 import { createLocaleHref } from '../../../lib/routes';
 import { paginate } from '../../../lib/pagination';
 
-const PAGE_SIZE = 12;
+export const PAGE_SIZE = 12;
+
+export async function getStaticPaths() {
+  const paths: { params: { page: string }; locale: Locale }[] = [];
+
+  for (const locale of locales) {
+    const posts = await getPublishedPosts({ locale });
+    const totalPages = Math.ceil(posts.length / PAGE_SIZE);
+
+    for (let pageNumber = 2; pageNumber <= totalPages; pageNumber += 1) {
+      paths.push({
+        params: { page: String(pageNumber) },
+        locale,
+      });
+    }
+  }
+
+  return paths;
+}
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const blog = translations.blog;
