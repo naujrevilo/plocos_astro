@@ -1,6 +1,18 @@
 import { defineConfig } from "tinacms";
 import CategoryMultiSelect from "./components/CategoryMultiSelect";
 
+const branch =
+  process.env.TINA_BRANCH ||
+  process.env.HEAD ||
+  process.env.VERCEL_GIT_COMMIT_REF ||
+  process.env.GITHUB_REF_NAME ||
+  "main";
+
+// Las credenciales de Tina Cloud llegan en tiempo de build vía variables de entorno.
+// `clientId` puede ser público, pero `token` debe quedarse en almacenes seguros.
+const clientId = process.env.TINA_PUBLIC_CLIENT_ID || "";
+const token = process.env.TINA_TOKEN || "";
+
 const slugifyValue = (value: string) =>
   value
     .normalize("NFKD")
@@ -34,8 +46,9 @@ type PostFormValues = {
 // introduzcan nuevos campos en el frontmatter.
 
 export default defineConfig({
-  branch: process.env.TINA_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || "main",
-  client: { skip: true },
+  branch,
+  clientId,
+  token,
   build: {
     outputFolder: "admin",
     publicFolder: "public",

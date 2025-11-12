@@ -33,6 +33,44 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 
 > Nota: si los puertos 4321 u 4101 están ocupados, libera los procesos antes de iniciar TinaCMS (por ejemplo `npx kill-port 4321 4101 4001 9000`).
 
+## Variables de entorno
+
+- Duplica el archivo `.env.example` como `.env` y rellena los valores. El ID de Google Analytics (`ANALYTICS_ID`) es opcional; déjalo vacío para desactivar la medición.
+- No subas jamás el `.env` al repositorio. `TINA_TOKEN` es un secreto con permisos de escritura y debe guardarse únicamente en gestores seguros (GitHub Secrets, Netlify Environment).
+- En entornos locales añade las variables a `.env`; en CI/Netlify defínelas desde la interfaz de configuración.
+
+## Despliegue con Netlify + Tina Cloud
+
+- Netlify usa el archivo `netlify.toml`; el comando de build ejecuta `pnpm run tinacms:build && pnpm build` y publica la carpeta `dist/`.
+- Configura en Netlify (Site settings → Build & deploy → Environment) los valores:
+  - `TINA_PUBLIC_CLIENT_ID` y `TINA_TOKEN` provistos por Tina Cloud.
+  - `TINA_BRANCH` con la rama por defecto (`main`, salvo que uses otra).
+  - `PUBLIC_SITE_URL` con la URL definitiva del sitio.
+  - `ANALYTICS_ID` si usas GA4.
+- Habilita “Deploy Previews” para revisar cambios de contenido en ramas antes de fusionarlos.
+- La SPA del panel (`/admin`) queda disponible tras ejecutar `tinacms build`; Netlify aplica una redirección interna para permitir rutas internas del panel.
+
+### Formularios de Netlify
+
+- El formulario de contacto en `src/pages/contacto` y `src/pages/en/contact` usa Netlify Forms. Netlify detecta el formulario `name="contact"` durante el build porque incluye `data-netlify="true"`.
+- No necesitas backend adicional: Netlify almacenará cada envío y permitirá configurar notificaciones por correo o integraciones (Slack, Zapier, etc.).
+- Mantén activo el honeypot (`netlify-honeypot="bot-field"`) para reducir spam y habilita reCAPTCHA solo si los envíos maliciosos persisten.
+- Para probar en local, ejecuta `netlify dev` o envía una petición desde la URL publicada; los formularios no se procesan fuera del entorno de Netlify.
+- Para reenviar los envíos a Google Workspace (o cualquier buzón), usa **Site settings → Forms → Notification settings** en Netlify y añade una *Email notification* con la dirección deseada. Netlify enviará el correo y conservará el registro en el panel; recuerda mantener SPF/DKIM del dominio actualizados para evitar que el mensaje caiga en spam.
+
+### GitHub Actions
+
+- El workflow `/.github/workflows/ci.yml` valida cada push/PR a `main` ejecutando instalación, compilación del panel, `astro check` y `pnpm build`.
+- Define los secretos `TINA_PUBLIC_CLIENT_ID` y `TINA_TOKEN` en *Settings → Secrets and variables → Actions*; sin ellos el pipeline fallará.
+- Protege la rama `main` exigiendo revisiones y la ejecución satisfactoria del workflow antes de permitir merges.
+
+### Consideraciones de seguridad
+
+- El `TINA_TOKEN` concede acceso de escritura al repositorio; trátalo como un secreto crítico (no compartir por correo/IM, rotarlo ante cualquier sospecha).
+- Restringe el acceso al panel de Tina Cloud a cuentas invitadas; no compartas credenciales genéricas.
+- Mantén activado 2FA en GitHub, Netlify y Tina Cloud.
+- Programa copias de seguridad periódicas del contenido (por ejemplo, etiquetas semanales o mirrors privados del repo) para recuperaciones rápidas ante errores humanos.
+
 ## Colecciones y esquema
 
 El esquema de Tina se define en `tina/config.ts` y refleja la estructura actual del contenido:

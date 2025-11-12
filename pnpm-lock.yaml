@@ -17,6 +17,9 @@ importers:
       astro:
         specifier: 5.15.3
         version: 5.15.3(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.52.5)(typescript@5.9.3)(yaml@2.8.1)
+      astro-google-analytics:
+        specifier: 1.0.3
+        version: 1.0.3
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -2325,6 +2328,9 @@ packages:
 
   asap@2.0.6:
     resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
+
+  astro-google-analytics@1.0.3:
+    resolution: {integrity: sha512-5bD7jA15yxVaUFVVEFG6KKMphYJ4AKP4+HSqCVBpTBnqh8LL0giTdAHpG9KJs3JaFbGQUTWP5Pqt8+twz7f55Q==}
 
   astro@5.15.3:
     resolution: {integrity: sha512-wUO/isJrcUoduRoKacKB9jpO6TxTlPV1zw8UqQx39jSNY7z9IxusJAiib3AiNvqK+dCWhqXx+OnExCCwELmcUw==}
@@ -8555,6 +8561,8 @@ snapshots:
   array-union@2.1.0: {}
 
   asap@2.0.6: {}
+
+  astro-google-analytics@1.0.3: {}
 
   astro@5.15.3(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.52.5)(typescript@5.9.3)(yaml@2.8.1):
     dependencies:

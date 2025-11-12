@@ -83,6 +83,14 @@ interface Translation {
     socialHeading: string;
     socialDescription: string;
     note: string;
+    formHeading: string;
+    formDescription: string;
+    formNameLabel: string;
+    formEmailLabel: string;
+    formMessageLabel: string;
+    formSubmitLabel: string;
+    formPrivacy: string;
+    formSpamLabel: string;
   };
   about: {
     metaTitle: string;
@@ -245,6 +253,16 @@ export const translations: Record<Locale, Translation> = {
         'Sigue el proceso creativo, las exposiciones itinerantes y las activaciones educativas de Plocos en estos espacios digitales.',
       note:
         'Respondemos a cada mensaje en un máximo de 72 horas hábiles. Si tu solicitud es urgente, indica el plazo en el asunto del correo.',
+      formHeading: 'Escríbenos desde el sitio',
+      formDescription:
+        'Completa este formulario y coordinaremos la respuesta según el tipo de proyecto. Si prefieres escribir directamente, también puedes usar el correo electrónico.',
+      formNameLabel: 'Nombre',
+      formEmailLabel: 'Correo de contacto',
+      formMessageLabel: 'Mensaje',
+      formSubmitLabel: 'Enviar mensaje',
+      formPrivacy:
+        'Al enviar aceptas que usemos tu información solo para responder esta conversación. No compartimos datos con terceros.',
+      formSpamLabel: 'Déjalo en blanco y omite este campo (antispam)',
     },
     about: {
       metaTitle: 'Nuestra razón de ser · Plocos',
@@ -463,6 +481,16 @@ export const translations: Record<Locale, Translation> = {
         'Follow Plocos’ creative process, traveling exhibitions, and educational activations across these spaces.',
       note:
         'We reply to every message within 72 business hours. If your request is time-sensitive, include the deadline in the email subject.',
+      formHeading: 'Write to us from the site',
+      formDescription:
+        'Fill out this form and we will coordinate the response according to the nature of your project. If you prefer, you can also email us directly.',
+      formNameLabel: 'Name',
+      formEmailLabel: 'Contact email',
+      formMessageLabel: 'Message',
+      formSubmitLabel: 'Send message',
+      formPrivacy:
+        'By submitting you agree that we will use your information only to continue this conversation. We do not share data with third parties.',
+      formSpamLabel: 'Leave this field empty (spam protection)',
     },
     about: {
       metaTitle: 'Our reason for being · Plocos',

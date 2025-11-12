@@ -36,6 +36,10 @@ const donationNotice = contact.donationNotice.replace('{{email}}', contactData.d
 const socialLinks = contactData.social;
 const socialAnchorClass =
   'group flex items-center gap-3 rounded-full border border-border-subtle px-4 py-2 text-sm text-text-primary transition hover:border-accent hover:text-text-primary hover:shadow-contemplation';
+const inputClasses =
+  'w-full rounded-xl border border-border-subtle bg-surface-base px-4 py-3 text-text-primary shadow-sm transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40';
+const buttonClasses =
+  'inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-surface-base transition hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent/40';
 ---
 <BaseLayout title={contact.metaTitle} description={contact.metaDescription}>
   <section class="mx-auto max-w-3xl space-y-8 px-4 py-16 text-text-secondary">
@@ -54,6 +58,61 @@ const socialAnchorClass =
           </a>
         </li>
       </ul>
+    </div>
+
+    <div class={cardClasses}>
+      <h2 class="text-lg font-semibold text-text-primary">{contact.formHeading}</h2>
+      <p class="mt-3 text-sm">{contact.formDescription}</p>
+      <form
+        name="contact"
+        method="post"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        class="mt-5 space-y-4"
+      >
+        <input type="hidden" name="form-name" value="contact" />
+        <input type="hidden" name="locale" value={locale} />
+        <p class="hidden">
+          <label>
+            {contact.formSpamLabel}
+            <input name="bot-field" />
+          </label>
+        </p>
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-text-primary" for="contact-name">
+            {contact.formNameLabel}
+          </label>
+          <input id="contact-name" name="name" type="text" class={inputClasses} required autocomplete="name" />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-text-primary" for="contact-email">
+            {contact.formEmailLabel}
+          </label>
+          <input
+            id="contact-email"
+            name="email"
+            type="email"
+            class={inputClasses}
+            required
+            autocomplete="email"
+          />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-text-primary" for="contact-message">
+            {contact.formMessageLabel}
+          </label>
+          <textarea
+            id="contact-message"
+            name="message"
+            class={`${inputClasses} min-h-[160px] resize-y`}
+            required
+          ></textarea>
+        </div>
+        <div class="space-y-3">
+          <button type="submit" class={buttonClasses}>{contact.formSubmitLabel}</button>
+          <p class="text-xs text-text-secondary/80">{contact.formPrivacy}</p>
+        </div>
+      </form>
     </div>
 
     <div class={cardClasses}>

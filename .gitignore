@@ -20,7 +20,9 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-.github/
+# GitHub metadata (allow workflows and instructions to be tracked)
+!.github/
+!.github/**
 scripts/
 
 # jetbrains setting folder
