@@ -579,6 +579,6 @@ export function getTranslations(locale?: string) {
   return translations[defaultLocale];
 }
 
-export function getLocalePath(locale: Locale, path: string) {
+export function getLocalePath(_locale: Locale, path: string) {
   return path.startsWith('/') ? path.slice(1) : path;
 }

@@ -9,6 +9,8 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 - **CSS**: Tailwind 3 con plugin de tipografía para maquetación de artículos.
 - **Contenido**: markdown en `src/content/posts`, `src/content/categories` y `src/content/authors`, con sincronización opcional desde Blogger.
 - **Imágenes**: bajo `public/images` (migradas) y `public/uploads` (nuevos assets del CMS).
+- **Tipografía**: Pilas personalizadas con Noto Sans (cuerpo) y Sarala (títulos) servidas desde `public/fonts`.
+- **UI social**: Botones de compartir y redes reducidos a íconos accesibles reutilizan el componente `SocialIcon`.
 
 ## Scripts disponibles
 
@@ -34,7 +36,6 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 
 El esquema de Tina se define en `tina/config.ts` y refleja la estructura actual del contenido:
 
-- `posts`: campos principales (`title`, `pubDate`, `language`, `summary`, `author`, `label` como lista de etiquetas, `categories`, `heroImage`, `draft`, `translationKey`, `originalUrl`, `body`).
 - `posts`: campos principales (`title`, `pubDate`, `language`, `summary`, `author`, `label` como lista de etiquetas, `categories`, `heroImage`, `heroImageAlt`, `draft`, `translationKey`, `originalUrl`, `body`).
 - `categories`: metadatos de categorías (`title`, `description`, `color`, `featured`, `body`).
 - `authors`: fichas de autores (`title`, `role`, `bio`, `portrait`, `body`).
@@ -77,10 +78,22 @@ scripts/              # Herramientas de migración y normalización (ignoradas e
 
 - El importador (`scripts/import-plocos.js`) respeta rutas originales y evita duplicados de imágenes.
 - Las utilidades en `scripts/*.mjs` permiten normalizar metadatos y recuperar fechas originales.
-- Tailwind se configura vía `tailwind.config.js` y `src/styles/tailwind.css`.
+- Tailwind se configura vía `tailwind.config.js` y `src/styles/tailwind.css`; ahí viven las reglas de color, fuentes y utilidades globales.
 - Los assets del panel (desarrollo) viven en `http://localhost:4101`; verifica firewall o proxys si el panel no carga.
 - Dependabot y auditorías de seguridad pueden manejarse por separado; ninguna corrección automática se aplica desde este repositorio.
 - La carpeta `.github/` se reserva para instrucciones locales y permanece fuera de control de versiones (misma lógica para `scripts/`).
+
+### Tipografía personalizada
+
+- Copia los archivos de fuente en `public/fonts` siguiendo los nombres detallados en `public/fonts/README.md`.
+- Las pilas `font-sans` y `font-heading` se definen en `tailwind.config.js` y se aplican en `src/styles/tailwind.css`; ajusta ambos archivos si introduces nuevas familias.
+- Reinicia el servidor de desarrollo después de agregar o sustituir archivos de fuente para que Vite sirva los assets actualizados.
+
+### Contacto y redes
+
+- Los canales de contacto (correo, donaciones y redes) se manejan desde `src/data/contact.json`.
+- `SiteFooter.astro` renderiza las redes como botones circulares con íconos y etiquetas accesibles.
+- `src/pages/posts/[...slug].astro` reutiliza las mismas redes para compartir publicaciones mediante botones de ícono único.
 
 ## Próximos pasos sugeridos
 

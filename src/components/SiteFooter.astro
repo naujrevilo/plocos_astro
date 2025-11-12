@@ -13,6 +13,7 @@ type SocialLink = {
 };
 
 type ContactData = {
+  email: string;
   donation: {
     formAction: string;
     method: string;
@@ -33,6 +34,7 @@ const contactData = rawContactData as ContactData;
 const termsHref = createLocaleHref(locale, translations.paths.terms);
 const donationLink = `${contactData.donation.formAction}?hosted_button_id=${encodeURIComponent(contactData.donation.hostedButtonId)}`;
 const socialLinks = contactData.social;
+// Shared styles for icon-only social buttons in the footer to mirror post share actions.
 const socialAnchorClass =
   'inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-muted text-text-primary transition hover:border-accent hover:bg-accent hover:text-surface-base hover:shadow-contemplation';
 ---
@@ -43,6 +45,13 @@ const socialAnchorClass =
       <nav aria-label="Footer links" class="flex flex-wrap gap-x-4 gap-y-2 md:justify-end">
         <a href={termsHref} class="transition-colors hover:text-accent">{termsLabel}</a>
         <a href="/rss.xml" class="transition-colors hover:text-accent">{rss}</a>
+        <a
+          href={`mailto:${contactData.email}`}
+          class="transition-colors hover:text-accent"
+          title={`${contactLabel}: ${contactData.email}`}
+        >
+          {contactData.email}
+        </a>
        
         <a href={donationLink} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent">
           {donate}

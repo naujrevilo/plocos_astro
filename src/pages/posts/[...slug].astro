@@ -43,9 +43,9 @@ const postLocale = getPostLocale(post);
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 
 if (locale !== postLocale) {
-  const targetTranslations = getTranslations(postLocale);
-  const targetPath = `${targetTranslations.paths.posts}/${post.slug}`;
-  return Astro.redirect(createLocaleHref(postLocale, targetPath));
+  return Astro.redirect(
+    createLocaleHref(postLocale, `${getTranslations(postLocale).paths.posts}/${post.slug}`)
+  );
 }
 
 const translations = getTranslations(locale);
@@ -76,6 +76,7 @@ const shareLinks = {
   instagram: `https://www.instagram.com/?url=${encodedShareUrl}`,
   email: `mailto:?subject=${emailSubject}&body=${emailBody}`,
 };
+// Keeps share channels synchronized between copy, URL builders, and icon-only buttons.
 const shareItems = [
   { id: 'x', href: shareLinks.x, label: shareCopy.x, external: true },
   { id: 'facebook', href: shareLinks.facebook, label: shareCopy.facebook, external: true },
