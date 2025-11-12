@@ -150,7 +150,7 @@ export const translations: Record<Locale, Translation> = {
       description: 'Colección digital de arte, ideas y narrativas de Plocos.',
       localeNames: {
         es: 'Español',
-        en: 'Inglés',
+        en: 'English',
       },
       language: {
         label: 'Idioma',
@@ -195,7 +195,7 @@ export const translations: Record<Locale, Translation> = {
       rss: 'RSS',
       terms: 'Términos del sitio',
       donate: 'Apoyar con PayPal',
-      follow: 'Redes',
+      follow: 'Redes sociales',
     },
     home: {
       metaTitle: 'Plocos · Arte, ideas y narrativas',
@@ -361,7 +361,7 @@ export const translations: Record<Locale, Translation> = {
       title: 'Plocos',
       description: 'Digital collection of Plocos art, ideas, and narratives.',
       localeNames: {
-        es: 'Spanish',
+        es: 'Español',
         en: 'English',
       },
       language: {

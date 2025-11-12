@@ -4,6 +4,7 @@ import { getPublishedPosts, formatDate, getPostLocale, type PostEntry } from '..
 import { labelToSlug } from '../../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
+import SocialIcon from '../../components/icons/SocialIcon.astro';
 
 interface Props {
   post: PostEntry;
@@ -75,6 +76,12 @@ const shareLinks = {
   instagram: `https://www.instagram.com/?url=${encodedShareUrl}`,
   email: `mailto:?subject=${emailSubject}&body=${emailBody}`,
 };
+const shareItems = [
+  { id: 'x', href: shareLinks.x, label: shareCopy.x, external: true },
+  { id: 'facebook', href: shareLinks.facebook, label: shareCopy.facebook, external: true },
+  { id: 'instagram', href: shareLinks.instagram, label: shareCopy.instagram, external: true },
+  { id: 'email', href: shareLinks.email, label: shareCopy.email, external: false },
+] as const;
 const heroImageAlt = data.heroImageAlt?.trim() || `${postCopy.imageAlt} ${data.title}`;
 const previousHref = previousPost
   ? createLocaleHref(locale, `${translations.paths.posts}/${previousPost.slug}`)
@@ -140,36 +147,18 @@ const nextHref = nextPost ? createLocaleHref(locale, `${translations.paths.posts
     <section class="mt-14 space-y-4 border-t border-border-subtle pt-6">
       <h2 class="text-xs font-semibold uppercase tracking-[0.35em] text-text-secondary opacity-80">{shareCopy.heading}</h2>
       <div class="flex flex-wrap gap-3">
-        <a
-          href={shareLinks.x}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-medium uppercase tracking-widest text-text-secondary transition hover:border-accent hover:text-text-primary"
-        >
-          {shareCopy.x}
-        </a>
-        <a
-          href={shareLinks.facebook}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-medium uppercase tracking-widest text-text-secondary transition hover:border-accent hover:text-text-primary"
-        >
-          {shareCopy.facebook}
-        </a>
-        <a
-          href={shareLinks.instagram}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-medium uppercase tracking-widest text-text-secondary transition hover:border-accent hover:text-text-primary"
-        >
-          {shareCopy.instagram}
-        </a>
-        <a
-          href={shareLinks.email}
-          class="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-medium uppercase tracking-widest text-text-secondary transition hover:border-accent hover:text-text-primary"
-        >
-          {shareCopy.email}
-        </a>
+        {shareItems.map((item) => (
+          <a
+            href={item.href}
+            class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border-subtle bg-surface-muted text-text-secondary transition hover:border-accent hover:text-text-primary"
+            aria-label={item.label}
+            title={item.label}
+            {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          >
+            <SocialIcon name={item.id} class="h-5 w-5" />
+            <span class="sr-only">{item.label}</span>
+          </a>
+        ))}
       </div>
     </section>
 
