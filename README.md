@@ -11,6 +11,7 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 - **Imágenes**: bajo `public/images` (migradas) y `public/uploads` (nuevos assets del CMS).
 - **Tipografía**: Pilas personalizadas con Noto Sans (cuerpo) y Sarala (títulos) servidas desde `public/fonts`.
 - **UI social**: Botones de compartir y redes reducidos a íconos accesibles reutilizan el componente `SocialIcon`.
+- **Comentarios**: Formularios moderados para cada post que persisten en Astro DB (libSQL/Turso) mediante el endpoint `/api/comments`.
 - **Listado de blog**: `/blog` muestra 12 entradas recientes con paginación reutilizable (`paginate`) y navegación accesible.
 
 ## Scripts disponibles
@@ -38,6 +39,8 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 - Duplica el archivo `.env.example` como `.env` y rellena los valores. El ID de Google Analytics (`ANALYTICS_ID`) es opcional; déjalo vacío para desactivar la medición.
 - No subas jamás el `.env` al repositorio. `TINA_TOKEN` es un secreto con permisos de escritura y debe guardarse únicamente en gestores seguros (GitHub Secrets, Netlify Environment).
 - En entornos locales añade las variables a `.env`; en CI/Netlify defínelas desde la interfaz de configuración.
+- Para conectar Astro DB a Turso define `ASTRO_DB_REMOTE_URL` y `ASTRO_DB_APP_TOKEN`. Genera las credenciales con el CLI de Turso (`turso db show` / `turso db tokens create`) y ejecútalas en local y en el proveedor de hosting.
+- Define un `COMMENTS_MODERATION_TOKEN` (cualquier cadena segura). El panel `/admin/comments` y el endpoint `/api/comments/moderate` lo usan para autenticar las acciones de aprobación/eliminación.
 
 ## Despliegue con Netlify + Tina Cloud
 
@@ -56,7 +59,16 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 - No necesitas backend adicional: Netlify almacenará cada envío y permitirá configurar notificaciones por correo o integraciones (Slack, Zapier, etc.).
 - Mantén activo el honeypot (`netlify-honeypot="bot-field"`) para reducir spam y habilita reCAPTCHA solo si los envíos maliciosos persisten.
 - Para probar en local, ejecuta `netlify dev` o envía una petición desde la URL publicada; los formularios no se procesan fuera del entorno de Netlify.
-- Para reenviar los envíos a Google Workspace (o cualquier buzón), usa **Site settings → Forms → Notification settings** en Netlify y añade una *Email notification* con la dirección deseada. Netlify enviará el correo y conservará el registro en el panel; recuerda mantener SPF/DKIM del dominio actualizados para evitar que el mensaje caiga en spam.
+- Para reenviar los envíos a Google Workspace (o cualquier buzón), usa **Site settings → Forms → Notification settings** en Netlify y añade una *Email notification* con la dirección deseada. Netlify enviará el correo y conservará el registro en el panel; recuerda mantener SPF/DKIM del dominio actuales para evitar que el mensaje caiga en spam.
+
+### Comentarios moderados con Astro DB
+
+- Cada publicación renderiza un formulario accesible (`CommentSection.astro`) que envía los comentarios a `/api/comments`.
+- Los envíos se almacenan en la tabla `Comments` de Astro DB con `approved = false` por defecto. Solo los registros aprobados se muestran públicamente.
+- En local puedes desarrollar con la base embebida de Astro DB; para producción necesitas un host libSQL (p. ej. Turso) y definir `ASTRO_DB_REMOTE_URL` + `ASTRO_DB_APP_TOKEN`.
+Para moderar sin CLI visita `/admin/comments?token=TU_TOKEN` (solo la primera vez). Al ingresar el token, este se guarda en una cookie httpOnly y se elimina inmediatamente de la URL para máxima privacidad. Nunca se muestra el token en el HTML ni se expone en la interfaz. Solo los usuarios autenticados pueden aprobar o eliminar comentarios pendientes y consultar actividad reciente. Si tienes problemas de autenticación en local, asegúrate de que la cookie se guarda correctamente y que la página no está prerenderizada (debe tener `export const prerender = false;`).
+- Para aprobar un comentario, ejecuta un update contra la tabla: `pnpm astro db shell -- --query "UPDATE Comments SET approved = 1 WHERE id = ?" --remote` o crea un script en `db/` y lánzalo con `pnpm astro db execute ./path/to/script.ts -- --remote`.
+- Ejecuta `pnpm astro db push -- --remote` cada vez que modifiques `db/config.ts` para sincronizar el esquema con tu instancia remota.
 
 ### GitHub Actions
 
@@ -66,10 +78,12 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 
 ### Consideraciones de seguridad
 
-- El `TINA_TOKEN` concede acceso de escritura al repositorio; trátalo como un secreto crítico (no compartir por correo/IM, rotarlo ante cualquier sospecha).
-- Restringe el acceso al panel de Tina Cloud a cuentas invitadas; no compartas credenciales genéricas.
-- Mantén activado 2FA en GitHub, Netlify y Tina Cloud.
-- Programa copias de seguridad periódicas del contenido (por ejemplo, etiquetas semanales o mirrors privados del repo) para recuperaciones rápidas ante errores humanos.
+**¡Importante!** El `COMMENTS_MODERATION_TOKEN` nunca debe compartirse ni mostrarse en la interfaz, URL o HTML. Solo se almacena en una cookie httpOnly tras el login y se elimina de la URL automáticamente. Trátalo como un secreto crítico: no compartir por correo/IM, rotar ante cualquier sospecha y definirlo solo en gestores seguros (GitHub Secrets, Netlify Environment, .env local privado). Si tienes problemas de acceso al panel, revisa que la cookie se guarde correctamente y que el archivo tenga `export const prerender = false;`.
+
+El `TINA_TOKEN` concede acceso de escritura al repositorio; trátalo como un secreto crítico (no compartir por correo/IM, rotarlo ante cualquier sospecha).
+Restringe el acceso al panel de Tina Cloud a cuentas invitadas; no compartas credenciales genéricas.
+Mantén activado 2FA en GitHub, Netlify y Tina Cloud.
+Programa copias de seguridad periódicas del contenido (por ejemplo, etiquetas semanales o mirrors privados del repo) para recuperaciones rápidas ante errores humanos.
 
 ## Colecciones y esquema
 
@@ -141,3 +155,9 @@ scripts/              # Herramientas de migración y normalización (ignoradas e
 - Revisar la alineación entre `tina/config.ts` y `src/content/config.ts` al añadir campos nuevos.
 - Automatizar la limpieza de imágenes huérfanas dentro de `public/images/uploads` si el flujo editorial lo requiere.
 - Evaluar despliegues estáticos en servicios compatibles con Astro (por ejemplo, Vercel, Netlify o Cloudflare Pages).
+
+---
+
+**Changelog**
+- 2025-11-14: Mejoras en autenticación del panel de moderación, documentación actualizada, troubleshooting añadido, guías separadas para desarrollo y cliente.
+- Versión: 1.1
