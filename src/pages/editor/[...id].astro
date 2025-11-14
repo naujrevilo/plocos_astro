@@ -1,6 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { id: post.id },
+  }));
+}
 
 const { id } = Astro.params;
 if (!id) return Astro.redirect('/editor');
@@ -74,41 +81,45 @@ const pubDate = post.data.pubDate ? new Date(post.data.pubDate).toLocaleDateStri
   </div>
 
   <script>
-    const form = document.getElementById('editForm') as HTMLFormElement;
-    const status = document.getElementById('status') as HTMLElement;
+    const formElement = document.getElementById('editForm');
+    const statusElement = document.getElementById('status');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      status.textContent = '⏳ Guardando...';
-      status.className = 'flex items-center ml-4 text-sm font-medium text-blue-600';
+    if (formElement instanceof HTMLFormElement && statusElement instanceof HTMLElement) {
+      formElement.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-      try {
-        const formData = new FormData(form);
-        const response = await fetch('/api/save-post', {
-          method: 'POST',
-          body: formData
-        });
+        statusElement.textContent = '⏳ Guardando...';
+        statusElement.className = 'flex items-center ml-4 text-sm font-medium text-blue-600';
 
-        const result = await response.json();
+        try {
+          const formData = new FormData(formElement);
+          const response = await fetch('/api/save-post', {
+            method: 'POST',
+            body: formData
+          });
 
-        if (response.ok) {
-          status.textContent = '✓ Guardado exitosamente';
-          status.className = 'flex items-center ml-4 text-sm font-medium text-green-600';
-          
-          // Redirigir después de 1 segundo
-          setTimeout(() => {
-            window.location.href = '/editor';
-          }, 1000);
-        } else {
-          status.textContent = `✗ Error: ${result.error}`;
-          status.className = 'flex items-center ml-4 text-sm font-medium text-red-600';
+          const result = await response.json();
+
+          if (response.ok) {
+            statusElement.textContent = '✓ Guardado exitosamente';
+            statusElement.className = 'flex items-center ml-4 text-sm font-medium text-green-600';
+
+            // Redirigir después de 1 segundo
+            setTimeout(() => {
+              window.location.href = '/editor';
+            }, 1000);
+          } else {
+            statusElement.textContent = `✗ Error: ${result.error}`;
+            statusElement.className = 'flex items-center ml-4 text-sm font-medium text-red-600';
+          }
+        } catch (error) {
+          statusElement.textContent = '✗ Error de conexión';
+          statusElement.className = 'flex items-center ml-4 text-sm font-medium text-red-600';
+          console.error(error);
         }
-      } catch (error) {
-        status.textContent = '✗ Error de conexión';
-        status.className = 'flex items-center ml-4 text-sm font-medium text-red-600';
-        console.error(error);
-      }
-    });
+      });
+    } else {
+      console.error('Editor form not found');
+    }
   </script>
 </BaseLayout>

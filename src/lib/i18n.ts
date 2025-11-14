@@ -143,6 +143,19 @@ interface Translation {
       instagram: string;
       email: string;
     };
+    comments: {
+      heading: string;
+      description: string;
+      empty: string;
+      pending: string;
+      success: string;
+      error: string;
+      nameLabel: string;
+      emailLabel: string;
+      messageLabel: string;
+      submitLabel: string;
+      moderationNotice: string;
+    };
   };
   terms: {
     metaTitle: string;
@@ -269,8 +282,9 @@ export const translations: Record<Locale, Translation> = {
       metaDescription: 'Propósito y visión del archivo Plocos.',
       title: 'Nuestra razón de ser',
       paragraphs: [
-        'Ploco: No es únicamente un término de mi ideación, o la idea que origino esta propuesta virtual, es el ancla para generar nuevos pensamientos o inclusive, ideas. Un "Bloque de Pensamiento" (fusión de las palabras pensamiento del español y bloc del francés), y elemento central de este portal de arte y filosofía. Es una pieza de contenido, un argumento riguroso, una elucubración o un verso simbólico, diseñada para desatar la reflexión en el lector.',
-        'Nace con la intención de establecer un diálogo distinto, de modo sintético y universal, ofrecer un concepto denso y concreto que el lector pueda integrar a su propia experiencia, transformando o enriqueciendo su pensar. Es una apuesta deliberada por la revelación sobre la simple narrativa, que busca convertir la distracción en una conexión profundamente pertinente.',        
+        'No es únicamente un término de mi ideación, o la idea que origino esta propuesta virtual, es el ancla para generar nuevos pensamientos o inclusive, ideas. Un "Bloque de Pensamiento" (fusión de las palabras pensamiento del español y bloc del francés), y elemento central de este portal de arte y filosofía.',
+        'Es una pieza de contenido, ya sea un argumento riguroso, una elucubración textual o un verso simbólico, diseñada para desatar la reflexión en el lector. Nace con la intención de establecer un diálogo distinto, de modo sintético y universal. En sus formas más concisas, puede presentarse como una única imagen o verso que ofrece un concepto denso y concreto que el lector puede integrar a su propia experiencia, transformando o enriqueciendo su pensar.',
+        'Es una apuesta deliberada por la revelación sobre la simple narrativa, que busca convertir la distracción en una conexión profundamente pertinente. Su brevedad es deliberada; no busca ser "fácil", sino potente. Son piezas refinadas que pretenden un "anclaje" conceptual con una inversión de tiempo corta, buscando la conexión estética o intelectual inmediata.',        
       ],
     },
     categories: {
@@ -278,8 +292,9 @@ export const translations: Record<Locale, Translation> = {
       metaDescription: 'Explora las categorías que organizan la obra de Plocos.',
       title: 'Categorías',
       description: [
-        'Se toparán con una inclinación por el uso del latín las categorías de este portal; por ejemplo, "Ex lateribus cogite", que traduce: Piensa desde los lados/fuera del molde. La pretensión no es confundir, sino crear un espacio que busca posicionarse como intelectual y reflexivo. No solo visual ya que es analítico y discursivo. Que usa conceptos que valoran la escritura ya sea como herramienta de análisis (filosofía) o como fin en sí misma (arte literario). En esencia busca conexiones enfocándose en la interacción entre el pensamiento (Prosa) y la creación (Arte).',
-        'Y, aun cuando procuré mantener una redacción culta, articulada y soportada en una base de lectura filosófica, conservando una originalidad conceptual, también adapté el ploco (Bloque de pensamiento) que aborda temas complejos desde ángulos frescos, pero bajo principios de síntesis y universalidad. Ellos, en ocasiones reducidos a una única imagen o verso simbólico, buscan la conexión emocional o estética inmediata con el internauta. Son expresiones cortas, altamente compartibles y fáciles de digerir, que pretenden un "anclaje" del lector con una mínima inversión de tiempo, que además cumplen a cabalidad la promesa de fusionar arte y pensamiento.',
+        'Se toparán con categorías tituladas en latín; por ejemplo, "Ex lateribus cogite" que traduce: Piensa desde los lados/fuera del molde. Selecciones, cuya pretensión no es confundir, sino crear un espacio que busca posicionarse como intelectual y reflexivo.',
+        'No solo visual ya que es analítico y discursivo. Donde se estilan conceptos que valoran la escritura ya sea como herramienta de análisis (filosofía) o como fin en sí misma (arte).',
+        'Procuré mantener una redacción culta, articulada y soportada en una base de lectura filosófica, conservando una originalidad conceptual. En ellas, encontrarán el ploco, (Bloque de pensamiento), que aborda temas complejos desde ángulos frescos.',
       ],
       badge: 'Categoría',
       backLink: '← Todas las categorías',
@@ -330,6 +345,23 @@ export const translations: Record<Locale, Translation> = {
         facebook: 'Compartir en Facebook',
         instagram: 'Compartir en Instagram',
         email: 'Enviar por correo',
+      },
+      comments: {
+        heading: 'Comentarios',
+        description:
+          'Participa en la conversación con respeto y contexto. Cada aporte pasa por moderación editorial antes de publicarse.',
+        empty: 'Aún no hay comentarios publicados. Sé la primera persona en escribir.',
+        pending:
+          'Comentario recibido. Lo revisaremos antes de publicarlo para cuidar el archivo.',
+        success: '¡Gracias por aportar a la conversación!',
+        error:
+          'No pudimos enviar tu comentario. Intenta de nuevo en unos minutos o contáctanos directamente.',
+        nameLabel: 'Nombre',
+        emailLabel: 'Correo (opcional, solo para responderte)',
+        messageLabel: 'Comentario',
+        submitLabel: 'Enviar comentario',
+        moderationNotice:
+          'Moderamos cada comentario para asegurar que la conversación se mantenga respetuosa y acorde con la línea editorial de Plocos.',
       },
     },
     terms: {
@@ -497,9 +529,9 @@ export const translations: Record<Locale, Translation> = {
       metaDescription: 'Purpose and vision of the Plocos archive.',
       title: 'Our reason for being',
       paragraphs: [
-        'Ploco: It is not just a term of my own invention, or the idea that gave rise to this virtual proposal; it is the anchor for generating new thoughts and even ideas. A "Thought Block" (a fusion of the Spanish word for thought and the French word for block), and the central element of this art and philosophy portal. It is a piece of content, a rigorous argument, a musing, or a symbolic verse, designed to spark reflection in the reader.',
-
-        'It was created with the intention of establishing a different dialogue, in a synthetic and universal way, offering a dense and concrete concept that the reader can integrate into their own experience, transforming or enriching their thinking. It is a deliberate commitment to revelation over simple narrative, seeking to turn distraction into a deeply relevant connection.',
+        'It is not merely a term of my own invention, or the idea that gave rise to this virtual proposal; it is the anchor for generating new thoughts or even ideas. A "Thought Block" (a fusion of the Spanish word "pensamiento" and the French word "bloc"), and the central element of this art and philosophy portal.',
+        'It is a piece of content, whether a rigorous argument, a textual elaboration or a symbolic verse, designed to spark reflection in the reader. It was created with the intention of establishing a different dialogue, in a synthetic and universal way. In its most concise forms, it can be presented as a single image or verse that offers a dense and concrete concept that the reader can integrate into their own experience, transforming or enriching their thinking.',
+        'It is a deliberate commitment to revelation over simple narrative, seeking to turn distraction into a deeply relevant connection. Its brevity is deliberate; it does not seek to be "easy", but powerful. These are refined pieces that aim for a conceptual "anchor" with a short investment of time, seeking immediate aesthetic or intellectual connection.',
       ],
     },
     categories: {
@@ -507,9 +539,9 @@ export const translations: Record<Locale, Translation> = {
       metaDescription: 'Explore the categories that organize Plocos’ work.',
       title: 'Categories',
       description: [
-        'You will encounter a preference for the use of Latin in the categories of this portal; for example, "Ex lateribus cogite," which translates as: Think outside the box. The intention is not to confuse, but to create a space that seeks to position itself as intellectual and reflective. Not only visual, but also analytical and discursive. It uses concepts that value writing either as a tool for analysis (philosophy) or as an end in itself (literary art). In essence, it seeks connections by focusing on the interaction between thought (prose) and creation (art).',
-
-        'And, even though I tried to maintain a cultured, articulate style based on philosophical reading, while preserving conceptual originality, I also adapted the ploco (thought block), which addresses complex issues from fresh angles, but under the principles of synthesis and universality. These, sometimes reduced to a single image or symbolic verse, seek an immediate emotional or aesthetic connection with the internet user. They are short, highly shareable, and easy-to-digest expressions that aim to "anchor" the reader with a minimal investment of time, while also fully delivering on the promise of merging art and thought.',
+        'You will encounter categories with Latin titles; for example, "Ex lateribus cogite", which translates as: Think outside the box. Selections, whose aim is not to confuse, but to create a space that seeks to position itself as intellectual and reflective.',
+        'Not only visual, as it is analytical and discursive. Where concepts that value writing are used, either as a tool for analysis (philosophy) or as an end in itself (art).',
+        'I tried to maintain a cultured, articulate style based on philosophical reading, while preserving conceptual originality. In them, you will find the ploco (thought block), which addresses complex issues from fresh angles.',
       ],
       badge: 'Category',
       backLink: '← All categories',
@@ -561,6 +593,22 @@ export const translations: Record<Locale, Translation> = {
         instagram: 'Share on Instagram',
         email: 'Send by email',
       },
+        comments: {
+          heading: 'Comments',
+          description:
+            'Join the conversation with context and respect. Every contribution goes through editorial moderation before it appears.',
+          empty: 'No comments have been published yet. Be the first to share your thoughts.',
+          pending: 'Comment received. We will review it before publishing to safeguard the archive.',
+          success: 'Thanks for contributing to the conversation!',
+          error:
+            'We could not send your comment. Please try again shortly or reach out via email.',
+          nameLabel: 'Name',
+          emailLabel: 'Email (optional, used only to reply)',
+          messageLabel: 'Comment',
+          submitLabel: 'Post comment',
+          moderationNotice:
+            'We moderate each comment to keep the discussion aligned with Plocos’ editorial standards.',
+        },
     },
     terms: {
       metaTitle: 'Site Terms · Plocos',

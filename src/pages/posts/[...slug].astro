@@ -5,6 +5,7 @@ import { labelToSlug } from '../../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 import SocialIcon from '../../components/icons/SocialIcon.astro';
+import CommentSection from '../../components/CommentSection.astro';
 
 interface Props {
   post: PostEntry;
@@ -56,6 +57,11 @@ const previousPost = previous ?? null;
 const nextPost = next ?? null;
 const navigationCopy = postCopy.navigation;
 const shareCopy = postCopy.share;
+const initialCommentStatusParam = Astro.url.searchParams.get('comment');
+const allowedCommentStatuses = ['pending', 'success', 'error'] as const;
+const initialCommentStatus = allowedCommentStatuses.includes(initialCommentStatusParam as (typeof allowedCommentStatuses)[number])
+  ? (initialCommentStatusParam as (typeof allowedCommentStatuses)[number])
+  : null;
 const title = `${data.title} · Plocos`;
 const description = data.summary ?? `${postCopy.defaultDescriptionPrefix} ${formatDate(data.pubDate, locale)}.`;
 const base = Astro.site?.origin ?? '';
@@ -162,6 +168,8 @@ const nextHref = nextPost ? createLocaleHref(locale, `${translations.paths.posts
         ))}
       </div>
     </section>
+
+    <CommentSection slug={post.slug} locale={locale} initialStatus={initialCommentStatus} />
 
     {(previousPost || nextPost) && (
       <nav class="mt-16 space-y-6 border-t border-border-subtle pt-6">

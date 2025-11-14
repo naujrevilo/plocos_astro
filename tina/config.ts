@@ -148,6 +148,63 @@ export default defineConfig({
           { type: "string", name: "body", label: "Contenido" },
         ],
       },
+      {
+        name: "comments",
+        label: "Comentarios",
+        path: "src/content/comments",
+        format: "json",
+        defaultItem: () => ({
+          approved: false,
+          createdAt: new Date().toISOString(),
+        }),
+        fields: [
+          {
+            type: "string",
+            name: "postSlug",
+            label: "Slug de la publicación",
+            required: true,
+            description: "Coincide con el slug del archivo en src/content/posts.",
+          },
+          {
+            type: "string",
+            name: "locale",
+            label: "Idioma",
+            required: true,
+            options: [
+              { value: "es", label: "Español" },
+              { value: "en", label: "English" },
+            ],
+          },
+          { type: "string", name: "name", label: "Nombre", required: true },
+          {
+            type: "string",
+            name: "email",
+            label: "Correo de contacto",
+            required: false,
+            description: "Visible solo para el equipo editorial.",
+          },
+          {
+            type: "string",
+            name: "message",
+            label: "Comentario",
+            ui: { component: "textarea" },
+            required: true,
+          },
+          {
+            type: "datetime",
+            name: "createdAt",
+            label: "Fecha de envío",
+            required: true,
+          },
+          {
+            type: "boolean",
+            name: "approved",
+            label: "Aprobado para publicación",
+            description: "Solo los comentarios aprobados se muestran en el sitio.",
+            required: true,
+          },
+        ],
+      },
     ],
   },
 });
