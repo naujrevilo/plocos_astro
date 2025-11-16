@@ -1,7 +1,7 @@
 {
   "name": "plocos-astro",
   "type": "module",
-  "version": "0.0.23",
+  "version": "0.1.0",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -16,9 +16,14 @@
   "dependencies": {
     "@astrojs/check": "0.9.5",
     "@astrojs/db": "^0.18.2",
+    "@astrojs/netlify": "^6.6.0",
+    "@astrojs/react": "4.4.2",
     "@astrojs/tailwind": "6.0.2",
     "astro": "5.15.3",
     "astro-google-analytics": "1.0.3",
+    "astro-pagefind": "1.8.5",
+    "flowbite": "4.0.0",
+    "slugify": "1.6.6",
     "typescript": "5.9.3"
   },
   "devDependencies": {

@@ -17,6 +17,17 @@ export async function getStaticPaths() {
   const posts = await getPublishedPosts();
   const postsByLocale = new Map<Locale, PostEntry[]>();
 
+  // Genera el slug solo por el título
+  function slugifyTitle(title: string): string {
+    return title
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase();
+  }
+
   posts.forEach((entry) => {
     const locale = getPostLocale(entry);
     if (!postsByLocale.has(locale)) {
@@ -31,9 +42,9 @@ export async function getStaticPaths() {
     const index = localePosts.findIndex((entry) => entry.id === post.id);
     const previous = index < localePosts.length - 1 ? localePosts[index + 1] : null;
     const next = index > 0 ? localePosts[index - 1] : null;
-
+    const slug = slugifyTitle(post.data.title);
     return {
-      params: { slug: post.slug },
+      params: { slug },
       props: { post, previous, next },
     };
   });

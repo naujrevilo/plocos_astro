@@ -6,7 +6,7 @@ import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 import { paginate } from '../../lib/pagination';
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 6;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const blog = translations.blog;
@@ -47,49 +47,22 @@ const pageLinks = Array.from({ length: pagination.totalPages }, (_, index) => {
     </div>
 
     {pagination.totalPages > 1 && (
-      <nav class="flex justify-center" aria-label={blog.pagination.ariaLabel}>
-        <ul class="flex items-center gap-2">
-          {prevHref && (
-            <li>
-              <a
-                href={prevHref}
-                class="inline-flex items-center rounded-full border border-border-subtle px-4 py-2 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary"
-              >
-                {blog.pagination.previous}
-              </a>
-            </li>
-          )}
-          {pageLinks.map((page) => (
-            <li>
-              {page.current ? (
-                <span
-                  class="inline-flex min-w-[2.5rem] items-center justify-center rounded-full bg-accent px-3 py-2 text-sm font-semibold text-surface-base"
-                  aria-current="page"
-                >
-                  {page.number}
-                </span>
-              ) : (
-                <a
-                  href={page.href}
-                  class="inline-flex min-w-[2.5rem] items-center justify-center rounded-full border border-border-subtle px-3 py-2 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary"
-                  aria-label={pageLabel(page.number)}
-                >
-                  {page.number}
-                </a>
-              )}
-            </li>
-          ))}
-          {nextHref && (
-            <li>
-              <a
-                href={nextHref}
-                class="inline-flex items-center rounded-full border border-border-subtle px-4 py-2 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary"
-              >
-                {blog.pagination.next}
-              </a>
-            </li>
-          )}
-        </ul>
+      <nav aria-label={blog.pagination.ariaLabel} class="flex justify-center w-full">
+        <div class="inline-flex rounded-lg shadow-xs border border-border-subtle bg-surface-elevated" role="group">
+          <a href={prevHref ?? '#'} aria-label={blog.pagination.previous} class={`inline-flex items-center justify-center rounded-s-lg border-r border-border-subtle px-3 h-9 text-sm font-medium text-text-secondary bg-surface-base transition hover:bg-accent hover:text-surface-base focus:outline-none focus-visible:ring-2 focus-visible:ring-accent${!prevHref ? ' opacity-50 pointer-events-none' : ''}`}
+            aria-disabled={!prevHref}
+          >
+            <span class="sr-only">{blog.pagination.previous}</span>
+            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7"/></svg>
+          </a>
+          <span class="inline-flex items-center justify-center px-4 h-9 text-sm font-bold text-accent bg-surface-elevated">{pagination.currentPage} / {pagination.totalPages}</span>
+          <a href={nextHref ?? '#'} aria-label={blog.pagination.next} class={`inline-flex items-center justify-center rounded-e-lg border-l border-border-subtle px-3 h-9 text-sm font-medium text-text-secondary bg-surface-base transition hover:bg-accent hover:text-surface-base focus:outline-none focus-visible:ring-2 focus-visible:ring-accent${!nextHref ? ' opacity-50 pointer-events-none' : ''}`}
+            aria-disabled={!nextHref}
+          >
+            <span class="sr-only">{blog.pagination.next}</span>
+            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/></svg>
+          </a>
+        </div>
       </nav>
     )}
   </section>

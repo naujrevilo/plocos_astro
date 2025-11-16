@@ -2,10 +2,11 @@ import typography from '@tailwindcss/typography';
 import defaultTheme from 'tailwindcss/defaultTheme.js';
 
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     './src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}',
     './public/**/*.html',
+    'node_modules/flowbite/**/*.js',
   ],
   darkMode: ['class', '[data-theme="dark"]'],
   theme: {
@@ -55,6 +56,6 @@ export default {
       },
     },
   },
-  plugins: [typography],
+  plugins: [typography, require('flowbite/plugin')],
 };
 

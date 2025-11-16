@@ -7,7 +7,7 @@ import { createLocaleHref } from '../lib/routes';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const posts = await getPublishedPosts({ locale });
-const latestPosts = posts.slice(0, 12);
+const latestPosts = posts.slice(0, 6);
 const translations = getTranslations(locale);
 const home = translations.home;
 const categoriesHref = createLocaleHref(locale, translations.paths.categories);

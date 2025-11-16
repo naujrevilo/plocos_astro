@@ -1,4 +1,13 @@
+
 # Guía para cliente (NO subir a GitHub)
+
+## Cambios recientes (v1.3.0)
+- Header y menú móvil/escritorio rediseñados para mejor navegación.
+- Drawer de búsqueda en móvil ahora funcional y muestra resultados.
+- Logs de depuración en el script de búsqueda.
+- Mejoras en la moderación de comentarios.
+- Panel de búsqueda más rápido.
+- Corrección de errores menores.
 
 ## Acceso y uso del panel de moderación
 1. Ingresa a `/admin/comments?token=TU_TOKEN` (solo la primera vez)
@@ -20,5 +29,5 @@
 - Ante cualquier duda, contacta al equipo técnico
 
 ---
-Actualizado: 2025-11-14
-Versión: 1.1
+Actualizado: 2025-11-16
+Versión: 1.3.0

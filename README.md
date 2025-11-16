@@ -2,6 +2,14 @@
 
 Sitio estático moderno que preserva el archivo histórico de [plocos.com](https://www.plocos.com/) usando Astro 5, Tailwind CSS 3 y TinaCMS 2 como panel editorial local. El repositorio contiene scripts de migración desde Blogger, colecciones tipadas y un flujo de trabajo local sin dependencias externas.
 
+
+## Cambios recientes (v1.3.0)
+- Refactor completo del header móvil y escritorio: distribución horizontal, responsive y accesible.
+- Drawer de búsqueda en móvil con resultados en tiempo real y panel de resultados integrado.
+- Corrección de eventos y asociación de elementos en el drawer móvil.
+- Logs de depuración agregados al script de búsqueda.
+- Mejoras en la documentación técnica y de usuario.
+
 ## Estado actual del proyecto
 
 - **Framework**: Astro 5.15 con TypeScript habilitado mediante `astro:content`.
@@ -25,6 +33,10 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 | `pnpm import:plocos` | Repite la migración desde el feed de Blogger. |
 | `pnpm tinacms:dev` | Ejecuta `tinacms dev -c "pnpm dev"` para iniciar Astro y el backend GraphQL de Tina; los assets del panel se sirven desde `http://localhost:4101`. |
 | `pnpm tinacms:build` | Construye el panel de Tina para desplegarlo como SPA en `public/admin`. |
+
+
+## Versión actual
+**v1.3.0** — 16/11/2025
 
 ## Desarrollo local
 

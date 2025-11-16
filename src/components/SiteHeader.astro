@@ -1,44 +1,15 @@
 ---
 import ThemeToggle from "./ThemeToggle.astro";
-import SearchBar from "./SearchBar.astro";
-import {
-  getTranslations,
-  locales,
-  defaultLocale,
-  type Locale,
-} from "../lib/i18n";
+import { getTranslations, locales, defaultLocale } from "../lib/i18n";
+import type { Locale } from "../lib/i18n";
 import { createLocaleHref } from "../lib/routes";
 
-interface Props {
-  currentPath?: string;
-  locale: Locale;
-}
-
-const normalisePath = (value: string) => {
-  if (value === "/") {
-    return "/";
-  }
-  return value.endsWith("/") ? value : `${value}/`;
-};
-
-const toSegmentKey = (translation: ReturnType<typeof getTranslations>) => {
-  const mapping = new Map<string, keyof typeof translation.paths>();
-  for (const [key, segment] of Object.entries(translation.paths) as [
-    keyof typeof translation.paths,
-    string,
-  ][]) {
-    if (segment) {
-      mapping.set(segment, key);
-    }
-  }
-  return mapping;
-};
-
-const { currentPath = "/", locale } = Astro.props as Props;
+const { currentPath = "/", locale } = Astro.props as { currentPath?: string; locale: string };
 const translations = getTranslations(locale);
 const navItems = translations.navigation;
+const normalisePath = (path: string) => path.replace(/\/+/g, '/').replace(/\/$/, '');
 const activePath = normalisePath(currentPath);
-const homeHref = createLocaleHref(locale);
+const homeHref = createLocaleHref(locale as Locale);
 const navAriaLabel =
   locale === "es" ? "Navegación principal" : "Primary navigation";
 
@@ -74,222 +45,201 @@ const computeLocaleHref = (targetLocale: Locale) => {
     return createLocaleHref(targetLocale);
   }
 
+  const toSegmentKey = (translations: any) => {
+    const mapping = new Map<string, string>();
+    Object.entries(translations.paths).forEach(([key, segment]) => {
+      if (typeof segment === "string" && segment) mapping.set(segment, key as string);
+    });
+    return mapping;
+  };
   const currentMapping = toSegmentKey(translations);
   const segmentKey = currentMapping.get(currentSegments[0]);
   if (segmentKey) {
     const targetTranslation = getTranslations(targetLocale);
-    const targetSegment = targetTranslation.paths[segmentKey];
-    currentSegments[0] = targetSegment ?? currentSegments[0];
+    if (segmentKey && segmentKey in targetTranslation.paths) {
+      const targetSegment = targetTranslation.paths[segmentKey as keyof typeof targetTranslation.paths];
+      currentSegments[0] = targetSegment ?? currentSegments[0];
+    }
   }
 
   const nextPath = currentSegments.join("/");
   return createLocaleHref(targetLocale, nextPath);
 };
 
-const languageOptions = locales.map((code) => ({
-  code,
-  label: translations.site.localeNames[code],
-  href: computeLocaleHref(code),
-}));
+const languageOptions = [
+  { code: "es", label: "Es", href: computeLocaleHref("es") },
+  { code: "en", label: "En", href: computeLocaleHref("en") },
+];
 ---
 
-<header class="site-header relative w-full text-text-primary">
-  <div class="header-spacer" aria-hidden="true"></div>
-  <div
-    class="header-bar border-b border-border-subtle bg-surface-base/95 backdrop-blur"
-    data-header-bar
-  >
-    <div class="mx-auto w-full max-w-6xl px-4">
-      <div
-        class="header-row flex flex-col gap-4 py-4 transition-all duration-300 md:flex-row md:items-center md:justify-between"
-        data-header-row
-      >
-        <div
-          class="header-lead flex w-full flex-wrap items-center gap-4 md:w-auto"
-        >
+
+
+<nav class="bg-surface-base fixed w-full z-20 top-0 start-0 border-b border-border-subtle">
+  <div class="w-full flex flex-row flex-nowrap items-center justify-between p-4">
+    <!-- Buscador universal Pagefind visible en todos los dispositivos -->
+    <pagefind-search style="max-width:400px;width:100%;margin-right:1rem;"></pagefind-search>
+    <!-- Header móvil: logo, buscador, idioma, hamburguesa -->
+    <div class="md:hidden flex flex-row items-center gap-x-4 w-full">
+      <!-- Logo más grande -->
+      <a href={homeHref} class="logo-link flex items-center shrink-0 mr-3" aria-label="Logo de Plocos">
+        <img src="/logo.svg" alt="Logo de Plocos" class="logo-mark h-12 w-12" />
+      </a>
+      <!-- Buscador y selector de idioma -->
+      <div class="flex flex-row items-center gap-x-2 flex-1">
+        <pagefind-search></pagefind-search>
+        <div class="flex gap-1 ml-2">
           <a
-            href={homeHref}
-            class="logo-link inline-flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-            aria-label={translations.site.title}
+            href={languageOptions[0].href}
+            aria-label="Español"
+            class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'es' ? 'ring-2 ring-accent' : ''}`}
           >
-            <img
-              src="/logo.svg"
-              alt="Logo PLOCOS"
-              class="logo-mark w-28 sm:w-26 md:w-26 lg:w32 max-lg:left-10 max-sm:hidden lg:absolute"
-              loading="lazy"
-            />
+            <img src="/flags/co.svg" alt="Español" class="h-6 w-6" />
           </a>
-          <nav
-            class="primary-nav flex w-full flex-wrap items-center gap-2 text-sm font-medium text-text-secondary md:w-auto md:flex-nowrap md:gap-3 md:text-base"
-            aria-label={navAriaLabel}
+          <a
+            href={languageOptions[1].href}
+            aria-label="English"
+            class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'en' ? 'ring-2 ring-accent' : ''}`}
           >
-            {
-              navItems.map((item) => {
-                const href = createLocaleHref(locale, item.path);
-                const active = isActive(href);
-                const baseClasses =
-                  "inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-[0.9rem] transition whitespace-nowrap md:text-base";
-                const variant = active
-                  ? "border-accent bg-accent text-surface-base shadow-outline"
-                  : "border-border-subtle bg-surface-elevated text-text-secondary hover:border-accent hover:text-text-primary";
-                return (
-                  <a
-                    href={href}
-                    aria-current={active ? "page" : undefined}
-                    class={`${baseClasses} ${variant}`}
-                  >
-                    <span>{item.label}</span>
-                    {item.id === "categories" && (
-                      <svg
-                        aria-hidden="true"
-                        viewBox="0 0 10 6"
-                        class={`h-2.5 w-2.5 transition ${active ? "fill-surface-base" : "fill-text-secondary"}`}
-                      >
-                        <path
-                          d="M1 1.5 5 5l4-3.5"
-                          stroke="currentColor"
-                          stroke-width="1.4"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                    )}
-                  </a>
-                );
-              })
-            }
-          </nav>
-        </div>
-        <div
-          class="header-tools flex w-full flex-col items-stretch gap-3 md:w-auto md:flex-row md:items-center md:justify-end md:gap-4"
-        >
-          <SearchBar />
-          <div class="flex shrink-0 items-center gap-2 md:gap-3">
-            <ThemeToggle />
-            <label
-              class="inline-flex items-center gap-2 text-sm text-text-secondary"
-            >
-              <span class="sr-only">{translations.site.language.srLabel}</span>
-              <select
-                class="h-10 rounded-2xl border border-border-subtle bg-surface-elevated px-3 text-sm font-medium text-text-secondary transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-                aria-label={translations.site.language.label}
-                data-language-select
-              >
-                {
-                  languageOptions.map((option) => (
-                    <option
-                      value={option.href}
-                      selected={option.code === locale}
-                    >
-                      {option.label}
-                    </option>
-                  ))
-                }
-              </select>
-            </label>
-          </div>
+            <img src="/flags/us.svg" alt="English" class="h-6 w-6" />
+          </a>
         </div>
       </div>
+      <!-- ThemeToggle móvil -->
+      <div class="ml-2"><ThemeToggle /></div>
+      <!-- Hamburguesa -->
+      <button data-collapse-toggle="mobile-nav" type="button" class="hamburger-btn flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated text-text-primary transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ml-2" aria-label="Abrir menú" aria-controls="mobile-nav" aria-expanded="false">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect y="5" width="24" height="2" rx="1" fill="currentColor" />
+          <rect y="11" width="24" height="2" rx="1" fill="currentColor" />
+          <rect y="17" width="24" height="2" rx="1" fill="currentColor" />
+        </svg>
+      </button>
+      </button>
+    </div>
+    <!-- Controles desktop SOLO en escritorio -->
+    <div class="hidden md:flex items-center gap-2 w-full md:w-auto md:order-2">
+      <button id="open-search-btn-desktop" type="button" class="inline-flex items-center justify-center rounded-full bg-accent px-4 py-2 text-surface-base" aria-label="Buscar" aria-controls="search-drawer">
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="h-5 w-5 fill-current">
+          <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.71.71l.27.28v.79l5 4.99L20.49 19zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" />
+        </svg>
+      </button>
+      <ThemeToggle />
+      <label class="inline-flex items-center gap-1 text-base font-semibold text-accent">
+        <span class="sr-only">{translations.site.language.srLabel}</span>
+        <div class="flex gap-1 ml-2">
+          <a
+            href={languageOptions[0].href}
+            aria-label="Español"
+            class={`rounded-full border border-accent bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'es' ? 'ring-2 ring-accent' : ''}`}
+          >
+            <img src="/flags/co.svg" alt="Español" class="h-6 w-6" />
+          </a>
+          <a
+            href={languageOptions[1].href}
+            aria-label="English"
+            class={`rounded-full border border-accent bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'en' ? 'ring-2 ring-accent' : ''}`}
+          >
+            <img src="/flags/us.svg" alt="English" class="h-6 w-6" />
+          </a>
+        </div>
+      </label>
+    </div>
+    <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-search">
+      <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-border-subtle rounded-base bg-surface-elevated md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-surface-base">
+        {navItems.map((item) => {
+          const href = createLocaleHref(locale as Locale, item.path);
+          const active = isActive(href);
+          return (
+            <li>
+              <a href={href} aria-current={active ? "page" : undefined} class={`block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-accent md:p-0 md:dark:hover:bg-transparent ${active ? "font-bold underline" : ""}`}>{item.label}</a>
+            </li>
+          );
+        })}
+              <button type="button" aria-label="Cerrar menú" class="self-end mb-4 text-gray-500 hover:text-blue-600 focus:outline-none" data-close-mobile-nav>
     </div>
   </div>
+</nav>
+          {
+            languageOptions.map((option) => (
+              <option
+                value={option.href}
+                selected={option.code === locale}
+              >
+                {option.label}
+              </option>
+            ))
+          }
+        </select>
+      </label>
+      <!-- Menú hamburguesa -->
+    </div>
+  </div>
+  <!-- Overlay y menú hamburguesa -->
+  <div id="mobile-nav-overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none md:hidden"></div>
+  <nav
+    id="mobile-nav"
+    class="mobile-nav fixed inset-0 z-50 flex flex-col justify-start items-stretch h-screen w-screen bg-surface-base border-none shadow-2xl p-6 pt-[var(--header-height)] transition-transform duration-300 md:hidden"
+    aria-label={navAriaLabel}
+  >
+    <!-- Solo el botón de cerrar menú, no hamburguesa -->
+    <button type="button" aria-label="Cerrar menú" class="self-end mb-4 text-gray-500 hover:text-blue-600 focus:outline-none" data-close-mobile-nav>
+      <svg aria-hidden="true" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    <ul class="flex flex-col gap-4 text-lg font-medium w-full">
+      {
+        navItems.map((item) => {
+          const href = createLocaleHref(locale as Locale, item.path);
+          const active = isActive(href);
+          return (
+            <li class="w-full">
+              <a href={href} aria-current={active ? "page" : undefined} class={`block w-full rounded border px-4 py-3 transition ${active ? "border-blue-600 bg-blue-100 text-blue-700 font-bold" : "border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:text-blue-600"}`}>
+                {item.label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </nav>
+</header>
+<!-- Eliminado JS personalizado para menú hamburguesa y drawer de búsqueda. Flowbite/Tailwind gestionan la interacción. -->
 </header>
 <script is:inline>
-  const setupHeader = () => {
-    const header = document.querySelector("header.site-header");
-    if (!(header instanceof HTMLElement)) {
-      return undefined;
+  // Lógica para alternar menú móvil y overlay
+  document.addEventListener("DOMContentLoaded", () => {
+    const hamburgerBtn = document.querySelector(".hamburger-btn");
+    const mobileNav = document.getElementById("mobile-nav");
+    const overlay = document.getElementById("mobile-nav-overlay");
+    const closeBtn = mobileNav?.querySelector("[data-close-mobile-nav]");
+    const navLinks = mobileNav?.querySelectorAll("a");
+
+    function openMenu() {
+      mobileNav?.classList.remove("hidden");
+      overlay?.classList.remove("opacity-0", "pointer-events-none");
+      overlay?.classList.add("opacity-100", "pointer-events-auto");
+      hamburgerBtn?.setAttribute("aria-expanded", "true");
+    }
+    function closeMenu() {
+      mobileNav?.classList.add("hidden");
+      overlay?.classList.remove("opacity-100", "pointer-events-auto");
+      overlay?.classList.add("opacity-0", "pointer-events-none");
+      hamburgerBtn?.setAttribute("aria-expanded", "false");
     }
 
-    const bar = header.querySelector("[data-header-bar]");
-    const languageSelect = header.querySelector("[data-language-select]");
-    const handleLanguageChange = (event) => {
-      const target =
-        event.target instanceof HTMLSelectElement
-          ? event.target
-          : languageSelect;
-      if (!(target instanceof HTMLSelectElement)) {
-        return;
-      }
-      const { value } = target;
-      if (typeof value === "string" && value.length > 0) {
-        window.location.href = value;
-      }
-    };
-
-    if (languageSelect instanceof HTMLSelectElement) {
-      languageSelect.addEventListener("change", handleLanguageChange);
-    }
-
-    if (!(bar instanceof HTMLElement)) {
-      return () => {
-        if (languageSelect instanceof HTMLSelectElement) {
-          languageSelect.removeEventListener("change", handleLanguageChange);
-        }
-      };
-    }
-
-    const applyHeight = () => {
-      const measured = bar.offsetHeight;
-      if (measured > 0) {
-        header.style.setProperty("--header-height", `${measured}px`);
-      }
-    };
-
-    const handleScroll = () => {
-      header.classList.toggle("is-scrolled", window.scrollY > 12);
-    };
-
-    const handleResize = () => {
-      applyHeight();
-      handleScroll();
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleResize, { passive: true });
-
-    let resizeObserver;
-    if ("ResizeObserver" in window) {
-      resizeObserver = new ResizeObserver(() => {
-        applyHeight();
-      });
-      resizeObserver.observe(bar);
-    }
-
-    applyHeight();
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleResize);
-      resizeObserver?.disconnect();
-      if (languageSelect instanceof HTMLSelectElement) {
-        languageSelect.removeEventListener("change", handleLanguageChange);
-      }
-    };
-  };
-
-  let cleanup = setupHeader();
-
-  const reinitialise = () => {
-    cleanup?.();
-    cleanup = setupHeader();
-  };
-
-  document.addEventListener("astro:before-swap", () => {
-    cleanup?.();
-    cleanup = undefined;
-  });
-
-  document.addEventListener("astro:after-swap", reinitialise);
-  document.addEventListener("astro:page-load", reinitialise);
-
-  window.addEventListener("pageshow", (event) => {
-    if (event.persisted) {
-      reinitialise();
-    }
+    hamburgerBtn?.setAttribute("aria-expanded", "false");
+    hamburgerBtn?.addEventListener("click", openMenu);
+    closeBtn?.addEventListener("click", closeMenu);
+    overlay?.addEventListener("click", closeMenu);
+    navLinks?.forEach(link => link.addEventListener("click", closeMenu));
   });
 </script>
-<style>
+  <style>
+    /* Forzar ocultamiento del botón hamburguesa en escritorio */
+    @media (min-width: 768px) {
+      .hamburger-btn {
+        display: none !important;
+      }
+    }
   .site-header {
     --header-height: 5.5rem;
   }

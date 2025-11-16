@@ -25,75 +25,77 @@ const iconMap: Record<'light' | 'dark' | 'system', string> = {
   </select>
 </label>
 <script is:inline>
-  const storageKey = 'plocos-theme';
-  const wrapper = document.currentScript?.previousElementSibling;
-  const doc = document.documentElement;
-  const media = window.matchMedia('(prefers-color-scheme: dark)');
+  (() => {
+    const storageKey = 'plocos-theme';
+    const wrapper = document.currentScript?.previousElementSibling;
+    const doc = document.documentElement;
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
 
-  if (!(wrapper instanceof HTMLLabelElement)) {
-    throw new Error('theme toggle render error');
-  }
-
-  const select = wrapper.querySelector('[data-theme-select]');
-
-  if (!(select instanceof HTMLSelectElement)) {
-    throw new Error('theme toggle select missing');
-  }
-
-  const getStored = () => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      return saved === 'light' || saved === 'dark' ? saved : 'system';
-    } catch (error) {
-      return 'system';
+    if (!(wrapper instanceof HTMLLabelElement)) {
+      throw new Error('theme toggle render error');
     }
-  };
 
-  const setPreference = (mode) => {
-    doc.dataset.themePreference = mode;
-    if (mode === 'light') {
-      doc.setAttribute('data-theme', 'light');
-    } else if (mode === 'dark') {
-      doc.setAttribute('data-theme', 'dark');
-    } else {
-      doc.removeAttribute('data-theme');
+    const select = wrapper.querySelector('[data-theme-select]');
+
+    if (!(select instanceof HTMLSelectElement)) {
+      throw new Error('theme toggle select missing');
     }
-  };
 
-  const reflect = (mode) => {
-    select.value = mode;
-  };
-
-  let preference = getStored();
-  setPreference(preference);
-  reflect(preference);
-
-  const persist = (mode) => {
-    try {
-      if (mode === 'system') {
-        localStorage.removeItem(storageKey);
-      } else {
-        localStorage.setItem(storageKey, mode);
+    const getStored = () => {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        return saved === 'light' || saved === 'dark' ? saved : 'system';
+      } catch (error) {
+        return 'system';
       }
-    } catch (error) {
-      /* ignore persistence errors */
-    }
-  };
+    };
 
-  const handleSystemChange = () => {
-    const active = doc.dataset.themePreference ?? 'system';
-    if (active === 'system') {
-      setPreference('system');
-    }
-  };
+    const setPreference = (mode) => {
+      doc.dataset.themePreference = mode;
+      if (mode === 'light') {
+        doc.setAttribute('data-theme', 'light');
+      } else if (mode === 'dark') {
+        doc.setAttribute('data-theme', 'dark');
+      } else {
+        doc.removeAttribute('data-theme');
+      }
+    };
 
-  select.addEventListener('change', (event) => {
-    const value = event.target instanceof HTMLSelectElement ? event.target.value : select.value;
-    preference = value === 'light' || value === 'dark' ? value : 'system';
-    persist(preference);
+    const reflect = (mode) => {
+      select.value = mode;
+    };
+
+    let preference = getStored();
     setPreference(preference);
     reflect(preference);
-  });
 
-  media.addEventListener('change', handleSystemChange);
+    const persist = (mode) => {
+      try {
+        if (mode === 'system') {
+          localStorage.removeItem(storageKey);
+        } else {
+          localStorage.setItem(storageKey, mode);
+        }
+      } catch (error) {
+        /* ignore persistence errors */
+      }
+    };
+
+    const handleSystemChange = () => {
+      const active = doc.dataset.themePreference ?? 'system';
+      if (active === 'system') {
+        setPreference('system');
+      }
+    };
+
+    select.addEventListener('change', (event) => {
+      const value = event.target instanceof HTMLSelectElement ? event.target.value : select.value;
+      preference = value === 'light' || value === 'dark' ? value : 'system';
+      persist(preference);
+      setPreference(preference);
+      reflect(preference);
+    });
+
+    media.addEventListener('change', handleSystemChange);
+  })();
 </script>
