@@ -1,6 +1,6 @@
 # Configuración de construcción para Netlify
 [build]
-  command = "pnpm run tinacms:build && pnpm build"
+  command = "pnpm run tinacms:build && pnpm build --remote"
   publish = "dist"
 
 [build.environment]
