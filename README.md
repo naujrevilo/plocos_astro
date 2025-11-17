@@ -7,7 +7,7 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 ## Cambios recientes (v0.1.0)
 ## Estado actual del proyecto
 ## Versión 0.1.2
-**v0.1.2** — 16/11/2025
+**v0.1.4** — 16/11/2025
 - **Framework**: Astro 5.15 con TypeScript habilitado mediante `astro:content`.
 # Identificador público de tu proyecto en Tina Cloud.
 TINA_PUBLIC_CLIENT_ID=tu_client_id
