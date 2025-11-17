@@ -1,7 +1,7 @@
 
 # Guía para cliente (NO subir a GitHub)
 
-## Cambios recientes (v1.3.0)
+## Cambios recientes (v0.1.4)
 - Header y menú móvil/escritorio rediseñados para mejor navegación.
 - Drawer de búsqueda en móvil ahora funcional y muestra resultados.
 - Logs de depuración en el script de búsqueda.
