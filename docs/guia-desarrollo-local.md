@@ -25,7 +25,7 @@
 
 ## Buenas prácticas
 
-## Cambios recientes (v1.3.0)
+## Cambios recientes (v0.1.4)
 
 - Header y menú móvil/escritorio refactorizados para mejor usabilidad.
 - Drawer de búsqueda en móvil ahora funcional y con panel de resultados.
