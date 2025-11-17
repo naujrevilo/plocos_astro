@@ -1,6 +1,6 @@
 # Guía de usuario PLOCOS
 
-## Cambios recientes (v1.3.0)
+## Cambios recientes (v0.1.4)
 - El header móvil y escritorio ahora se distribuye horizontalmente y es totalmente responsive.
 - El drawer de búsqueda en móvil funciona igual que el buscador de escritorio, mostrando resultados en tiempo real.
 - Se agregaron logs de depuración para facilitar el diagnóstico de problemas en la búsqueda móvil.
@@ -23,4 +23,4 @@
 
 ---
 Actualizado: 2025-11-16
-Versión: 1.3.0
+Versión: 0.1.4
