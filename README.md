@@ -7,9 +7,8 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 ## Estado actual del proyecto
 ## Versión 0.1.4
 **v0.1.4** — 16/11/2025
-- **Framework**: Astro 5.15 con TypeScript habilitado mediante `astro:content`.
 # Identificador público de tu proyecto en Tina Cloud.
-TINA_PUBLIC_CLIENT_ID=tu_client_id
+**v0.1.5** — 16/11/2025
 # Token con permisos de escritura para Tina Cloud. Mantén este valor privado.
 TINA_TOKEN=tu_token
 # Rama por defecto que debe editar Tina (generalmente main).
@@ -41,7 +40,7 @@ Revisa `docs/README-usuario.md` para instrucciones de uso y `docs/CHANGELOG.md` 
 
 ## Versión 0.1.2
 **v1.3.0** — 16/11/2025
-
+ **Framework**: Astro 5.15 con TypeScript habilitado mediante `astro:content`.
 ## Desarrollo local
 
 1. Ejecuta `pnpm tinacms:dev` para lanzar Astro y el datalayer de TinaCMS.
