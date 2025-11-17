@@ -4,35 +4,40 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 
 
 ## Cambios recientes (v1.3.0)
-- Refactor completo del header móvil y escritorio: distribución horizontal, responsive y accesible.
-- Drawer de búsqueda en móvil con resultados en tiempo real y panel de resultados integrado.
-- Corrección de eventos y asociación de elementos en el drawer móvil.
-- Logs de depuración agregados al script de búsqueda.
-- Mejoras en la documentación técnica y de usuario.
-
+## Cambios recientes (v0.1.0)
 ## Estado actual del proyecto
-
+## Versión actual
+**v0.1.0** — 16/11/2025
 - **Framework**: Astro 5.15 con TypeScript habilitado mediante `astro:content`.
-- **CMS local**: TinaCMS con panel React servido desde `public/admin/index.html`. El CLI levanta Astro y el backend GraphQL de Tina en puertos locales.
-- **CSS**: Tailwind 3 con plugin de tipografía para maquetación de artículos.
-- **Contenido**: markdown en `src/content/posts`, `src/content/categories` y `src/content/authors`, con sincronización opcional desde Blogger.
-- **Imágenes**: bajo `public/images` (migradas) y `public/uploads` (nuevos assets del CMS).
-- **Tipografía**: Pilas personalizadas con Noto Sans (cuerpo) y Sarala (títulos) servidas desde `public/fonts`.
+# Identificador público de tu proyecto en Tina Cloud.
+TINA_PUBLIC_CLIENT_ID=tu_client_id
+# Token con permisos de escritura para Tina Cloud. Mantén este valor privado.
+TINA_TOKEN=tu_token
+# Rama por defecto que debe editar Tina (generalmente main).
+TINA_BRANCH=main
 - **UI social**: Botones de compartir y redes reducidos a íconos accesibles reutilizan el componente `SocialIcon`.
-- **Comentarios**: Formularios moderados para cada post que persisten en Astro DB (libSQL/Turso) mediante el endpoint `/api/comments`.
-- **Listado de blog**: `/blog` muestra 12 entradas recientes con paginación reutilizable (`paginate`) y navegación accesible.
+## Variables de entorno
 
-## Scripts disponibles
-
+- Duplica el archivo `.env.example` como `.env` y rellena los valores. El ID de Google Analytics (`ANALYTICS_ID`) es opcional; déjalo vacío para desactivar la medición.
+- No subas jamás el `.env` al repositorio. `TINA_TOKEN` es un secreto con permisos de escritura y debe guardarse únicamente en gestores seguros (GitHub Secrets, Netlify Environment).
+- En entornos locales añade las variables a `.env`; en Netlify defínelas desde la interfaz de configuración (Site settings → Build & deploy → Environment).
+- Para conectar Astro DB a Turso define `ASTRO_DB_REMOTE_URL` y `ASTRO_DB_APP_TOKEN`. Genera las credenciales con el CLI de Turso (`turso db show` / `turso db tokens create`) y ejecútalas en local y en el proveedor de hosting.
+- Define un `COMMENTS_MODERATION_TOKEN` (cualquier cadena segura). El panel `/admin/comments` y el endpoint `/api/comments/moderate` lo usan para autenticar las acciones de aprobación/eliminación.
 | Comando | Descripción |
-| --- | --- |
-| `pnpm install` | Instala dependencias. |
-| `pnpm dev` | Inicia Astro en `http://localhost:4321` (o el siguiente puerto libre). |
-| `pnpm build` | Genera la versión de producción en `dist/`. |
-| `pnpm preview` | Sirve el build generado para verificación local. |
-| `pnpm import:plocos` | Repite la migración desde el feed de Blogger. |
-| `pnpm tinacms:dev` | Ejecuta `tinacms dev -c "pnpm dev"` para iniciar Astro y el backend GraphQL de Tina; los assets del panel se sirven desde `http://localhost:4101`. |
-| `pnpm tinacms:build` | Construye el panel de Tina para desplegarlo como SPA en `public/admin`. |
+## Despliegue con Netlify + Tina Cloud
+
+- Netlify usa el archivo `netlify.toml`; el comando de build ejecuta `pnpm run tinacms:build && pnpm build` y publica la carpeta `dist/`.
+- Configura en Netlify (Site settings → Build & deploy → Environment) los valores:
+  - `TINA_PUBLIC_CLIENT_ID` y `TINA_TOKEN` provistos por Tina Cloud (asegúrate de que el proyecto exista y las credenciales sean válidas).
+  - `TINA_BRANCH` con la rama por defecto (`main`, salvo que uses otra).
+  - `PUBLIC_SITE_URL` con la URL definitiva del sitio.
+  - `ANALYTICS_ID` si usas GA4.
+- Habilita “Deploy Previews” para revisar cambios de contenido en ramas antes de fusionarlos.
+- La SPA del panel (`/admin`) queda disponible tras ejecutar `tinacms build`; Netlify aplica una redirección interna para permitir rutas internas del panel.
+## Documentación y changelog
+
+La documentación técnica y el changelog se encuentran en la carpeta `docs/`.
+Revisa `docs/README-usuario.md` para instrucciones de uso y `docs/CHANGELOG.md` para el historial de cambios agrupados.
 
 
 ## Versión actual
