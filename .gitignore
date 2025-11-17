@@ -1,5 +1,10 @@
 # build output
 dist/
+# TinaCMS build output
+public/admin/assets/
+tina/__generated__/
+# Netlify build output
+.netlify/
 # generated types
 .astro/
 
