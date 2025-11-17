@@ -6,8 +6,8 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 ## Cambios recientes (v1.3.0)
 ## Cambios recientes (v0.1.0)
 ## Estado actual del proyecto
-## Versión actual
-**v0.1.0** — 16/11/2025
+## Versión 0.1.2
+**v0.1.2** — 16/11/2025
 - **Framework**: Astro 5.15 con TypeScript habilitado mediante `astro:content`.
 # Identificador público de tu proyecto en Tina Cloud.
 TINA_PUBLIC_CLIENT_ID=tu_client_id
@@ -40,7 +40,7 @@ La documentación técnica y el changelog se encuentran en la carpeta `docs/`.
 Revisa `docs/README-usuario.md` para instrucciones de uso y `docs/CHANGELOG.md` para el historial de cambios agrupados.
 
 
-## Versión actual
+## Versión 0.1.2
 **v1.3.0** — 16/11/2025
 
 ## Desarrollo local
@@ -177,4 +177,4 @@ scripts/              # Herramientas de migración y normalización (ignoradas e
 
 **Changelog**
 - 2025-11-14: Mejoras en autenticación del panel de moderación, documentación actualizada, troubleshooting añadido, guías separadas para desarrollo y cliente.
-- Versión: 1.1
+- Versión 0.1.2
