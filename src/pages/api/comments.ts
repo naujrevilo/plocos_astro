@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { Comments, and, asc, db, eq, isDbError } from 'astro:db';
+import { Comments, and, asc, db, eq, isDbError, desc } from 'astro:db';
 import { locales, type Locale, getTranslations } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 
@@ -108,16 +108,17 @@ export const GET: APIRoute = async ({ url }) => {
       name: Comments.name,
       message: Comments.message,
       createdAt: Comments.createdAt,
+      approved: Comments.approved,
     })
     .from(Comments)
     .where(
       and(
         eq(Comments.postSlug, slug),
         eq(Comments.locale, locale),
-        eq(Comments.approved, true)
+        eq(Comments.approved, 1)
       )
     )
-    .orderBy(asc(Comments.createdAt));
+    .orderBy(desc(Comments.createdAt));
 
   return jsonResponse(200, {
     comments: rows.map(({ id, name, message, createdAt }) => ({
@@ -175,11 +176,11 @@ export const POST: APIRoute = async ({ request }) => {
     }
   } catch (error) {
     console.error('Failed to parse comment payload', error);
-    return respond(request, 400, { error: 'Invalid payload.' });
+    return jsonResponse(400, { error: 'Invalid payload.' });
   }
 
   if (!body) {
-    return respond(request, 415, { error: 'Unsupported content type.' });
+    return jsonResponse(415, { error: 'Unsupported content type.' });
   }
 
   const slug = body.slug?.trim();
@@ -190,39 +191,39 @@ export const POST: APIRoute = async ({ request }) => {
   const website = body.website?.trim();
 
     if (!slug || slug.length > MAX_SLUG_LENGTH) {
-      return respond(request, 400, { error: 'Invalid slug.' }, { locale: locale as Locale, slug, status: 'error' });
+      return jsonResponse(400, { error: 'Invalid slug.' });
   }
 
     if (!locale || !isSupportedLocale(locale)) {
-      return respond(request, 400, { error: 'Unsupported locale.' }, { locale: locale as Locale, slug, status: 'error' });
+      return jsonResponse(400, { error: 'Unsupported locale.' });
   }
 
   const supportedLocale = locale as Locale;
   const errorFallback = { locale: supportedLocale, slug, status: 'error' as const };
 
   if (!name) {
-    return respond(request, 400, { error: 'Name is required.' }, errorFallback);
+    return jsonResponse(400, { error: 'Name is required.' });
   }
 
   if (name.length > MAX_NAME_LENGTH) {
-    return respond(request, 400, { error: 'Name is too long.' }, errorFallback);
+    return jsonResponse(400, { error: 'Name is too long.' });
   }
 
   if (message === undefined || message === null || message.trim().length === 0) {
-    return respond(request, 400, { error: 'Message is required.' }, errorFallback);
+    return jsonResponse(400, { error: 'Message is required.' });
   }
 
   const normalizedMessage = message.trim();
   if (normalizedMessage.length < 8) {
-    return respond(request, 400, { error: 'Message is too short.' }, errorFallback);
+    return jsonResponse(400, { error: 'Message is too short.' });
   }
 
   if (normalizedMessage.length > MAX_MESSAGE_LENGTH) {
-    return respond(request, 400, { error: 'Message is too long.' }, errorFallback);
+    return jsonResponse(400, { error: 'Message is too long.' });
   }
 
   if (email && !validateEmail(email)) {
-    return respond(request, 400, { error: 'Invalid email address.' }, errorFallback);
+    return jsonResponse(400, { error: 'Invalid email address.' });
   }
 
   try {
@@ -232,15 +233,16 @@ export const POST: APIRoute = async ({ request }) => {
       name: sanitize(name, MAX_NAME_LENGTH),
       email: email ? email.trim().slice(0, MAX_EMAIL_LENGTH) : null,
       message: normalizedMessage,
+      approved: 0,
     });
   } catch (error) {
     if (isDbError(error)) {
       console.error('Database error while creating comment', error);
-      return respond(request, 500, { error: 'Failed to store comment.' }, errorFallback);
+      return jsonResponse(500, { error: 'Failed to store comment.' });
     }
     console.error('Unexpected error while creating comment', error);
-    return respond(request, 500, { error: 'Unexpected error.' }, errorFallback);
+    return jsonResponse(500, { error: 'Unexpected error.' });
   }
 
-  return respond(request, 201, { status: 'pending' }, { locale: supportedLocale, slug, status: 'pending' });
+  return jsonResponse(201, { status: 'pending' });
 };

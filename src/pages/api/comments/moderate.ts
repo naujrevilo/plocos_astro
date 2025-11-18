@@ -1,77 +1,34 @@
 import type { APIRoute } from 'astro';
-import { Comments, db, eq } from 'astro:db';
-
-const HEADERS = {
-  'content-type': 'application/json; charset=utf-8',
-  'cache-control': 'no-store',
-} as const;
+import { Comments, db, eq, and } from 'astro:db';
 
 const COOKIE_NAME = 'plocos-comments-token';
 
-function json(status: number, body: Record<string, unknown>) {
-  return new Response(JSON.stringify(body), { status, headers: HEADERS });
-}
-
-export const prerender = false;
-
 export const POST: APIRoute = async ({ request, cookies }) => {
-  const token = import.meta.env.COMMENTS_MODERATION_TOKEN;
+  const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN ?? '';
+  const providedToken = cookies.get(COOKIE_NAME)?.value ?? null;
 
-  if (!token) {
-    return json(500, { error: 'COMMENTS_MODERATION_TOKEN is not configured.' });
-  }
-
-  const cookieToken = cookies.get(COOKIE_NAME)?.value;
-  const headerToken = request.headers.get('x-comments-token');
-
-  if (cookieToken !== token && headerToken !== token) {
-    return json(401, { error: 'Unauthorized.' });
-  }
-
-  let payload: { id?: number | string; action?: string } | undefined;
-  try {
-    payload = await request.json();
-  } catch (error) {
-    console.error('Failed to parse moderation payload', error);
-    return json(400, { error: 'Invalid payload.' });
-  }
-
-  if (!payload) {
-    return json(400, { error: 'Missing payload.' });
-  }
-
-  const id = Number(payload.id);
-  if (!Number.isInteger(id) || id <= 0) {
-    return json(400, { error: 'Invalid comment id.' });
-  }
-
-  const action = payload.action;
-  if (action !== 'approve' && action !== 'delete') {
-    return json(400, { error: 'Unsupported action.' });
+  if (!moderationToken || providedToken !== moderationToken) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
   try {
+    const { id, action } = await request.json();
+
+    if (!id || !action) {
+      return new Response(JSON.stringify({ error: 'Missing id or action' }), { status: 400 });
+    }
+
     if (action === 'approve') {
-      const result = await db
-        .update(Comments)
-        .set({ approved: true })
-        .where(eq(Comments.id, id))
-        .returning({ id: Comments.id });
-
-      if (!result.length) {
-        return json(404, { error: 'Comment not found.' });
-      }
-
-      return json(200, { status: 'approved', id });
+      await db.update(Comments).set({ approved: 1 }).where(eq(Comments.id, id));
+    } else if (action === 'delete') {
+      await db.delete(Comments).where(eq(Comments.id, id));
+    } else {
+      return new Response(JSON.stringify({ error: 'Invalid action' }), { status: 400 });
     }
 
-    const result = await db.delete(Comments).where(eq(Comments.id, id)).returning({ id: Comments.id });
-    if (!result.length) {
-      return json(404, { error: 'Comment not found.' });
-    }
-    return json(200, { status: 'deleted', id });
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {
     console.error('Failed to moderate comment', error);
-    return json(500, { error: 'Unexpected error.' });
+    return new Response(JSON.stringify({ error: 'Failed to moderate comment' }), { status: 500 });
   }
 };
