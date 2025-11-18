@@ -31,4 +31,19 @@
 - Drawer de búsqueda en móvil ahora funcional y con panel de resultados.
 - Logs de depuración en el script de búsqueda.
 
+## Correcciones en Sección de Comentarios (v0.1.5)
+
+Se solucionaron varios errores en el componente `CommentSection.astro` que impedían la correcta visualización y funcionamiento del diseño actualizado.
+
+**Causas:**
+
+1.  **Sintaxis de TypeScript en script de cliente:** El uso de conversiones de tipo como `as HTMLElement` y `as DocumentFragment` en el script que se ejecuta en el navegador generaba errores de sintaxis, ya que los navegadores no interpretan TypeScript de forma nativa.
+2.  **Errores tipográficos en clases de CSS:** Se encontraron y corrigieron erratas en las clases de utilidad de CSS (ej. `ease-in-out` en lugar de `ease-in-out`), lo que provocaba que los estilos de transición y foco no se aplicaran.
+
+**Soluciones:**
+
+- Se eliminó toda la sintaxis de TypeScript del script del lado del cliente para asegurar la compatibilidad con el navegador.
+- Se corrigieron las clases de CSS para que los estilos se apliquen correctamente.
+- Se implementó la lógica para mostrar inicialmente solo 5 comentarios y cargar los demás con un botón.
+
 

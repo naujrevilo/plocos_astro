@@ -1,7 +1,10 @@
 
 # Guía para cliente (NO subir a GitHub)
 
-## Cambios recientes (v0.1.4)
+## Cambios recientes (v0.1.5)
+
+- **Diseño de comentarios mejorado**: La lista de comentarios ahora tiene un estilo visual más limpio y moderno.
+- **Carga optimizada de comentarios**: Inicialmente se muestran 5 comentarios, con un botón para cargar los restantes, mejorando el rendimiento de la página.
 - Header y menú móvil/escritorio rediseñados para mejor navegación.
 - Drawer de búsqueda en móvil ahora funcional y muestra resultados.
 - Logs de depuración en el script de búsqueda.
