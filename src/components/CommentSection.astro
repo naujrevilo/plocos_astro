@@ -1,5 +1,6 @@
 ---
 import { getTranslations, type Locale } from '../lib/i18n';
+import { db, Comments, eq, and, desc } from 'astro:db';
 
 interface Props {
   slug: string;
@@ -17,6 +18,17 @@ const initialStatusText =
       : initialStatus === 'error'
         ? copy.error
         : '';
+
+const comments = await db
+  .select()
+  .from(Comments)
+  .where(and(eq(Comments.postSlug, slug), eq(Comments.locale, locale), eq(Comments.approved, 1)))
+  .orderBy(desc(Comments.createdAt));
+
+const dateFormatter = new Intl.DateTimeFormat(locale, {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
 ---
 <section
   id="comments"
@@ -36,11 +48,6 @@ const initialStatusText =
     </h2>
     <p class="text-sm text-text-secondary">{copy.description}</p>
   </header>
-
-  <div class="space-y-4">
-    <ul class="space-y-4" data-comments-list hidden />
-    <p class="text-sm text-text-secondary" data-empty-state>{copy.empty}</p>
-  </div>
 
   <form
     class="space-y-6 rounded-2xl border border-border-subtle bg-surface-muted p-6 shadow-contemplation"
@@ -126,8 +133,25 @@ const initialStatusText =
     </div>
   </form>
 
+  <div class="space-y-4">
+    <ul class="space-y-4" data-comments-list>
+      {comments.map(comment => (
+        <li class="overflow-hidden rounded-2xl border border-border-subtle bg-surface p-6 shadow-contemplation transition-all duration-300 ease-in-out hover:border-border hover:shadow-sm">
+          <div class="flex items-center justify-between text-xs text-text-secondary/80">
+            <span class="font-semibold text-text-primary">{comment.name}</span>
+            <time class="text-xs">{dateFormatter.format(new Date(comment.createdAt))}</time>
+          </div>
+          <p class="mt-3 text-sm leading-relaxed text-text-primary whitespace-pre-wrap">{comment.message}</p>
+        </li>
+      ))}
+    </ul>
+    <div data-load-more-container class="mt-6 text-center"></div>
+
+    <p class="text-sm text-text-secondary" data-empty-state hidden={comments.length > 0}>{copy.empty}</p>
+  </div>
+
   <template data-comment-template>
-    <li class="rounded-2xl border border-border-subtle bg-surface p-5">
+    <li class="overflow-hidden rounded-2xl border border-border-subtle bg-surface p-6 shadow-contemplation transition-all duration-300 ease-in-out hover:border-border hover:shadow-sm">
       <div class="flex items-center justify-between text-xs text-text-secondary/80">
         <span data-comment-author class="font-semibold text-text-primary"></span>
         <time data-comment-date class="text-xs" />
@@ -137,176 +161,162 @@ const initialStatusText =
   </template>
 </section>
 
-<script type="module" is:inline>
-  const section = document.querySelector('[data-comment-section]');
-  if (!(section instanceof HTMLElement)) {
-    console.warn('Comment section container not found');
-    return;
-  }
-
-  const slug = section.dataset.slug ?? '';
-  const locale = section.dataset.locale ?? 'es';
-  const messages = {
-    pending: section.dataset.messagePending ?? '',
-    success: section.dataset.messageSuccess ?? '',
-    error: section.dataset.messageError ?? '',
-    empty: section.dataset.messageEmpty ?? '',
-  };
-  const initialStatus = section.dataset.initialStatus ?? '';
-
-  const form = section.querySelector('form[data-comment-form]');
-  const list = section.querySelector('[data-comments-list]');
-  const emptyState = section.querySelector('[data-empty-state]');
-  const status = section.querySelector('[data-status]');
-  const submitButton = section.querySelector('[data-submit-button]');
-  const template = section.querySelector('template[data-comment-template]');
-
-  if (!(form instanceof HTMLFormElement) || !(list instanceof HTMLElement) || !(template instanceof HTMLTemplateElement)) {
-    console.warn('Comment form prerequisites missing');
-    return;
-  }
-
-  const dateFormatter = Intl.DateTimeFormat(locale, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
-
-  const currentUrl = new URL(window.location.href);
-  const commentParam = currentUrl.searchParams.get('comment');
-  if (commentParam && status instanceof HTMLElement) {
-    const normalized = commentParam === 'pending' || commentParam === 'success' || commentParam === 'error' ? commentParam : '';
-    if (normalized) {
-      status.dataset.state = normalized;
-      status.textContent = messages[normalized];
-    }
-    currentUrl.searchParams.delete('comment');
-    window.history.replaceState({}, '', currentUrl);
-  } else if (initialStatus && status instanceof HTMLElement) {
-    status.dataset.state = initialStatus;
-  }
-
-  async function loadComments() {
-    try {
-      const response = await fetch(`/api/comments?slug=${encodeURIComponent(slug)}&locale=${encodeURIComponent(locale)}`, {
-        headers: { accept: 'application/json' },
-      });
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
-      const payload = await response.json();
-      const comments = Array.isArray(payload?.comments) ? payload.comments : [];
-
-      list.replaceChildren();
-
-      if (!comments.length) {
-        list.setAttribute('hidden', '');
-        if (emptyState instanceof HTMLElement) {
-          emptyState.textContent = messages.empty;
-          emptyState.hidden = false;
-        }
-        return;
-      }
-
-      if (emptyState instanceof HTMLElement) {
-        emptyState.hidden = true;
-      }
-      list.removeAttribute('hidden');
-
-      for (const comment of comments) {
-        const fragment = template.content.cloneNode(true);
-        const root = fragment.firstElementChild;
-        if (!(root instanceof HTMLElement)) continue;
-
-        const authorEl = root.querySelector('[data-comment-author]');
-        const messageEl = root.querySelector('[data-comment-message]');
-        const dateEl = root.querySelector('[data-comment-date]');
-
-        if (authorEl instanceof HTMLElement) {
-          authorEl.textContent = typeof comment.name === 'string' ? comment.name : '';
-        }
-        if (messageEl instanceof HTMLElement) {
-          messageEl.textContent = typeof comment.message === 'string' ? comment.message : '';
-        }
-        if (dateEl instanceof HTMLTimeElement && typeof comment.createdAt === 'string') {
-          const date = new Date(comment.createdAt);
-          if (!Number.isNaN(date.valueOf())) {
-            dateEl.dateTime = date.toISOString();
-            dateEl.textContent = dateFormatter.format(date);
-          }
-        }
-
-        list.appendChild(fragment);
-      }
-    } catch (error) {
-      console.error('Failed to load comments', error);
-      if (status instanceof HTMLElement) {
-        status.textContent = messages.error;
-        status.dataset.state = 'error';
-      }
-    }
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (!form.reportValidity()) {
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const section = document.querySelector('[data-comment-section]');
+    if (!(section instanceof HTMLElement)) {
+      console.warn('Comment section container not found');
       return;
     }
 
-    const formData = new FormData(form);
-    const payload = {
-      slug,
-      locale,
-      name: formData.get('name')?.toString().trim() ?? '',
-      email: formData.get('email')?.toString().trim() ?? '',
-      message: formData.get('message')?.toString().trim() ?? '',
-      website: formData.get('website')?.toString().trim() ?? '',
+    const slug = section.dataset.slug ?? '';
+    const locale = section.dataset.locale ?? 'es';
+    const messages = {
+      pending: section.dataset.messagePending ?? '',
+      success: section.dataset.messageSuccess ?? '',
+      error: section.dataset.messageError ?? '',
+      empty: section.dataset.messageEmpty ?? '',
     };
+    const initialStatus = section.dataset.initialStatus ?? '';
 
-    if (status instanceof HTMLElement) {
-      status.textContent = '';
-      delete status.dataset.state;
+    const form = section.querySelector('form[data-comment-form]');
+    const list = section.querySelector('[data-comments-list]');
+    const emptyState = section.querySelector('[data-empty-state]');
+    const status = section.querySelector('[data-status]');
+    const submitButton = section.querySelector('[data-submit-button]');
+    const template = section.querySelector('template[data-comment-template]');
+    const loadMoreContainer = section.querySelector('[data-load-more-container]');
+
+    if (!(form instanceof HTMLFormElement) || !(list instanceof HTMLElement) || !(template instanceof HTMLTemplateElement) || !(loadMoreContainer instanceof HTMLElement)) {
+      console.warn('Comment form prerequisites missing');
+      return;
+    }
+    
+    const dateFormatter = Intl.DateTimeFormat(locale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+
+    const currentUrl = new URL(window.location.href);
+    const commentParam = currentUrl.searchParams.get('comment');
+    if (commentParam && status instanceof HTMLElement) {
+      const normalized = commentParam === 'pending' || commentParam === 'success' || commentParam === 'error' ? commentParam : '';
+      if (normalized) {
+        status.dataset.state = normalized;
+        status.textContent = messages[normalized];
+      }
+      currentUrl.searchParams.delete('comment');
+      window.history.replaceState({}, '', currentUrl);
+    } else if (initialStatus && status instanceof HTMLElement) {
+      status.dataset.state = initialStatus;
     }
 
-    if (submitButton instanceof HTMLButtonElement) {
-      submitButton.disabled = true;
-    }
+    const COMMENTS_VISIBLE = 5;
+    let commentItems = Array.from(list.children);
 
-    try {
-      const response = await fetch('/api/comments', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', accept: 'application/json' },
-        body: JSON.stringify(payload),
+    function setupLoadMore() {
+      commentItems.forEach((item, index) => {
+        if (index >= COMMENTS_VISIBLE) {
+          item.hidden = true;
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
-
-      if (status instanceof HTMLElement) {
-        status.textContent = messages.pending;
-        status.dataset.state = 'pending';
-      }
-
-      form.reset();
-      await loadComments();
-
-      if (status instanceof HTMLElement) {
-        status.dataset.state = 'success';
-        status.textContent = `${messages.pending} ${messages.success}`.trim();
-      }
-    } catch (error) {
-      console.error('Failed to submit comment', error);
-      if (status instanceof HTMLElement) {
-        status.textContent = messages.error;
-        status.dataset.state = 'error';
-      }
-    } finally {
-      if (submitButton instanceof HTMLButtonElement) {
-        submitButton.disabled = false;
+      loadMoreContainer.replaceChildren();
+      if (commentItems.length > COMMENTS_VISIBLE) {
+        const button = document.createElement('button');
+        const remaining = commentItems.length - COMMENTS_VISIBLE;
+        button.textContent = `Cargar los ${remaining} comentarios restantes`;
+        button.className = 'inline-flex items-center justify-center rounded-full border border-border-subtle bg-surface-muted px-6 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-text-primary transition hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-accent/30';
+        button.onclick = () => {
+          commentItems.forEach(item => {
+            item.hidden = false;
+          });
+          loadMoreContainer.replaceChildren();
+        };
+        loadMoreContainer.appendChild(button);
       }
     }
-  }
 
-  form.addEventListener('submit', handleSubmit);
-  loadComments();
+    async function refreshComments() {
+      try {
+        const response = await fetch(`/api/comments.json?slug=${slug}&locale=${locale}`);
+        if (!response.ok) {
+          console.error('Failed to fetch comments');
+          return;
+        }
+        const allComments = await response.json();
+        
+        list.replaceChildren();
+        if (!allComments.length) {
+          if (emptyState instanceof HTMLElement) {
+            emptyState.textContent = messages.empty;
+            emptyState.removeAttribute('hidden');
+          }
+          return;
+        }
+
+        if (emptyState instanceof HTMLElement) {
+          emptyState.setAttribute('hidden', 'true');
+        }
+
+        const fragment = document.createDocumentFragment();
+        for (const comment of allComments) {
+          const commentElement = template.content.cloneNode(true);
+          const author = commentElement.querySelector('[data-comment-author]');
+          const date = commentElement.querySelector('[data-comment-date]');
+          const message = commentElement.querySelector('[data-comment-message]');
+
+          if (author instanceof HTMLElement) author.textContent = comment.name;
+          if (date instanceof HTMLElement) date.textContent = dateFormatter.format(new Date(comment.createdAt));
+          if (message instanceof HTMLElement) message.textContent = comment.message;
+          
+          fragment.appendChild(commentElement);
+        }
+        list.appendChild(fragment);
+
+        commentItems = Array.from(list.children);
+        setupLoadMore();
+
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!(submitButton instanceof HTMLButtonElement) || !(status instanceof HTMLElement)) return;
+
+      submitButton.disabled = true;
+      status.dataset.state = 'pending';
+      status.textContent = messages.pending;
+
+      const formData = new FormData(form);
+      const response = await fetch('/api/comments', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        status.dataset.state = 'success';
+        status.textContent = messages.success;
+        form.reset();
+      } else {
+        status.dataset.state = 'error';
+        status.textContent = messages.error;
+      }
+
+      submitButton.disabled = false;
+    });
+
+    const channel = new BroadcastChannel(`comments-${slug}`);
+    channel.onmessage = (event) => {
+      if (event.data.type === 'comment-approved') {
+        refreshComments();
+      }
+    };
+
+    if (commentItems.length > 0) {
+      setupLoadMore();
+    }
+  });
 </script>
