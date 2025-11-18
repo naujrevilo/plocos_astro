@@ -50,7 +50,7 @@ export default defineConfig({
   clientId,
   token,
   build: {
-    outputFolder: "admin",
+    outputFolder: "tina-admin",
     publicFolder: "public",
   },
   media: {
