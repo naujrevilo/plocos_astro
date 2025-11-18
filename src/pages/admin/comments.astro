@@ -27,7 +27,7 @@ if (isConfigured) {
     });
     // Redirige inmediatamente para eliminar el token de la URL
     requestUrl.searchParams.delete('token');
-    return Astro.redirect(requestUrl.toString());
+    return Astro.redirect('/admin/comments');
   }
 }
 
