@@ -46,4 +46,18 @@ Se solucionaron varios errores en el componente `CommentSection.astro` que imped
 - Se corrigieron las clases de CSS para que los estilos se apliquen correctamente.
 - Se implementó la lógica para mostrar inicialmente solo 5 comentarios y cargar los demás con un botón.
 
+## Troubleshooting de Autenticación en Producción (v0.1.7)
+
+**Problema:** No se puede acceder al panel de moderación de comentarios en el entorno de producción (ej. Netlify) después de introducir el token.
+
+**Causa:**
+
+1.  **Cookie Insegura en HTTPS:** La cookie de sesión se estaba configurando con `secure: false`, lo que hace que los navegadores la rechacen en un sitio que opera sobre HTTPS.
+2.  **Variable de Entorno Ausente:** El token de moderación (`COMMENTS_MODERATION_TOKEN`) no estaba configurado en las variables de entorno del servidor de producción (Netlify).
+
+**Solución:**
+
+- Se modificó `src/pages/admin/comments.astro` para que la cookie se configure con `secure: import.meta.env.PROD`. Esto hace que la cookie sea segura en producción (`true`) y no segura en desarrollo (`false`).
+- Se debe configurar manualmente la variable `COMMENTS_MODERATION_TOKEN` en el panel de administración de Netlify con el mismo valor que se usa en el archivo `.env` local.
+
 

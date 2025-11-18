@@ -1,10 +1,10 @@
 {
   "name": "plocos-astro",
   "type": "module",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build --remote",
+    "build": "tinacms build && astro build --remote",
     "preview": "astro preview",
     "astro": "astro",
     "import:plocos": "node scripts/import-plocos.js",
