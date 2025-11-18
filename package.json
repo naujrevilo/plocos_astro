@@ -1,7 +1,7 @@
 {
   "name": "plocos-astro",
   "type": "module",
-  "version": "0.1.16",
+  "version": "0.1.18",
   "scripts": {
     "dev": "astro dev",
     "build": "tinacms build && astro build --remote",
@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "0.5.19",
-    "@tinacms/cli": "1.12.4",
+    "@tinacms/cli": "1.10.0",
     "autoprefixer": "10.4.22",
     "gray-matter": "4.0.3",
     "postcss": "8.5.6",
@@ -36,7 +36,7 @@
     "react-dom": "18.3.1",
     "sharp": "0.34.5",
     "tailwindcss": "4.1.17",
-    "tinacms": "2.9.5",
+    "tinacms": "2.9.3",
     "turndown": "7.2.2"
   },
   "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c",
@@ -45,6 +45,7 @@
       "vite": "5.0.12",
       "dompurify": "3.2.4",
       "glob": "11.1.0",
+
 
       "semver": "7.5.4",
       "jsonpath-plus": "10.3.0",
