@@ -1,7 +1,7 @@
 {
   "name": "plocos-astro",
   "type": "module",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "scripts": {
     "dev": "astro dev",
     "build": "tinacms build && astro build --remote",
@@ -45,7 +45,7 @@
       "vite": "5.0.12",
       "dompurify": "3.2.4",
       "glob": "11.1.0",
-      "esbuild": "0.25.0",
+      "esbuild": "0.19.12",
       "semver": "7.5.4",
       "jsonpath-plus": "10.3.0",
       "lodash": "4.17.21",
