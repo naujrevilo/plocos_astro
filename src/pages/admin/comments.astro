@@ -22,7 +22,7 @@ if (isConfigured) {
       path: '/',
       httpOnly: true,
       sameSite: 'strict',
-      secure: true, // Forzado a true para diagnóstico en producción
+      secure: import.meta.env.PROD, // La cookie debe ser segura en producción (HTTPS)
       maxAge: 60 * 60 * 24 * 30,
     });
     // Redirige inmediatamente para eliminar el token de la URL
