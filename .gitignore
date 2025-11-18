@@ -30,7 +30,7 @@ pnpm-debug.log*
 # GitHub metadata (allow workflows and instructions to be tracked)
 !.github/
 !.github/**
-scripts/
+
 
 # jetbrains setting folder
 .idea/
