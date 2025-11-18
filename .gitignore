@@ -2,6 +2,7 @@
 dist/
 # TinaCMS build output
 public/admin/assets/
+public/tina-admin/
 tina/__generated__/
 # Netlify build output
 .netlify/
@@ -37,3 +38,6 @@ scripts/
 node_modules
 # Local Netlify folder
 .netlify
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.github\instructions\snyk_rules.instructions.md

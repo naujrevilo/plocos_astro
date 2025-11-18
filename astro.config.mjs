@@ -1,16 +1,17 @@
 // @ts-check
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
+import netlify from '@astrojs/netlify';
 import tailwind from '@astrojs/tailwind';
 import pagefind from 'astro-pagefind';
 
 import db from '@astrojs/db';
 
-import netlify from '@astrojs/netlify';
 
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
+  adapter: netlify(),
 
   integrations: [
       tailwind({
@@ -20,13 +21,7 @@ export default defineConfig({
       pagefind(),
   ],
 
-  vite: {
-      resolve: {
-          alias: {
-              '@': fileURLToPath(new URL('./src', import.meta.url)),
-          },
-      },
-  },
+  
 
   i18n: {
       locales: ['es', 'en'],
@@ -39,5 +34,4 @@ export default defineConfig({
       },
   },
 
-  adapter: netlify(),
 });

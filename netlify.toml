@@ -10,6 +10,6 @@
 
 # Enrutamiento para la SPA del panel de TinaCMS
 [[redirects]]
-  from = "/admin/*"
-  to = "/admin/index.html"
+  from = "/tina-admin/*"
+  to = "/tina-admin/index.html"
   status = 200
