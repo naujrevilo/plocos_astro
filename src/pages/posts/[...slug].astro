@@ -1,56 +1,32 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPublishedPosts, formatDate, getPostLocale, type PostEntry } from '../../lib/posts';
+import { getCollection } from 'astro:content';
+import { formatDate, getPostLocale } from '../../lib/posts';
 import { labelToSlug } from '../../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 import SocialIcon from '../../components/icons/SocialIcon.astro';
 import CommentSection from '../../components/CommentSection.astro';
 
-interface Props {
-  post: PostEntry;
-  previous?: PostEntry | null;
-  next?: PostEntry | null;
+const { slug } = Astro.params;
+if (!slug) {
+  return new Response("Not found", { status: 404 });
 }
 
-export async function getStaticPaths() {
-  const posts = await getPublishedPosts();
-  const postsByLocale = new Map<Locale, PostEntry[]>();
+const posts = await getCollection('posts');
+const post = posts.find((p) => p.slug === slug);
 
-  // Genera el slug solo por el título
-  function slugifyTitle(title: string): string {
-    return title
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-zA-Z0-9]+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
-      .toLowerCase();
-  }
-
-  posts.forEach((entry) => {
-    const locale = getPostLocale(entry);
-    if (!postsByLocale.has(locale)) {
-      postsByLocale.set(locale, []);
-    }
-    postsByLocale.get(locale)!.push(entry);
-  });
-
-  return posts.map((post) => {
-    const locale = getPostLocale(post);
-    const localePosts = postsByLocale.get(locale) ?? [];
-    const index = localePosts.findIndex((entry) => entry.id === post.id);
-    const previous = index < localePosts.length - 1 ? localePosts[index + 1] : null;
-    const next = index > 0 ? localePosts[index - 1] : null;
-    const slug = slugifyTitle(post.data.title);
-    return {
-      params: { slug },
-      props: { post, previous, next },
-    };
-  });
+if (!post) {
+  return new Response("Not found", { status: 404 });
 }
 
-const { post, previous, next } = Astro.props as Props;
+const { Content } = await post.render();
+const data = {
+  ...post.data,
+  title: post.data.title ?? 'Sin título',
+  author: post.data.author ?? 'Michel Saer',
+};
+
 const postLocale = getPostLocale(post);
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 
@@ -60,12 +36,16 @@ if (locale !== postLocale) {
   );
 }
 
+const allLocalePosts = posts
+  .filter(p => getPostLocale(p) === locale)
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const postIndex = allLocalePosts.findIndex(p => p.id === post.id);
+const previousPost = postIndex < allLocalePosts.length - 1 ? allLocalePosts[postIndex + 1] : null;
+const nextPost = postIndex > 0 ? allLocalePosts[postIndex - 1] : null;
+
 const translations = getTranslations(locale);
-const { Content } = await post.render();
-const { data } = post;
 const postCopy = translations.posts;
-const previousPost = previous ?? null;
-const nextPost = next ?? null;
 const navigationCopy = postCopy.navigation;
 const shareCopy = postCopy.share;
 const initialCommentStatusParam = Astro.url.searchParams.get('comment');
@@ -74,12 +54,12 @@ const initialCommentStatus = allowedCommentStatuses.includes(initialCommentStatu
   ? (initialCommentStatusParam as (typeof allowedCommentStatuses)[number])
   : null;
 const title = `${data.title} · Plocos`;
-const description = data.summary ?? `${postCopy.defaultDescriptionPrefix} ${formatDate(data.pubDate, locale)}.`;
+const description = data.summary ?? `${postCopy.defaultDescriptionPrefix} ${data.pubDate && typeof data.pubDate === 'object' ? formatDate(data.pubDate, locale) : ''}.`;
 const base = Astro.site?.origin ?? '';
-const canonicalPath = createLocaleHref(locale, `${translations.paths.posts}/${post.slug}`);
+const canonicalPath = createLocaleHref(locale, `${translations.paths.posts}/${post?.slug ?? ''}`);
 const canonical = base ? new URL(canonicalPath, base).toString() : canonicalPath;
 const categories = data.categories ?? [];
-const author = data.author ?? 'Michel Saer';
+const author = post.data.author ?? 'Michel Saer';
 const backHref = createLocaleHref(locale);
 const labelPath = translations.paths.labels;
 const shareUrl = canonical;
@@ -93,7 +73,6 @@ const shareLinks = {
   instagram: `https://www.instagram.com/?url=${encodedShareUrl}`,
   email: `mailto:?subject=${emailSubject}&body=${emailBody}`,
 };
-// Keeps share channels synchronized between copy, URL builders, and icon-only buttons.
 const shareItems = [
   { id: 'x', href: shareLinks.x, label: shareCopy.x, external: true },
   { id: 'facebook', href: shareLinks.facebook, label: shareCopy.facebook, external: true },
@@ -114,13 +93,13 @@ const nextHref = nextPost ? createLocaleHref(locale, `${translations.paths.posts
       </a>
       <div class="space-y-4">
         <div class="flex flex-wrap items-center gap-3 text-sm text-text-secondary">
-          <p class="uppercase tracking-[0.25em] text-text-secondary opacity-70">{formatDate(data.pubDate, locale)}</p>
+          <p class="uppercase tracking-[0.25em] text-text-secondary opacity-70">{data.pubDate && typeof data.pubDate === 'object' ? formatDate(data.pubDate, locale) : ''}</p>
           <span class="opacity-60">•</span>
           <p class="opacity-80">{author}</p>
         </div>
-        <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">{data.title}</h1>
+        <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">{data.title ?? 'Sin título'}</h1>
         {data.summary && <p class="text-lg leading-relaxed text-text-secondary">{data.summary}</p>}
-        {data.updatedDate && data.updatedDate > data.pubDate && (
+        {data.updatedDate && data.pubDate && typeof data.updatedDate === 'object' && typeof data.pubDate === 'object' && data.updatedDate > data.pubDate && (
           <p class="text-xs uppercase tracking-wide text-text-secondary opacity-80">
             {postCopy.updatedPrefix} {formatDate(data.updatedDate, locale)}
           </p>
@@ -180,7 +159,7 @@ const nextHref = nextPost ? createLocaleHref(locale, `${translations.paths.posts
       </div>
     </section>
 
-    <CommentSection slug={post.slug} locale={locale} initialStatus={initialCommentStatus} />
+    <CommentSection slug={post?.slug ?? ''} locale={locale} initialStatus={initialCommentStatus} />
 
     {(previousPost || nextPost) && (
       <nav class="mt-16 space-y-6 border-t border-border-subtle pt-6">

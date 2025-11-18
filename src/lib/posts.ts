@@ -1,6 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { defaultLocale, type Locale } from './i18n';
-
+export const prerender = true;
 export type PostEntry = CollectionEntry<'posts'>;
 
 interface GetPostsOptions {
@@ -27,7 +27,8 @@ const localeMap: Record<Locale, string> = {
   en: 'en-US',
 };
 
-export function getPostLocale(post: PostEntry): Locale {
+export function getPostLocale(post: PostEntry | undefined): Locale {
+  if (!post || !post.data) return defaultLocale;
   return (post.data.language ?? defaultLocale) as Locale;
 }
 
