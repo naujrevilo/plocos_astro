@@ -31,14 +31,7 @@ if (isConfigured) {
   }
 }
 
-const'''const dbToken = import.meta.env.ASTRO_DB_APP_TOKEN;
-const dbUrl = import.meta.env.ASTRO_DB_REMOTE_URL;
-
-if (import.meta.env.PROD && (!dbToken || !dbUrl)) {
-  throw new Error("Las variables de entorno ASTRO_DB_APP_TOKEN y ASTRO_DB_REMOTE_URL son obligatorias en producción.");
-}
-
-const invalidToken = Boolean(providedToken && isConfigured && providedToken !== moderationToken);''
+const invalidToken = Boolean(providedToken && isConfigured && providedToken !== moderationToken);
 
 interface CommentRow {
   id: number;
