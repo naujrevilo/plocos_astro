@@ -19,7 +19,7 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname.replace(/^\/+([
 const postsDir = path.join(__dirname, '../src/content/posts');
 const outputFile = path.join(__dirname, '../public/api/posts.json');
 
-const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.md'));
+const files = fs.readdirSync(postsDir, { recursive: true }).filter(f => f.endsWith('.md'));
 const posts = [];
 
 for (const file of files) {

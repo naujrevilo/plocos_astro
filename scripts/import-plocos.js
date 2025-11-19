@@ -2,8 +2,14 @@ import { mkdir, writeFile, access } from 'node:fs/promises';
 import path from 'node:path';
 import TurndownService from 'turndown';
 import he from 'he';
+import { config } from 'dotenv';
 
-const FEED_URL = 'https://www.plocos.com/feeds/posts/default?alt=json&max-results=500';
+config();
+
+const BLOG_ID = '1243123696685210473';
+const API_KEY = process.env.BLOGGER_API_KEY;
+const API_URL = `https://www.googleapis.com/blogger/v3/blogs/${BLOG_ID}/posts`;
+
 const CONTENT_ROOT = path.resolve('src/content/posts');
 const IMAGES_ROOT = path.resolve('public/images/posts');
 
@@ -128,58 +134,86 @@ async function downloadImage(imageUrl, destinationDir, slug, index) {
   return publicPath.startsWith('/') ? publicPath : `/${publicPath}`;
 }
 
-async function importFeed() {
+async function importPosts() {
+  if (!API_KEY) {
+    throw new Error('BLOGGER_API_KEY environment variable not set.');
+  }
+
   await ensureDir(CONTENT_ROOT);
   await ensureDir(IMAGES_ROOT);
 
-  const response = await fetch(FEED_URL);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch feed: ${response.status}`);
-  }
+  let posts = [];
+  let pageToken = null;
 
-  const feed = await response.json();
-  const entries = feed?.feed?.entry ?? [];
-  console.log(`Found ${entries.length} entries`);
+  console.log('Fetching posts from Blogger API...');
 
-  for (const entry of entries) {
-    const title = he.decode(entry?.title?.$t ?? 'Sin título');
-    const publishedRaw = entry?.published?.$t ?? entry?.updated?.$t;
-    const updatedRaw = entry?.updated?.$t ?? publishedRaw;
-    const publishedDate = publishedRaw ? new Date(publishedRaw) : new Date();
-    const updatedDate = updatedRaw ? new Date(updatedRaw) : publishedDate;
-    const alternateLink = entry?.link?.find?.((link) => link.rel === 'alternate')?.href;
-    const { slug, year } = slugFromUrl(alternateLink ?? title);
+  do {
+    const params = new URLSearchParams({
+      key: API_KEY,
+      fetchBodies: true,
+      fetchImages: true,
+      orderBy: 'PUBLISHED',
+      status: 'LIVE',
+    });
+
+    if (pageToken) {
+      params.set('pageToken', pageToken);
+    }
+
+    const response = await fetch(`${API_URL}?${params.toString()}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Failed to fetch posts: ${response.status} ${JSON.stringify(errorData, null, 2)}`);
+    }
+
+    const data = await response.json();
+    posts = posts.concat(data.items ?? []);
+    pageToken = data.nextPageToken;
+
+    console.log(`Fetched ${data.items?.length ?? 0} posts. Total: ${posts.length}. More pages: ${!!pageToken}`);
+    if(pageToken) await sleep(200);
+
+  } while (pageToken);
+
+  console.log(`Found ${posts.length} total posts.`);
+
+  for (const post of posts) {
+    const title = he.decode(post.title ?? 'Sin título');
+    const publishedDate = new Date(post.published);
+    const updatedDate = new Date(post.updated);
+    const { slug, year } = slugFromUrl(post.url ?? title);
 
     const contentDir = path.join(CONTENT_ROOT, year);
     await ensureDir(contentDir);
 
     const postPath = path.join(contentDir, `${slug}.md`);
 
-    const labels = (entry?.category ?? [])
-      .map((category) => category?.term)
-      .filter(Boolean)
-      .map((label) => he.decode(label));
-
-    const rawHtml = entry?.content?.$t ?? entry?.summary?.$t ?? '';
+    const labels = (post.labels ?? []).map(label => he.decode(label));
+    const rawHtml = post.content ?? '';
     const decodedHtml = he.decode(rawHtml);
 
     const imageMatches = Array.from(decodedHtml.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi));
     const imageDir = path.join(IMAGES_ROOT, year, slug);
-    let heroImage = null;
+    let heroImage = post.images?.[0]?.url ?? null;
     let processedHtml = decodedHtml;
 
-    if (imageMatches.length) {
+    if (imageMatches.length > 0) {
       await ensureDir(imageDir);
       for (const [index, match] of imageMatches.entries()) {
         const originalSrc = match[1];
         const localPath = await downloadImage(originalSrc, imageDir, slug, index + 1);
         if (localPath) {
           processedHtml = processedHtml.replace(new RegExp(originalSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), localPath);
-          if (!heroImage) {
-            heroImage = localPath;
+          if (index === 0 && !heroImage) {
+             heroImage = localPath;
           }
         }
       }
+    }
+    
+    if (heroImage) {
+        const localPath = await downloadImage(heroImage, imageDir, slug, 0);
+        if(localPath) heroImage = localPath;
     }
 
     const markdown = turndown.turndown(processedHtml)
@@ -197,7 +231,7 @@ async function importFeed() {
       labels,
       summary,
       heroImage,
-      originalUrl: alternateLink,
+      originalUrl: post.url,
     });
 
     const fileContents = `${frontmatter}${markdown}\n`;
@@ -208,7 +242,7 @@ async function importFeed() {
   console.log('Import completed.');
 }
 
-importFeed().catch((error) => {
-  console.error(error);
+importPosts().catch((error) => {
+  console.error('❌ Import failed:', error.message);
   process.exitCode = 1;
 });

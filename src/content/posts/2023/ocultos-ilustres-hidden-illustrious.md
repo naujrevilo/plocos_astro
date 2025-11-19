@@ -1,0 +1,52 @@
+---
+title: "Fluye!!!"
+pubDate: "2023-05-13T21:15:00.000Z"
+updatedDate: "2025-04-19T20:42:35.000Z"
+labels:
+  - "ARTE PLOCOS"
+  - "ARTEPLOCOS"
+  - "flows"
+  - "flujos"
+  - "ICM"
+  - "Michel Saer"
+  - "Ramón Campos"
+heroImage: "/images/posts/2023/ocultos-ilustres-hidden-illustrious/ocultos-ilustres-hidden-illustrious-0.jpeg"
+originalUrl: "http://www.plocos.com/2023/05/ocultos-ilustres-hidden-illustrious.html"
+summary: "Ilustrar es como encender una luz en la oscuridad; nos revela que su propósito es brindar claridad y perspicacia al entendimiento. Experimentar la completa comprensión de algo que antes era oscuro resulta ser una revelación liberadora. Una persona ilustrada es aquella con la cap…"
+draft: false
+---
+[![](/images/posts/2023/ocultos-ilustres-hidden-illustrious/ocultos-ilustres-hidden-illustrious-1.jpeg)](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhkHPcr0cQRn8xWWL8eV58Z4f-QcPODGfIyWTyzSQz2EYzk3mr1NcczCFYU98v1p9ta6rg3_ITLUYEGudx3A4Q4SFG-z6zsoSjQzv073EUQmHbp8Dzw01nZwnpXcrZ5PLXMVXW22KZy0Maje2AGFcMurVAnxXsUPe4gwTGzzPklZ5qlg8Ec5Z0zNOxN/s400/La%20lactea%20cueva.jpeg)
+
+Ilustrar es como encender una luz en la oscuridad; nos revela que su propósito es brindar claridad y perspicacia al entendimiento.
+
+
+
+Experimentar la completa comprensión de algo que antes era oscuro resulta ser una revelación liberadora.
+
+
+
+Una persona ilustrada es aquella con la capacidad de encender esa luz.
+
+
+
+En el siglo XVIII, se llamaba 'ilustrados' a los filósofos y eruditos que abogaban por la razón humana y el progreso científico. En ámbitos más cotidianos, siempre se ha utilizado el término para reconocer a individuos instruidos y cultos.
+
+
+
+Resulta paradójico afirmar que alguien que arroja luz en la oscuridad permanezca oculto; sin embargo, siempre ha habido 'ilustres ocultos', de los cuales la humanidad ha cosechado beneficios e importantes ideas  sin siquiera saber sus nombres. Incluso hoy  existen 'ilustres ocultos', algunos efímeros,  otros brillantes o incognitos.
+
+
+
+El ser humano tiene impulsos, instintos o, como D. Ramón Campos decía en el siglo XVIII, 'flujos'. Uno de los flujos que nos motiva con más fuerza es el de ser reconocido**(1)**, el de destacar y ser admirado, pero para los 'ilustres ocultos',  su 'flujo' es simplemente el de: servir, iluminar y dejar algo bueno en su camino.
+
+
+
+Cuando nos encontremos con un 'ilustre oculto' y lo que nos ofrece tiene un impacto profundamente positivo, en lugar de adularlo o mencionarlo, el mejor homenaje que podemos hacerle es dejar 'fluir': compartir y difundir a otros su pensar.
+
+
+
+¡Fluye!
+
+\_\_\_\_\_\_\_\_\_\_\_
+
+(1): [https://youtu.be/H1HdZFgR-aA?si=tzWhU15ozozp7VaW](https://youtu.be/H1HdZFgR-aA?si=tzWhU15ozozp7VaW)

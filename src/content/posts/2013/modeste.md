@@ -1,0 +1,46 @@
+---
+title: "Modeste"
+pubDate: "2013-09-15T23:10:00.000Z"
+updatedDate: "2025-01-12T16:05:49.000Z"
+labels:
+  - "ACRILICO"
+  - "ART"
+  - "ARTE"
+  - "Michel Saer"
+  - "PLOCOS"
+heroImage: "/images/posts/2013/modeste/modeste-0.jpg"
+originalUrl: "http://www.plocos.com/2013/09/modeste.html"
+summary: "Acrílico en tela 90 x 130 \"Por qué se te hace difícil decirme no, y peor, por qué es tan difícil para mí no aceptarlo. Se nos olvida que en el camino de sombras, somos ciegos y con cada caída se hace más duro levantarnos. Qué obliga tu suplicar, y a mí negarlo, si en la negativa…"
+draft: false
+---
+[![](/images/posts/2013/modeste/modeste-1.jpg)](/images/posts/2013/modeste/modeste-1.jpg)
+
+
+
+                                                     Acrílico en tela 90 x 130
+
+
+
+"Por qué se te hace difícil decirme no, y  peor, por qué es tan difícil para mí no aceptarlo. Se nos olvida que en el camino de sombras, somos ciegos y con cada caída se hace más duro levantarnos.
+
+
+
+Qué obliga tu suplicar, y a mí negarlo, si en la negativa está nuestra salvación. El orgullo y confusión no dejan ver con claridad. Nos aferramos a la soberbia y el acomodo de excusas insulsas para no sentirnos mal.
+
+
+
+Los instintos nos capturan y no dejan campo para la razón ni el amor. La frivolidad y la indiferencia enmarcan el corazón, que desea librarse de eso que nos esclaviza con fugaz dulzura. Pero nuestras elecciones nos empujan y su dominio es total, y aunque múltiples opciones cruzan la mente, el miedo y la ansiedad que en el corazón generan, no nos dejan virar.
+
+
+
+No podemos solo andar por andar, buscando sensaciones con afán, cansados, tristes y con solo placer que recibir y dar.
+
+
+
+Debemos caminar para crecer, para aprender y encontrar amor y felicidad. Para encontrar pudor, humildad, amor y la fuerza para liberarnos y volar."
+
+####
+
+
+
+_Señor, no soy digno de ti, pero gracias por todo._

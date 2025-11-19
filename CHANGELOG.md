@@ -1,12 +1,7 @@
-# Changelog
+## 0.1.24 - 2025-11-19
 
-## 0.1.22 - 2025-11-19
+### Features
 
-### Corregido
-
-- Se ha solucionado un problema que impedía que la búsqueda de Algolia funcionara en el entorno de desarrollo local. El error se debía a una importación incorrecta del cliente de Algolia.
-- Se ha asegurado que las variables de entorno de Algolia se carguen correctamente al reiniciar el servidor de desarrollo.
-
-### Añadido
-
-- Se ha creado el archivo `CHANGELOG.md` para documentar los cambios en el proyecto.
+- Se actualizó el script de importación de posts para usar la API v3 de Blogger, asegurando la correcta sincronización de 219 posts.
+- Se limpiaron los posts duplicados y se normalizó la estructura de datos.
+- Se actualizó el script que genera `posts.json` para que sea recursivo y refleje todos los posts importados.
