@@ -1,4 +1,6 @@
 ---
+
+import Search from './Search.vue';
 import ThemeToggle from "./ThemeToggle.astro";
 import { getTranslations, locales, defaultLocale } from "../lib/i18n";
 import type { Locale } from "../lib/i18n";
@@ -98,7 +100,7 @@ const languageOptions = [
 
         <!-- Controles Derecha (Desktop) -->
         <div class="hidden md:flex items-center gap-2">
-          <pagefind-search style="max-width:200px;"></pagefind-search>
+          <Search client:only="vue" />
           <ThemeToggle />
           <div class="flex gap-1 ml-2">
             <a href={languageOptions[0].href} aria-label="Español" class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'es' ? 'ring-2 ring-accent' : ''}`}>
@@ -112,7 +114,7 @@ const languageOptions = [
 
         <!-- Controles Derecha (Mobile) -->
         <div class="flex md:hidden items-center gap-2">
-          <pagefind-search style="max-width:150px;"></pagefind-search>
+          <Search client:only="vue" />
           <ThemeToggle />
           <button data-collapse-toggle="mobile-nav" type="button" class="hamburger-btn flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated text-text-primary transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2" aria-label="Abrir menú" aria-controls="mobile-nav" aria-expanded="false">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -3,8 +3,9 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
 import tailwind from '@astrojs/tailwind';
-import pagefind from 'astro-pagefind';
 
+
+import vue from '@astrojs/vue';
 import db from '@astrojs/db';
 
 
@@ -18,7 +19,8 @@ export default defineConfig({
           applyBaseStyles: false,
       }),
       db(),
-      pagefind(),
+      vue(),
+      
   ],
 
   
