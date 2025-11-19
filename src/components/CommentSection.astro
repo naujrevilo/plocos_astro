@@ -69,7 +69,7 @@ const dateFormatter = new Intl.DateTimeFormat(locale, {
           minlength="2"
           maxlength="120"
           autocomplete="name"
-          class="rounded-xl border border-border-subtle bg-surface px-3 py-2 text-sm text-text-primary outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          class="rounded-xl border border-border-subtle bg-surface px-3 py-2 text-sm text-text-primary outline-none transition placeholder:text-text-secondary/80 focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
       </div>
       <div class="flex flex-col gap-2">
@@ -291,15 +291,17 @@ const dateFormatter = new Intl.DateTimeFormat(locale, {
       status.textContent = messages.pending;
 
       const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
       const response = await fetch('/api/comments', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
-        status.dataset.state = 'success';
-        status.textContent = messages.success;
-        form.reset();
+        window.location.href = '/';
       } else {
         status.dataset.state = 'error';
         status.textContent = messages.error;
