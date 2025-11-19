@@ -28,7 +28,6 @@ async function getAllPosts() {
         objectID: filename.replace(/\.md$/, ''),
         slug: filename.replace(/\.md$/, ''),
         ...data,
-        content,
       };
     })
   );
@@ -60,11 +59,13 @@ async function main() {
 
 
 
-  const { objectIDs } = await client.saveObjects({
+  const responses = await client.saveObjects({
     indexName: process.env.ALGOLIA_INDEX_NAME,
     objects: posts,
     autoGenerateObjectIDIfNotExist: true,
   });
+
+  const objectIDs = responses.flatMap(response => response.objectIDs);
 
   console.log(`Successfully indexed ${objectIDs.length} posts to Algolia.`);
 }

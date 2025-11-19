@@ -26,7 +26,7 @@ const analyticsId = import.meta.env.ANALYTICS_ID;
 <html lang={locale} class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={`/favicon.svg?v=${new Date().getTime()}`} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={metaDescription} />
