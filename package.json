@@ -11,7 +11,8 @@
     "flatten:posts": "node scripts/flatten-posts.mjs",
     "flatten:posts:write": "node scripts/flatten-posts.mjs --write",
     "tinacms:dev": "pnpm exec tinacms dev -c \"pnpm dev --remote\"",
-    "tinacms:build": "tinacms build"
+    "tinacms:build": "tinacms build",
+    "sync:algolia": "tsx scripts/sync-algolia.ts"
   },
   "dependencies": {
     "@astrojs/check": "0.9.5",
@@ -19,6 +20,7 @@
     "@astrojs/netlify": "6.6.1",
     "@astrojs/react": "4.4.2",
     "@astrojs/tailwind": "6.0.2",
+    "algoliasearch": "5.44.0",
     "astro": "5.15.3",
     "astro-google-analytics": "1.0.3",
     "astro-pagefind": "1.8.5",
@@ -30,6 +32,7 @@
     "@tailwindcss/typography": "0.5.19",
     "@tinacms/cli": "1.12.0",
     "autoprefixer": "10.4.21",
+    "dotenv": "17.2.3",
     "gray-matter": "4.0.3",
     "postcss": "8.5.6",
     "react": "18.3.1",
@@ -37,6 +40,8 @@
     "sharp": "0.34.4",
     "tailwindcss": "3.4.18",
     "tinacms": "2.9.1",
+    "ts-node": "10.9.2",
+    "tsx": "4.20.6",
     "turndown": "7.2.2"
   },
   "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c"
