@@ -71,139 +71,87 @@ const languageOptions = [
   { code: "en", label: "En", href: computeLocaleHref("en") },
 ];
 ---
+<header class="site-header">
+  <div class="header-spacer"></div>
+  <div class="header-bar">
+    <nav class="bg-surface-base fixed w-full z-20 top-0 start-0 border-b border-border-subtle">
+      <div class="w-full flex flex-row flex-nowrap items-center justify-between p-4">
+        <!-- Logo a la izquierda -->
+        <a href={homeHref} class="logo-link flex items-center shrink-0" aria-label="Logo de Plocos">
+          <img src="/logo.svg" alt="Logo de Plocos" class="logo-mark h-12 w-24" />
+        </a>
 
+        <!-- Menú de navegación Desktop (centrado) -->
+        <div class="hidden md:flex items-center justify-center flex-1" id="navbar-desktop">
+          <ul class="font-medium flex flex-row space-x-8 rtl:space-x-reverse">
+            {navItems.map((item) => {
+              const href = createLocaleHref(locale as Locale, item.path);
+              const active = isActive(href);
+              return (
+                <li>
+                  <a href={href} aria-current={active ? "page" : undefined} class={`block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-accent md:p-0 ${active ? "font-bold underline" : ""}`}>{item.label}</a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
 
+        <!-- Controles Derecha (Desktop) -->
+        <div class="hidden md:flex items-center gap-2">
+          <pagefind-search style="max-width:200px;"></pagefind-search>
+          <ThemeToggle />
+          <div class="flex gap-1 ml-2">
+            <a href={languageOptions[0].href} aria-label="Español" class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'es' ? 'ring-2 ring-accent' : ''}`}>
+              <img src="/flags/co.svg" alt="Español" class="h-6 w-6" />
+            </a>
+            <a href={languageOptions[1].href} aria-label="English" class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'en' ? 'ring-2 ring-accent' : ''}`}>
+              <img src="/flags/us.svg" alt="English" class="h-6 w-6" />
+            </a>
+          </div>
+        </div>
 
-<nav class="bg-surface-base fixed w-full z-20 top-0 start-0 border-b border-border-subtle">
-  <div class="w-full flex flex-row flex-nowrap items-center justify-between p-4">
-    <!-- Buscador universal Pagefind visible en todos los dispositivos -->
-    <pagefind-search style="max-width:400px;width:100%;margin-right:1rem;"></pagefind-search>
-    <!-- Header móvil: logo, buscador, idioma, hamburguesa -->
-    <div class="md:hidden flex flex-row items-center gap-x-4 w-full">
-      <!-- Logo más grande -->
-      <a href={homeHref} class="logo-link flex items-center shrink-0 mr-3" aria-label="Logo de Plocos">
-        <img src="/logo.svg" alt="Logo de Plocos" class="logo-mark h-12 w-12" />
-      </a>
-      <!-- Buscador y selector de idioma -->
-      <div class="flex flex-row items-center gap-x-2 flex-1">
-        <pagefind-search></pagefind-search>
-        <div class="flex gap-1 ml-2">
-          <a
-            href={languageOptions[0].href}
-            aria-label="Español"
-            class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'es' ? 'ring-2 ring-accent' : ''}`}
-          >
-            <img src="/flags/co.svg" alt="Español" class="h-6 w-6" />
-          </a>
-          <a
-            href={languageOptions[1].href}
-            aria-label="English"
-            class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'en' ? 'ring-2 ring-accent' : ''}`}
-          >
-            <img src="/flags/us.svg" alt="English" class="h-6 w-6" />
-          </a>
+        <!-- Controles Derecha (Mobile) -->
+        <div class="flex md:hidden items-center gap-2">
+          <pagefind-search style="max-width:150px;"></pagefind-search>
+          <ThemeToggle />
+          <button data-collapse-toggle="mobile-nav" type="button" class="hamburger-btn flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated text-text-primary transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2" aria-label="Abrir menú" aria-controls="mobile-nav" aria-expanded="false">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect y="5" width="24" height="2" rx="1" fill="currentColor" />
+              <rect y="11" width="24" height="2" rx="1" fill="currentColor" />
+              <rect y="17" width="24" height="2" rx="1" fill="currentColor" />
+            </svg>
+          </button>
         </div>
       </div>
-      <!-- ThemeToggle móvil -->
-      <div class="ml-2"><ThemeToggle /></div>
-      <!-- Hamburguesa -->
-      <button data-collapse-toggle="mobile-nav" type="button" class="hamburger-btn flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated text-text-primary transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ml-2" aria-label="Abrir menú" aria-controls="mobile-nav" aria-expanded="false">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect y="5" width="24" height="2" rx="1" fill="currentColor" />
-          <rect y="11" width="24" height="2" rx="1" fill="currentColor" />
-          <rect y="17" width="24" height="2" rx="1" fill="currentColor" />
-        </svg>
+    </nav>
+    <!-- Overlay y menú hamburguesa -->
+    <div id="mobile-nav-overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none md:hidden"></div>
+    <nav
+      id="mobile-nav"
+      class="mobile-nav hidden fixed inset-0 z-50 flex-col justify-start items-stretch h-screen w-screen bg-surface-base border-none shadow-2xl p-6 pt-[var(--header-height)] transition-transform duration-300 md:hidden"
+      aria-label={navAriaLabel}
+    >
+      <!-- Solo el botón de cerrar menú, no hamburguesa -->
+      <button type="button" aria-label="Cerrar menú" class="self-end mb-4 text-gray-500 hover:text-blue-600 focus:outline-none" data-close-mobile-nav>
+        <svg aria-hidden="true" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
-      </button>
-    </div>
-    <!-- Controles desktop SOLO en escritorio -->
-    <div class="hidden md:flex items-center gap-2 w-full md:w-auto md:order-2">
-      <button id="open-search-btn-desktop" type="button" class="inline-flex items-center justify-center rounded-full bg-accent px-4 py-2 text-surface-base" aria-label="Buscar" aria-controls="search-drawer">
-        <svg aria-hidden="true" viewBox="0 0 24 24" class="h-5 w-5 fill-current">
-          <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.71.71l.27.28v.79l5 4.99L20.49 19zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" />
-        </svg>
-      </button>
-      <ThemeToggle />
-      <label class="inline-flex items-center gap-1 text-base font-semibold text-accent">
-        <span class="sr-only">{translations.site.language.srLabel}</span>
-        <div class="flex gap-1 ml-2">
-          <a
-            href={languageOptions[0].href}
-            aria-label="Español"
-            class={`rounded-full border border-accent bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'es' ? 'ring-2 ring-accent' : ''}`}
-          >
-            <img src="/flags/co.svg" alt="Español" class="h-6 w-6" />
-          </a>
-          <a
-            href={languageOptions[1].href}
-            aria-label="English"
-            class={`rounded-full border border-accent bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'en' ? 'ring-2 ring-accent' : ''}`}
-          >
-            <img src="/flags/us.svg" alt="English" class="h-6 w-6" />
-          </a>
-        </div>
-      </label>
-    </div>
-    <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-search">
-      <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-border-subtle rounded-base bg-surface-elevated md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-surface-base">
-        {navItems.map((item) => {
-          const href = createLocaleHref(locale as Locale, item.path);
-          const active = isActive(href);
-          return (
-            <li>
-              <a href={href} aria-current={active ? "page" : undefined} class={`block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-accent md:p-0 md:dark:hover:bg-transparent ${active ? "font-bold underline" : ""}`}>{item.label}</a>
-            </li>
-          );
-        })}
-              <button type="button" aria-label="Cerrar menú" class="self-end mb-4 text-gray-500 hover:text-blue-600 focus:outline-none" data-close-mobile-nav>
-    </div>
+      <ul class="flex flex-col gap-4 text-lg font-medium w-full">
+        {
+          navItems.map((item) => {
+            const href = createLocaleHref(locale as Locale, item.path);
+            const active = isActive(href);
+            return (
+              <li class="w-full">
+                <a href={href} aria-current={active ? "page" : undefined} class={`block w-full rounded border px-4 py-3 transition ${active ? "border-blue-600 bg-blue-100 text-blue-700 font-bold" : "border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:text-blue-600"}`}>{item.label}</a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </nav>
   </div>
-</nav>
-          {
-            languageOptions.map((option) => (
-              <option
-                value={option.href}
-                selected={option.code === locale}
-              >
-                {option.label}
-              </option>
-            ))
-          }
-        </select>
-      </label>
-      <!-- Menú hamburguesa -->
-    </div>
-  </div>
-  <!-- Overlay y menú hamburguesa -->
-  <div id="mobile-nav-overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none md:hidden"></div>
-  <nav
-    id="mobile-nav"
-    class="mobile-nav fixed inset-0 z-50 flex flex-col justify-start items-stretch h-screen w-screen bg-surface-base border-none shadow-2xl p-6 pt-[var(--header-height)] transition-transform duration-300 md:hidden"
-    aria-label={navAriaLabel}
-  >
-    <!-- Solo el botón de cerrar menú, no hamburguesa -->
-    <button type="button" aria-label="Cerrar menú" class="self-end mb-4 text-gray-500 hover:text-blue-600 focus:outline-none" data-close-mobile-nav>
-      <svg aria-hidden="true" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-    </button>
-    <ul class="flex flex-col gap-4 text-lg font-medium w-full">
-      {
-        navItems.map((item) => {
-          const href = createLocaleHref(locale as Locale, item.path);
-          const active = isActive(href);
-          return (
-            <li class="w-full">
-              <a href={href} aria-current={active ? "page" : undefined} class={`block w-full rounded border px-4 py-3 transition ${active ? "border-blue-600 bg-blue-100 text-blue-700 font-bold" : "border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:text-blue-600"}`}>
-                {item.label}
-              </a>
-            </li>
-          );
-        })
-      }
-    </ul>
-  </nav>
 </header>
 <!-- Eliminado JS personalizado para menú hamburguesa y drawer de búsqueda. Flowbite/Tailwind gestionan la interacción. -->
-</header>
 <script is:inline>
   // Lógica para alternar menú móvil y overlay
   document.addEventListener("DOMContentLoaded", () => {
@@ -214,15 +162,19 @@ const languageOptions = [
     const navLinks = mobileNav?.querySelectorAll("a");
 
     function openMenu() {
-      mobileNav?.classList.remove("hidden");
-      overlay?.classList.remove("opacity-0", "pointer-events-none");
-      overlay?.classList.add("opacity-100", "pointer-events-auto");
+      if (!mobileNav || !overlay) return;
+      mobileNav.classList.remove("hidden");
+      mobileNav.classList.add("flex");
+      overlay.classList.remove("opacity-0", "pointer-events-none");
+      overlay.classList.add("opacity-100", "pointer-events-auto");
       hamburgerBtn?.setAttribute("aria-expanded", "true");
     }
     function closeMenu() {
-      mobileNav?.classList.add("hidden");
-      overlay?.classList.remove("opacity-100", "pointer-events-auto");
-      overlay?.classList.add("opacity-0", "pointer-events-none");
+      if (!mobileNav || !overlay) return;
+      mobileNav.classList.add("hidden");
+      mobileNav.classList.remove("flex");
+      overlay.classList.remove("opacity-100", "pointer-events-auto");
+      overlay.classList.add("opacity-0", "pointer-events-none");
       hamburgerBtn?.setAttribute("aria-expanded", "false");
     }
 
