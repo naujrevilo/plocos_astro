@@ -11,17 +11,22 @@
 1. Instala dependencias: `pnpm install`
 2. Inicia Astro en modo remoto (Turso): `pnpm dev --remote`
 3. Accede al panel TinaCMS: `http://localhost:4321/admin/index.html`
-4. Para moderar comentarios, visita `/admin/comments?token=TU_TOKEN` (solo la primera vez)
-5. El token se guarda en cookie httpOnly y la URL se limpia automáticamente
+4. Para moderar comentarios, visita `/admin/login` para iniciar sesión.
+5. Una vez que hayas iniciado sesión, serás redirigido al panel de moderación en `/admin/comments`.
+
+## Cambios recientes (v0.1.8)
+- **Envío de comentarios como JSON**: El formulario de comentarios ahora envía los datos como `application/json` en lugar de `multipart/form-data`. Esto soluciona el error 415 Unsupported Media Type.
+- **Redirección en el formulario de comentarios**: Después de enviar un comentario, el usuario es redirigido a la página de inicio.
+- **Mejora en la interfaz de usuario del formulario de comentarios**: El color del texto en el área de texto ha sido mejorado para una mejor legibilidad.
 
 ## Troubleshooting
 
-- Si el panel de moderación no muestra comentarios tras ingresar el token:
-  - Verifica que el token en `.env.local` es correcto
-  - Asegúrate de que la cookie se guarda (prueba en ventana privada)
-  - El archivo `src/pages/admin/comments.astro` debe tener `export const prerender = false;`
-  - En local, la opción `secure: false` para la cookie permite guardar en http
-- Si no ves datos en Turso, asegúrate de usar `--remote` y que las credenciales sean válidas
+- Si el panel de moderación no muestra comentarios:
+  - Verifica que las credenciales en `.env.local` son correctas.
+  - Asegúrate de que la cookie se guarda (prueba en ventana privada).
+  - El archivo `src/pages/admin/comments.astro` debe tener `export const prerender = false;`.
+- Si no ves datos en Turso, asegúrate de usar `--remote` y que las credenciales sean válidas.
+- Si los comentarios no se envían, verifica que la solicitud a `/api/comments` se esté realizando con el `Content-Type` correcto (`application/json`).
 
 ## Buenas prácticas
 
