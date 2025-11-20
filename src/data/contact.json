@@ -1,14 +1,6 @@
 {
   "email": "expresatura@plocos.com",
-  "donation": {
-    "formAction": "https://www.paypal.com/donate",
-    "method": "post",
-    "target": "_blank",
-    "hostedButtonId": "DUU6VLKWL72SA",
-    "businessEmail": "michelsaer@gmail.com",
-    "buttonImage": "https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif",
-    "pixelImage": "https://www.paypal.com/en_CO/i/scr/pixel.gif"
-  },
+
   "social": [
     {
       "id": "facebook",

@@ -42,10 +42,9 @@ interface Translation {
   };
   footer: {
     rights: string;
-    contactLabel: string;
     rss: string;
     terms: string;
-    donate: string;
+
     follow: string;
   };
   home: {
@@ -76,10 +75,6 @@ interface Translation {
     intro: string;
     channelsHeading: string;
     emailLabel: string;
-    donationHeading: string;
-    donationDescription: string;
-    donationButtonLabel: string;
-    donationNotice: string;
     socialHeading: string;
     socialDescription: string;
     note: string;
@@ -170,6 +165,8 @@ interface Translation {
   };
 }
 
+
+
 export const translations: Record<Locale, Translation> = {
   es: {
     site: {
@@ -218,10 +215,8 @@ export const translations: Record<Locale, Translation> = {
     },
     footer: {
       rights: 'Todos los derechos reservados.',
-      contactLabel: 'Correo',
       rss: 'RSS',
       terms: 'Términos del sitio',
-      donate: 'Apoyar con PayPal',
       follow: 'Redes sociales',
     },
     home: {
@@ -255,12 +250,6 @@ export const translations: Record<Locale, Translation> = {
         'Plocos es un laboratorio vivo que abraza el intercambio crítico y la colaboración creativa. Escríbenos para conversar sobre exposiciones, publicaciones, residencias o proyectos educativos.',
   channelsHeading: 'Canales activos',
   emailLabel: 'Correo electrónico',
-      donationHeading: 'Apoyo y donaciones',
-      donationDescription:
-        'Si quieres impulsar nuevas residencias, publicaciones o líneas de investigación en Plocos, puedes realizar un aporte único mediante PayPal. Cada contribución fortalece este archivo comunitario.',
-      donationButtonLabel: 'Donar con PayPal',
-      donationNotice:
-        'La cuenta receptora temporal en PayPal es {{email}} mientras actualizamos la infraestructura de donaciones.',
       socialHeading: 'Redes y comunidad',
       socialDescription:
         'Sigue el proceso creativo, las exposiciones itinerantes y las activaciones educativas de Plocos en estos espacios digitales.',
@@ -465,10 +454,8 @@ export const translations: Record<Locale, Translation> = {
     },
     footer: {
       rights: 'All rights reserved.',
-      contactLabel: 'Email',
       rss: 'RSS',
       terms: 'Site terms',
-      donate: 'Support via PayPal',
       follow: 'Social',
     },
     home: {
@@ -502,12 +489,6 @@ export const translations: Record<Locale, Translation> = {
         'Plocos is a living laboratory that embraces critical exchange and creative collaboration. Write to us about exhibitions, publications, residencies, or educational projects.',
   channelsHeading: 'Active channels',
   emailLabel: 'Email',
-      donationHeading: 'Support and donations',
-      donationDescription:
-        'If you want to fuel new residencies, publications, or research lines at Plocos, you can make a one-time contribution through PayPal. Every contribution nurtures this community archive.',
-      donationButtonLabel: 'Donate with PayPal',
-      donationNotice:
-        'The temporary PayPal receiving account is {{email}} while we update our donation infrastructure.',
       socialHeading: 'Social channels',
       socialDescription:
         'Follow Plocos’ creative process, traveling exhibitions, and educational activations across these spaces.',

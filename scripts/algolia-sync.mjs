@@ -1,16 +1,13 @@
 import 'dotenv/config';
-import * as algoliasearch from 'algoliasearch';
+import algoliasearch from 'algoliasearch';
 import { getCollection } from 'astro:content';
 
-// This function reads all the blog posts from the /src/content/posts directory,
-// parses the frontmatter, and returns them as an array of objects.
 async function getAllPosts() {
   const posts = await getCollection('posts');
 
   const formattedPosts = posts.map((post) => {
     const { data } = post;
 
-    // Sanitize data: remove empty or null fields
     for (const key in data) {
       if (data[key] === '' || data[key] === null) {
         delete data[key];
@@ -36,20 +33,15 @@ async function main() {
   console.log('ALGOLIA_INDEX_NAME:', process.env.ALGOLIA_INDEX_NAME ? 'Loaded' : 'NOT LOADED');
   console.log('------------------------------------');
 
-
-
-
   if (!process.env.ALGOLIA_APP_ID || !process.env.ALGOLIA_ADMIN_API_KEY || !process.env.ALGOLIA_INDEX_NAME) {
     console.error('Error: Missing Algolia environment variables. Please check your .env file.');
     process.exit(1);
   }
 
-  const client = algoliasearch.algoliasearch(
+  const client = algoliasearch(
     process.env.ALGOLIA_APP_ID,
     process.env.ALGOLIA_ADMIN_API_KEY
   );
-
-
 
   const responses = await client.saveObjects({
     indexName: process.env.ALGOLIA_INDEX_NAME,

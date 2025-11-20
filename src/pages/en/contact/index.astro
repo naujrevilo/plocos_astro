@@ -14,15 +14,6 @@ type SocialLink = {
 
 type ContactData = {
   email: string;
-  donation: {
-    formAction: string;
-    method: string;
-    target: string;
-    hostedButtonId: string;
-    businessEmail: string;
-    buttonImage: string;
-    pixelImage: string;
-  };
   social: SocialLink[];
 };
 
@@ -32,7 +23,7 @@ const contact = translations.contact;
 const contactData = rawContactData as ContactData;
 const emailLabel = contact.emailLabel;
 const cardClasses = 'rounded-3xl border border-border-subtle bg-surface-elevated px-6 py-5';
-const donationNotice = contact.donationNotice.replace('{{email}}', contactData.donation.businessEmail);
+
 const socialLinks = contactData.social;
 const socialAnchorClass =
   'group flex items-center gap-3 rounded-full border border-border-subtle px-4 py-2 text-sm text-text-primary transition hover:border-accent hover:text-text-primary hover:shadow-contemplation';
@@ -59,6 +50,12 @@ const buttonClasses =
         </li>
       </ul>
     </div>
+
+    <div class={cardClasses}>
+      <h2 class="text-lg font-semibold text-text-primary">Make a payment</h2>
+      <div id="paypal-container-L9HZ7KPD7S28A" class="min-w-[200px] mt-4"></div>
+    </div>
+
 
     <div class={cardClasses}>
       <h2 class="text-lg font-semibold text-text-primary">{contact.formHeading}</h2>
@@ -116,24 +113,9 @@ const buttonClasses =
     </div>
 
     <div class={cardClasses}>
-      <h2 class="text-lg font-semibold text-text-primary">{contact.donationHeading}</h2>
-      <p class="mt-3 text-sm">{contact.donationDescription}</p>
-      <form
-        class="mt-4 inline-block"
-        action={contactData.donation.formAction}
-        method={contactData.donation.method}
-        target={contactData.donation.target}
-      >
-        <input type="hidden" name="hosted_button_id" value={contactData.donation.hostedButtonId} />
-        <input
-          type="image"
-          src={contactData.donation.buttonImage}
-          alt={contact.donationButtonLabel}
-          class="h-12 w-auto"
-        />
-        <img src={contactData.donation.pixelImage} alt="" width="1" height="1" />
-      </form>
-      <p class="mt-2 text-xs opacity-80">{donationNotice}</p>
+      
+      <div id="paypal-container-L9HZ7KPD7S28A" class="mt-4"></div>
+
     </div>
 
     <div class={cardClasses}>
@@ -160,4 +142,17 @@ const buttonClasses =
 
     <p class="text-sm opacity-80">{contact.note}</p>
   </section>
+<script is:inline src="https://www.paypal.com/sdk/js?client-id=BAAutVLDry6FJf2iLeWFIYBf66y2A7oy_Z9SD79AJ8jhv9oeV71VK46adlOYMqyCWoJEw8l3MngbRig2aA&components=hosted-buttons&disable-funding=venmo&currency=USD"></script>
+<script is:inline>
+  paypal.HostedButtons({
+    hostedButtonId: "L9HZ7KPD7S28A",
+  }).render("#paypal-container-L9HZ7KPD7S28A");
+</script>
 </BaseLayout>
+
+<script is:inline src="https://www.paypal.com/sdk/js?client-id=BAAutVLDry6FJf2iLeWFIYBf66y2A7oy_Z9SD79AJ8jhv9oeV71VK46adlOYMqyCWoJEw8l3MngbRig2aA&components=hosted-buttons&disable-funding=venmo&currency=USD"></script>
+<script is:inline>
+  paypal.HostedButtons({
+    hostedButtonId: "L9HZ7KPD7S28A",
+  }).render("#paypal-container-L9HZ7KPD7S28A");
+</script>

@@ -2,12 +2,12 @@
 
 import Search from './Search.vue';
 import ThemeToggle from "./ThemeToggle.astro";
-import { getTranslations, locales, defaultLocale } from "../lib/i18n";
+import { translations as allTranslations, locales, defaultLocale } from "../lib/i18n";
 import type { Locale } from "../lib/i18n";
 import { createLocaleHref } from "../lib/routes";
 
 const { currentPath = "/", locale } = Astro.props as { currentPath?: string; locale: string };
-const translations = getTranslations(locale);
+const translations = allTranslations[locale as Locale];
 const navItems = translations.navigation;
 const normalisePath = (path: string) => path.replace(/\/+/g, '/').replace(/\/$/, '');
 const activePath = normalisePath(currentPath);
@@ -57,7 +57,7 @@ const computeLocaleHref = (targetLocale: Locale) => {
   const currentMapping = toSegmentKey(translations);
   const segmentKey = currentMapping.get(currentSegments[0]);
   if (segmentKey) {
-    const targetTranslation = getTranslations(targetLocale);
+    const targetTranslation = allTranslations[targetLocale];
     if (segmentKey && segmentKey in targetTranslation.paths) {
       const targetSegment = targetTranslation.paths[segmentKey as keyof typeof targetTranslation.paths];
       currentSegments[0] = targetSegment ?? currentSegments[0];
@@ -155,36 +155,46 @@ const languageOptions = [
 </header>
 <!-- Eliminado JS personalizado para menú hamburguesa y drawer de búsqueda. Flowbite/Tailwind gestionan la interacción. -->
 <script is:inline>
-  // Lógica para alternar menú móvil y overlay
   document.addEventListener("DOMContentLoaded", () => {
-    const hamburgerBtn = document.querySelector(".hamburger-btn");
+    const hamburgerBtn = document.querySelector("button[data-collapse-toggle='mobile-nav']");
     const mobileNav = document.getElementById("mobile-nav");
     const overlay = document.getElementById("mobile-nav-overlay");
-    const closeBtn = mobileNav?.querySelector("[data-close-mobile-nav]");
-    const navLinks = mobileNav?.querySelectorAll("a");
+    const closeBtn = document.querySelector("[data-close-mobile-nav]");
+
+    if (!hamburgerBtn || !mobileNav || !overlay || !closeBtn) {
+      return;
+    }
+
+    const navLinks = mobileNav.querySelectorAll("a");
 
     function openMenu() {
-      if (!mobileNav || !overlay) return;
       mobileNav.classList.remove("hidden");
       mobileNav.classList.add("flex");
       overlay.classList.remove("opacity-0", "pointer-events-none");
-      overlay.classList.add("opacity-100", "pointer-events-auto");
-      hamburgerBtn?.setAttribute("aria-expanded", "true");
-    }
-    function closeMenu() {
-      if (!mobileNav || !overlay) return;
-      mobileNav.classList.add("hidden");
-      mobileNav.classList.remove("flex");
-      overlay.classList.remove("opacity-100", "pointer-events-auto");
-      overlay.classList.add("opacity-0", "pointer-events-none");
-      hamburgerBtn?.setAttribute("aria-expanded", "false");
+      overlay.classList.add("opacity-100");
+      hamburgerBtn.setAttribute("aria-expanded", "true");
     }
 
-    hamburgerBtn?.setAttribute("aria-expanded", "false");
-    hamburgerBtn?.addEventListener("click", openMenu);
-    closeBtn?.addEventListener("click", closeMenu);
-    overlay?.addEventListener("click", closeMenu);
-    navLinks?.forEach(link => link.addEventListener("click", closeMenu));
+    function closeMenu() {
+      mobileNav.classList.add("hidden");
+      mobileNav.classList.remove("flex");
+      overlay.classList.add("opacity-0", "pointer-events-none");
+      overlay.classList.remove("opacity-100");
+      hamburgerBtn.setAttribute("aria-expanded", "false");
+    }
+
+    hamburgerBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openMenu();
+    });
+    closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeMenu();
+    });
+    overlay.addEventListener("click", closeMenu);
+    navLinks.forEach(link => {
+      link.addEventListener("click", closeMenu);
+    });
   });
 </script>
   <style>
