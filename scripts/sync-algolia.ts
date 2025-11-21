@@ -1,62 +1,33 @@
 import "dotenv/config";
 import * as algoliasearch from "algoliasearch";
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
+import { getCollection } from 'astro:content';
+
+
 
 /**
- * Busca recursivamente todos los archivos dentro de un directorio y sus subdirectorios.
- * @param {string} dirPath - La ruta del directorio a explorar.
- * @param {string[]} [arrayOfFiles] - Un arreglo opcional para acumular las rutas de los archivos.
- * @returns {string[]} Un arreglo con las rutas completas de todos los archivos encontrados.
- */
-function getAllFiles(dirPath, arrayOfFiles) {
-  const files = fs.readdirSync(dirPath);
-
-  arrayOfFiles = arrayOfFiles || [];
-
-  files.forEach(function(file) {
-    if (fs.statSync(path.join(dirPath, file)).isDirectory()) {
-      arrayOfFiles = getAllFiles(path.join(dirPath, file), arrayOfFiles);
-    } else {
-      arrayOfFiles.push(path.join(dirPath, file));
-    }
-  });
-
-  return arrayOfFiles;
-}
-
-/**
- * Lee todas las publicaciones del blog desde el directorio /src/content/posts,
- * extrae el frontmatter y las devuelve como un arreglo de objetos para Algolia.
- * @returns {Promise<object[]>} Una promesa que se resuelve con un arreglo de objetos de las publicaciones.
+ * Obtiene todas las publicaciones de la colección 'blog' de Astro,
+ * las transforma al formato requerido por Algolia y las devuelve.
+ * @returns {Promise<object[]>} Una promesa que se resuelve con un arreglo de objetos para Algolia.
  */
 async function getAllPosts() {
-  const postsDirectory = path.join(process.cwd(), "src/content/posts");
-  const filenames = getAllFiles(postsDirectory, []);
+  const posts = await getCollection('blog', ({ data }) => {
+    // Filtra los borradores para no incluirlos en el índice de búsqueda.
+    return data.draft === false;
+  });
 
-  const posts = filenames.map((filename) => {
-    const fileContents = fs.readFileSync(filename, "utf8");
-    const { data } = matter(fileContents);
-
-    // Limpia los datos: elimina campos vacíos o nulos.
-    for (const key in data) {
-      if (data[key] === "" || data[key] === null) {
-        delete data[key];
-      }
-    }
-
-    // Genera el slug a partir del nombre del archivo.
-    const slug = path.basename(filename).replace(/\.mdx?$/, "");
-
+  const algoliaRecords = posts.map(post => {
     return {
-      objectID: slug,
-      slug: slug,
-      ...data,
+      objectID: post.slug,
+      slug: post.slug,
+      ...post.data,
+      // Asegura que la fecha sea un formato serializable (ISO string).
+      pubDate: post.data.pubDate.toISOString(),
+      // Incluye el cuerpo del post para una búsqueda de contenido completo.
+      content: post.body,
     };
   });
 
-  return posts;
+  return algoliaRecords;
 }
 
 /**

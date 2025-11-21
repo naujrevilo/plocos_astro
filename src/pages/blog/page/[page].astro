@@ -1,81 +1,57 @@
----
+--- 
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PostCard from '../../../components/PostCard.astro';
-import { getPublishedPosts } from '../../../lib/posts';
-import { defaultLocale, getTranslations, locales, type Locale } from '../../../lib/i18n';
+import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
 import { createLocaleHref } from '../../../lib/routes';
 import { paginate } from '../../../lib/pagination';
 
-export const PAGE_SIZE = 6;
+const PAGE_SIZE = 6;
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 
 export async function getStaticPaths() {
-  const paths: { params: { page: string }; locale: Locale }[] = [];
+  const allPosts = await getCollection('blog', ({ data }) => {
+    return data.draft === false && data.language === locale;
+  });
+  const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  const pagination = paginate(sortedPosts, 1, PAGE_SIZE);
 
-  for (const locale of locales) {
-    const posts = await getPublishedPosts({ locale });
-    const totalPages = Math.ceil(posts.length / PAGE_SIZE);
-
-    for (let pageNumber = 2; pageNumber <= totalPages; pageNumber += 1) {
-      paths.push({
-        params: { page: String(pageNumber) },
-        locale,
-      });
-    }
-  }
-
-  return paths;
+  return pagination.pages.map((page) => {
+    return {
+      params: { page: page.page.toString() },
+      props: { page },
+    };
+  });
 }
-const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+
+const { page } = Astro.props;
 const translations = getTranslations(locale);
 const blog = translations.blog;
-const rawParam = Astro.params.page ?? '';
-const requestedPage = Number.parseInt(rawParam, 10);
 
 const createPageHref = (page: number) =>
   page === 1
     ? createLocaleHref(locale, translations.paths.blog)
     : createLocaleHref(locale, `${translations.paths.blog}/page/${page}`);
 
-if (!Number.isInteger(requestedPage)) {
-  return Astro.redirect(createPageHref(1));
-}
-
-if (requestedPage === 1) {
-  return Astro.redirect(createPageHref(1));
-}
-
-const allPosts = await getPublishedPosts({ locale });
-const pagination = paginate(allPosts, requestedPage, PAGE_SIZE);
-
-if (!pagination.isPageValid) {
-  return Astro.redirect(createPageHref(requestedPage < 1 ? 1 : pagination.totalPages));
-}
-
-const paginatedPosts = pagination.pageItems;
-const prevHref = pagination.currentPage > 1 ? createPageHref(pagination.currentPage - 1) : null;
-const nextHref = pagination.currentPage < pagination.totalPages ? createPageHref(pagination.currentPage + 1) : null;
-const pageLabel = (page: number) => blog.pagination.pageLabel.replace('{{page}}', String(page));
-
+const prevHref = page.currentPage > 1 ? createPageHref(page.currentPage - 1) : null;
+const nextHref = page.currentPage < page.totalPages ? createPageHref(page.currentPage + 1) : null;
 ---
 <BaseLayout title={blog.metaTitle} description={blog.metaDescription}>
   <section class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16">
-    <header class="max-w-3xl space-y-2">
+    <header class="max-w-3xl space-y-4">
       <h1 class="text-4xl font-bold tracking-tight text-text-primary">{blog.title}</h1>
       <p class="text-lg leading-relaxed text-text-secondary">
         {blog.description}
       </p>
-      <p class="text-sm text-text-secondary/80">
-        {pageLabel(pagination.currentPage)} · {pagination.totalPages}
-      </p>
     </header>
 
   <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {paginatedPosts.map((post) => (
+      {page.pageItems.map((post) => (
         <PostCard post={post} />
       ))}
     </div>
 
-    {pagination.totalPages > 1 && (
+    {page.totalPages > 1 && (
       <nav aria-label={blog.pagination.ariaLabel} class="flex justify-center w-full">
         <div class="inline-flex rounded-lg shadow-xs border border-border-subtle bg-surface-elevated" role="group">
           <a href={prevHref ?? '#'} aria-label={blog.pagination.previous} class={`inline-flex items-center justify-center rounded-s-lg border-r border-border-subtle px-3 h-9 text-sm font-medium text-text-secondary bg-surface-base transition hover:bg-accent hover:text-surface-base focus:outline-none focus-visible:ring-2 focus-visible:ring-accent${!prevHref ? ' opacity-50 pointer-events-none' : ''}`}
@@ -84,7 +60,7 @@ const pageLabel = (page: number) => blog.pagination.pageLabel.replace('{{page}}'
             <span class="sr-only">{blog.pagination.previous}</span>
             <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7"/></svg>
           </a>
-          <span class="inline-flex items-center justify-center px-4 h-9 text-sm font-bold text-accent bg-surface-elevated">{pagination.currentPage} / {pagination.totalPages}</span>
+          <span class="inline-flex items-center justify-center px-4 h-9 text-sm font-bold text-accent bg-surface-elevated">{page.currentPage} / {page.totalPages}</span>
           <a href={nextHref ?? '#'} aria-label={blog.pagination.next} class={`inline-flex items-center justify-center rounded-e-lg border-l border-border-subtle px-3 h-9 text-sm font-medium text-text-secondary bg-surface-base transition hover:bg-accent hover:text-surface-base focus:outline-none focus-visible:ring-2 focus-visible:ring-accent${!nextHref ? ' opacity-50 pointer-events-none' : ''}`}
             aria-disabled={!nextHref}
           >

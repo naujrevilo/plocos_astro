@@ -1,7 +1,7 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
-import { getPublishedPosts } from '../../lib/posts';
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 import { paginate } from '../../lib/pagination';
@@ -10,8 +10,11 @@ const PAGE_SIZE = 6;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const blog = translations.blog;
-const allPosts = await getPublishedPosts({ locale });
-const pagination = paginate(allPosts, 1, PAGE_SIZE);
+const allPosts = await getCollection('blog', ({ data }) => {
+  return data.draft === false && data.language === locale;
+});
+const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const pagination = paginate(sortedPosts, 1, PAGE_SIZE);
 const paginatedPosts = pagination.pageItems;
 
 const createPageHref = (page: number) =>
@@ -21,8 +24,6 @@ const createPageHref = (page: number) =>
 
 const prevHref = pagination.currentPage > 1 ? createPageHref(pagination.currentPage - 1) : null;
 const nextHref = pagination.currentPage < pagination.totalPages ? createPageHref(pagination.currentPage + 1) : null;
-
-
 ---
 <BaseLayout title={blog.metaTitle} description={blog.metaDescription}>
   <section class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16">
