@@ -1,21 +1,21 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PostCard from '../../../components/PostCard.astro';
-import { getPublishedPosts, type PostEntry } from '../../../lib/posts';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import { labelToSlug } from '../../../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
 import { createLocaleHref } from '../../../lib/routes';
 
 interface Props {
   label: string;
-  posts: PostEntry[];
+  posts: CollectionEntry<'blog'>[];
 }
 
 export async function getStaticPaths() {
-  const posts = await getPublishedPosts();
+  const posts = await getCollection('blog');
   const labelMap = new Map<string, string>();
 
-  posts.forEach((post: PostEntry) => {
+    posts.forEach((post) => {
     (post.data.labels ?? []).forEach((label: string) => {
       labelMap.set(labelToSlug(label), label);
     });
@@ -30,7 +30,7 @@ export async function getStaticPaths() {
   }));
 }
 
-const { label, posts } = Astro.props as Props;
+const { label, posts } = Astro.props;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const copy = translations.labelsDetail;

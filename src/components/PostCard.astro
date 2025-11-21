@@ -1,25 +1,28 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { formatDate } from '../lib/posts';
 import { labelToSlug } from '../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
 
 interface Props {
-  post: CollectionEntry<'posts'>;
+  post: CollectionEntry<'blog'>;
 }
 
 const { post } = Astro.props;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const { data } = post;
-const postPath = `${translations.paths.posts}/${post.slug}`;
+const postPath = post.id.replace(/\\/g, '/');
 const postUrl = createLocaleHref(locale, postPath);
 const labels = data.labels ?? [];
 const categories = data.categories ?? [];
 const author = data.author ?? 'Michel Saer';
 const labelPath = translations.paths.labels;
-const formattedDate = formatDate(data.pubDate, locale);
+const formattedDate = new Date(data.pubDate).toLocaleDateString(locale, {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
 const imageAltPrefix = translations.posts.imageAlt;
 const heroImageAlt = data.heroImageAlt?.trim() || `${imageAltPrefix} ${data.title}`;
 ---

@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+
+const { path } = Astro.params;
+
+// The path could be '2025/flotar-o-navegar-hacia-una-realidad-de.md'
+// or '2025/flotar-o-navegar-hacia-una-realidad-de'
+// We just want the last part as the slug.
+const slugFragment = path.split('/').filter(segment => segment).pop()?.replace('.md', '');
+
+if (slugFragment) {
+  const posts = await getCollection('blog');
+  // Find a post where the slug *ends with* the fragment.
+  // This is safer than an exact match if there were nested folders.
+  const post = posts.find(p => p.slug === slugFragment);
+
+  if (post) {
+    return Astro.redirect(`/blog/${post.slug}`, 301); // 301 Permanent Redirect
+  }
+}
+
+// If no slug is found or no post matches, Astro will render the 404 page by default.
+// We don't need to return anything.
+---

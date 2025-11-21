@@ -1,4 +1,4 @@
-import { getPublishedPosts } from '../../lib/posts';
+import { getCollection } from 'astro:content';
 import type { Locale } from '../../lib/i18n';
 
 export const prerender = true;
@@ -8,7 +8,12 @@ export async function GET({ request }: { request: Request }) {
   const localeParam = url.searchParams.get('locale');
   const locale = (localeParam === 'en' || localeParam === 'es' ? localeParam : undefined) as Locale | undefined;
 
-  const posts = await getPublishedPosts(locale ? { locale } : {});
+  const postsCollection = await getCollection('blog');
+  const posts = postsCollection.filter((post) => {
+    if (post.data.draft) return false;
+    if (locale && post.data.language !== locale) return false;
+    return true;
+  });
 
   const normalise = (value: string) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
   const cleanMarkdown = (markdown: string) =>

@@ -6,7 +6,9 @@ const blogCollection = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
-    pubDate: z.date(),
+    pubDate: z.string().transform(str => new Date(str)),
+    updatedDate: z.string().transform(str => new Date(str)).optional(),
+    category: z.string().optional(),
     author: z.string().default('Michel Saer'),
     language: z.enum(['es', 'en']).default('es'),
     translationKey: z.string().optional(),

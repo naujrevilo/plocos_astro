@@ -1,18 +1,162 @@
---- 
-import { getCollection } from 'astro:content';
-import BlogPost from '../../layouts/BlogPost.astro';
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { labelToSlug } from '../../lib/taxonomy';
+import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
+import { createLocaleHref } from '../../lib/routes';
+import SocialIcon from '../../components/icons/SocialIcon.astro';
+import CommentSection from '../../components/CommentSection.astro';
+
+export const prerender = true;
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
-  return posts.map(post => ({
+  return posts.map((post) => ({
     params: { slug: post.slug },
     props: post,
   }));
 }
 
-const { post } = Astro.props;
+type Props = {
+  post: CollectionEntry<'blog'>;
+};
+
+const post = Astro.props;
 const { Content } = await post.render();
+const { data } = post;
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+
+const allLocalePosts = (await getCollection('blog', ({ data }) => data.language === locale))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const postIndex = allLocalePosts.findIndex(p => p.id === post.id);
+const previousPost = postIndex > 0 ? allLocalePosts[postIndex - 1] : null;
+const nextPost = postIndex < allLocalePosts.length - 1 ? allLocalePosts[postIndex + 1] : null;
+
+const translations = getTranslations(locale);
+const postCopy = translations.posts;
+const navigationCopy = postCopy.navigation;
+const shareCopy = postCopy.share;
+const initialCommentStatusParam = Astro.url.searchParams.get('comment');
+const allowedCommentStatuses = ['pending', 'success', 'error'] as const;
+const initialCommentStatus = allowedCommentStatuses.includes(initialCommentStatusParam as (typeof allowedCommentStatuses)[number])
+  ? (initialCommentStatusParam as (typeof allowedCommentStatuses)[number])
+  : null;
+
+const formattedDate = new Date(data.pubDate).toLocaleDateString(locale, {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const title = `${data.title} · Plocos`;
+const description = data.summary ?? `${postCopy.defaultDescriptionPrefix} ${formattedDate}.`;
+const base = Astro.site?.origin ?? '';
+const canonicalPath = createLocaleHref(locale, post.id.replace(/\\/g, '/'));
+const canonical = base ? new URL(canonicalPath, base).toString() : canonicalPath;
+const categories = data.categories ?? [];
+const author = data.author ?? 'Michel Saer';
+const backHref = createLocaleHref(locale);
+const labelPath = translations.paths.labels;
+const shareUrl = canonical;
+const encodedShareUrl = encodeURIComponent(shareUrl);
+const encodedShareTitle = encodeURIComponent(data.title);
+const emailSubject = encodeURIComponent(`${data.title} · ${author}`);
+const emailBody = encodeURIComponent(`${data.summary ?? ''}\n\n${shareUrl}`.trim());
+const shareLinks = {
+  x: `https://twitter.com/intent/tweet?url=${encodedShareUrl}&text=${encodedShareTitle}`,
+  facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedShareUrl}`,
+  instagram: `https://www.instagram.com/?url=${encodedShareUrl}`,
+  email: `mailto:?subject=${emailSubject}&body=${emailBody}`,
+};
+const shareItems = [
+  { id: 'x', href: shareLinks.x, label: shareCopy.x, external: true },
+  { id: 'facebook', href: shareLinks.facebook, label: shareCopy.facebook, external: true },
+  { id: 'instagram', href: shareLinks.instagram, label: shareCopy.instagram, external: true },
+  { id: 'email', href: shareLinks.email, label: shareCopy.email, external: false },
+] as const;
+const heroImageAlt = data.heroImageAlt?.trim() || `${postCopy.imageAlt} ${data.title}`;
+const previousHref = previousPost
+  ? createLocaleHref(locale, previousPost.id.replace(/\\/g, '/'))
+  : null;
+const nextHref = nextPost ? createLocaleHref(locale, nextPost.id.replace(/\\/g, '/')) : null;
 ---
-<BlogPost {...post.data}>
-  <Content />
-</BlogPost>
+<BaseLayout title={title} description={description} image={data.heroImage} canonicalUrl={canonical}>
+  <article class="mx-auto max-w-3xl px-4 py-16">
+    <header class="space-y-6">
+      <a href={backHref} class="inline-flex items-center gap-2 text-sm text-text-accent transition hover:text-accent">
+        {postCopy.backToHome}
+      </a>
+      <div class="space-y-4">
+        <div class="flex flex-wrap items-center gap-3 text-sm text-text-secondary">
+          <p class="uppercase tracking-[0.25em] text-text-secondary opacity-70">{formattedDate}</p>
+          <span class="opacity-60">•</span>
+          <p class="opacity-80">{author}</p>
+        </div>
+        <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">{data.title ?? 'Sin título'}</h1>
+        {data.summary && (
+          <p class="mt-4 text-lg leading-relaxed text-text-secondary">
+            {data.summary}
+          </p>
+        )}
+      </div>
+    </header>
+    {data.heroImage && (
+      <img
+        src={data.heroImage}
+        alt={heroImageAlt}
+        class="my-8 rounded-2xl"
+      />
+    )}
+    <div class="prose prose-lg mt-8">
+      <Content />
+    </div>
+    <footer class="mt-16 space-y-12">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <p class="text-sm font-semibold uppercase tracking-wide text-text-secondary">{shareCopy.heading}</p>
+          <ul class="flex items-center gap-2">
+            {shareItems.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  target={item.external ? '_blank' : undefined}
+                  rel={item.external ? 'noopener noreferrer' : undefined}
+                  class="flex h-9 w-9 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated text-text-secondary transition hover:border-accent hover:text-accent"
+                  aria-label={item.label}
+                >
+                  <SocialIcon id={item.id} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {categories.length > 0 && (
+          <ul class="flex flex-wrap gap-2">
+            {categories.map((category: string) => (
+              <li class="rounded-full border border-border-subtle bg-surface-muted px-3 py-1 text-xs uppercase tracking-wide text-text-secondary">
+                {category}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <nav class="grid grid-cols-1 gap-8 border-t border-border-subtle pt-8 md:grid-cols-2">
+        {previousPost && (
+          <a href={previousHref} class="group flex flex-col gap-2 text-left">
+            <p class="text-sm uppercase tracking-wide text-text-secondary">{navigationCopy.previous}</p>
+            <p class="font-semibold text-text-primary transition group-hover:text-accent">{previousPost.data.title}</p>
+          </a>
+        )}
+        {nextPost && (
+          <a href={nextHref} class="group flex flex-col gap-2 text-right md:col-start-2">
+            <p class="text-sm uppercase tracking-wide text-text-secondary">{navigationCopy.next}</p>
+            <p class="font-semibold text-text-primary transition group-hover:text-accent">{nextPost.data.title}</p>
+          </a>
+        )}
+      </nav>
+      <CommentSection slug={post.id} />
+    </footer>
+  </article>
+</BaseLayout>

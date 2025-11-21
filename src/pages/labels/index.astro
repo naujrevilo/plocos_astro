@@ -1,13 +1,26 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPublishedPosts, groupPostsByLabel } from '../../lib/posts';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import { labelToSlug } from '../../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
-const posts = await getPublishedPosts({ locale });
-const labels = groupPostsByLabel(posts);
+const posts = await getCollection('blog');
+
+const labels = posts.reduce((acc, post) => {
+  if (post.data.labels) {
+    post.data.labels.forEach((label) => {
+      const existingLabel = acc.find((item) => item.label === label);
+      if (existingLabel) {
+        existingLabel.count++;
+      } else {
+        acc.push({ label, count: 1 });
+      }
+    });
+  }
+  return acc;
+}, [] as { label: string; count: number }[]);
 const translations = getTranslations(locale);
 const copy = translations.labelsList;
 const labelPath = translations.paths.labels;

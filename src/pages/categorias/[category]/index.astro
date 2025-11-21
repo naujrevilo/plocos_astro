@@ -1,44 +1,42 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PostCard from '../../../components/PostCard.astro';
-import {
-  getCategories,
-  filterPostsByCategory,
-  getCategoryBody,
-  getCategoryDescription,
-  getCategoryTitle,
-} from '../../../lib/categories';
-import { getPublishedPosts } from '../../../lib/posts';
+import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
 import { createLocaleHref } from '../../../lib/routes';
 
+import { labelToSlug } from '../../../lib/taxonomy';
+
+export const prerender = true;
+
 export async function getStaticPaths() {
-  const categories = await getCategories();
+  const categories = await getCollection('categories');
   return categories.map((category) => ({
     params: { category: category.slug },
   }));
 }
 
 const { category } = Astro.params;
-const categories = await getCategories();
-const currentCategory = categories.find((item) => item.slug === category);
+const currentCategory = await getEntry('categories', category);
 
 if (!currentCategory) {
   throw new Error(`Categoría no encontrada: ${category}`);
 }
 
+
+
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
-const posts = filterPostsByCategory(currentCategory, await getPublishedPosts({ locale }));
+const posts = (await getCollection('blog')).filter(
+  (post) => post.data.category && post.data.category.slug === category && post.data.language === locale
+);
 const translations = getTranslations(locale);
 const categoriesCopy = translations.categories;
 const fallbackPrefix = categoriesCopy.fallbackDescriptionPrefix;
-const categoryTitle = getCategoryTitle(currentCategory, locale);
-const categoryDescription = getCategoryDescription(currentCategory, locale);
+const categoryTitle = currentCategory.data.title;
+const categoryDescription = currentCategory.data.description;
 const description = categoryDescription ?? `${fallbackPrefix} ${categoryTitle}.`;
-const renderedCategory = await currentCategory.render();
-const { Content } = renderedCategory;
-const englishBody = getCategoryBody(currentCategory, locale);
-const englishBodyHtml = englishBody ?? null;
+const { Content } = await currentCategory.render();
+const englishBodyHtml = currentCategory.data.body_en ?? null;
 const shouldRenderHtml = locale === 'en' && Boolean(englishBodyHtml);
 const pageTitle = `${categoryTitle} · ${categoriesCopy.title}`;
 const backHref = createLocaleHref(locale, translations.paths.categories);
@@ -52,7 +50,13 @@ const countStrings = categoriesCopy.count;
       <a href={backHref} class="inline-flex items-center gap-2 text-sm text-text-accent transition hover:text-accent">
         {categoriesCopy.backLink}
       </a>
-      <div class="space-y-3">
+      {shouldRenderHtml ? (
+          <div class="prose" set:html={englishBodyHtml}></div>
+        ) : (
+          <div class="prose">
+            <Content />
+          </div>
+        )}
         <p class="text-sm uppercase tracking-[0.3em] text-text-secondary opacity-70">{badge}</p>
         <h1 class="text-4xl font-bold tracking-tight text-text-primary">{categoryTitle}</h1>
         <p class="text-sm text-text-secondary">
@@ -60,16 +64,7 @@ const countStrings = categoriesCopy.count;
             ? emptyMessage
             : `${posts.length} ${posts.length === 1 ? countStrings.singular : countStrings.plural}`}
         </p>
-        {categoryDescription && (
-          <p class="text-base leading-relaxed text-text-secondary">{categoryDescription}</p>
-        )}
-        {shouldRenderHtml ? (
-          <div class="prose" set:html={englishBodyHtml}></div>
-        ) : (
-          <div class="prose">
-            <Content />
-          </div>
-        )}
+        
       </div>
     </div>
 
