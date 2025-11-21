@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
-import { Comments, and, asc, db, eq, isDbError, desc } from 'astro:db';
-import { locales, type Locale, getTranslations } from '../../lib/i18n';
-import { createLocaleHref } from '../../lib/routes';
+import { Comments, db, and, eq, desc } from 'astro:db';
+import { locales, type Locale } from '../../lib/i18n';
 
 export const prerender = false;
 
@@ -30,62 +29,17 @@ function sanitize(input: string, max: number) {
   return input.trim().replace(/\s+/g, ' ').slice(0, max);
 }
 
-function wantsJson(request: Request) {
-  const accept = request.headers.get('accept') ?? '';
-  if (accept.includes('application/json')) {
-    return true;
-  }
-  if (accept.includes('text/html')) {
-    return false;
-  }
-  const contentType = request.headers.get('content-type') ?? '';
-  return contentType.includes('application/json');
-}
 
-function buildCommentPath(locale: Locale, slug: string, status: 'pending' | 'error') {
-  const translations = getTranslations(locale);
-  const basePath = createLocaleHref(locale, `${translations.paths.posts}/${slug}`);
-  const url = new URL(basePath, 'http://localhost');
-  url.searchParams.set('comment', status);
-  url.hash = 'comments';
-  return `${url.pathname}${url.search}${url.hash}`;
-}
 
-function respond(
-  request: Request,
-  status: number,
-  body: Record<string, unknown>,
-  fallback?: { locale?: Locale; slug?: string; status: 'pending' | 'error' }
-) {
-  if (!wantsJson(request)) {
-    if (fallback?.locale && fallback.slug) {
-      return new Response(null, {
-        status: 303,
-        headers: {
-          Location: buildCommentPath(fallback.locale, fallback.slug, fallback.status),
-        },
-      });
-    }
-    const referer = request.headers.get('referer');
-    if (referer) {
-      try {
-        const redirect = new URL(referer);
-        if (fallback?.status) {
-          redirect.searchParams.set('comment', fallback.status);
-          redirect.hash = 'comments';
-        }
-        return new Response(null, {
-          status: 303,
-          headers: { Location: redirect.toString() },
-        });
-      } catch (error) {
-        console.warn('Failed to build referer fallback', error);
-      }
-    }
-  }
-  return jsonResponse(status, body);
-}
 
+
+
+
+/**
+ * Endpoint para obtener los comentarios aprobados de un post.
+ * @param {APIRoute} context - El contexto de la ruta de Astro.
+ * @returns {Response} Una respuesta JSON con los comentarios o un error.
+ */
 export const GET: APIRoute = async ({ url }) => {
   const slug = url.searchParams.get('slug')?.trim();
   const locale = url.searchParams.get('locale')?.trim();
@@ -112,16 +66,18 @@ export const GET: APIRoute = async ({ url }) => {
     })
     .from(Comments)
     .where(
+      // Filtra los comentarios para devolver solo los aprobados.
       and(
         eq(Comments.postSlug, slug),
         eq(Comments.locale, locale),
-        eq(Comments.approved, 1)
+        eq(Comments.approved, true)
       )
     )
     .orderBy(desc(Comments.createdAt));
 
+  // Se aplica un tipado explícito para asegurar la estructura de los datos del comentario.
   return jsonResponse(200, {
-    comments: rows.map(({ id, name, message, createdAt }) => ({
+    comments: rows.map(({ id, name, message, createdAt }: { id: number; name: string; message: string; createdAt: Date }) => ({
       id,
       name,
       message,
@@ -156,6 +112,11 @@ function validateEmail(input: string) {
   return emailPattern.test(email);
 }
 
+/**
+ * Endpoint para enviar un nuevo comentario para moderación.
+ * @param {APIRoute} context - El contexto de la ruta de Astro.
+ * @returns {Response} Una respuesta JSON indicando el estado de la operación.
+ */
 export const POST: APIRoute = async ({ request }) => {
   const contentType = request.headers.get('content-type') ?? '';
   let body: CommentPayload | null = null;
@@ -188,7 +149,7 @@ export const POST: APIRoute = async ({ request }) => {
   const name = body.name?.trim();
   const email = body.email?.trim() ?? null;
   const message = body.message?.trim();
-  const website = body.website?.trim();
+  
 
     if (!slug || slug.length > MAX_SLUG_LENGTH) {
       return jsonResponse(400, { error: 'Invalid slug.' });
@@ -199,7 +160,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const supportedLocale = locale as Locale;
-  const errorFallback = { locale: supportedLocale, slug, status: 'error' as const };
+  
 
   if (!name) {
     return jsonResponse(400, { error: 'Name is required.' });
@@ -233,15 +194,12 @@ export const POST: APIRoute = async ({ request }) => {
       name: sanitize(name, MAX_NAME_LENGTH),
       email: email ? email.trim().slice(0, MAX_EMAIL_LENGTH) : null,
       message: normalizedMessage,
-      approved: 0,
+            // Los nuevos comentarios se guardan como no aprobados (`false`) por defecto para su moderación.
+      approved: false,
     });
   } catch (error) {
-    if (isDbError(error)) {
-      console.error('Database error while creating comment', error);
-      return jsonResponse(500, { error: 'Failed to store comment.' });
-    }
-    console.error('Unexpected error while creating comment', error);
-    return jsonResponse(500, { error: 'Unexpected error.' });
+    console.error('Database error while creating comment', error);
+    return jsonResponse(500, { error: 'Failed to store comment.' });
   }
 
   return jsonResponse(201, { status: 'pending' });

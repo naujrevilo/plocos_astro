@@ -1,8 +1,14 @@
 import type { APIRoute } from 'astro';
-import { Comments, db, eq, and } from 'astro:db';
+import { Comments, db, eq } from 'astro:db';
 
 const COOKIE_NAME = 'plocos-comments-token';
 
+/**
+ * Endpoint para moderar comentarios (aprobar o eliminar).
+ * Requiere un token de autorización.
+ * @param {APIRoute} context - El contexto de la ruta de Astro.
+ * @returns {Response} Una respuesta JSON indicando el resultado de la operación.
+ */
 export const POST: APIRoute = async ({ request, cookies }) => {
   const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN ?? '';
   const providedToken = cookies.get(COOKIE_NAME)?.value ?? null;
@@ -19,9 +25,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     if (action === 'approve') {
-      await db.update(Comments).set({ approved: 1 }).where(eq(Comments.id, id));
+            // Se asegura que el `id` sea un número antes de la consulta.
+      await db.update(Comments).set({ approved: true }).where(eq(Comments.id, Number(id)));
     } else if (action === 'delete') {
-      await db.delete(Comments).where(eq(Comments.id, id));
+            // Se asegura que el `id` sea un número antes de la consulta.
+      await db.delete(Comments).where(eq(Comments.id, Number(id)));
     } else {
       return new Response(JSON.stringify({ error: 'Invalid action' }), { status: 400 });
     }

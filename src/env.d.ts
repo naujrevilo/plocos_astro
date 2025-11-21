@@ -1,3 +1,4 @@
+/// <reference path="../.astro/integrations/astro_db/db.d.ts" />
 
 /// <reference path="../.astro/types.d.ts" />
 /// <reference types="astro/client" />

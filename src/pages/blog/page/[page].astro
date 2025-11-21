@@ -55,14 +55,7 @@ const paginatedPosts = pagination.pageItems;
 const prevHref = pagination.currentPage > 1 ? createPageHref(pagination.currentPage - 1) : null;
 const nextHref = pagination.currentPage < pagination.totalPages ? createPageHref(pagination.currentPage + 1) : null;
 const pageLabel = (page: number) => blog.pagination.pageLabel.replace('{{page}}', String(page));
-const pageLinks = Array.from({ length: pagination.totalPages }, (_, index) => {
-  const pageNumber = index + 1;
-  return {
-    number: pageNumber,
-    href: createPageHref(pageNumber),
-    current: pageNumber === pagination.currentPage,
-  };
-});
+
 ---
 <BaseLayout title={blog.metaTitle} description={blog.metaDescription}>
   <section class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16">

@@ -1,6 +1,17 @@
 ---
-import { Comments, db, desc } from 'astro:db';
+import { Comments as CommentsTable, db, desc } from 'astro:db';
 import Layout from '../../layouts/BaseLayout.astro';
+
+type CommentsType = {
+    id: number;
+    postSlug: string;
+    locale: string;
+    name: string;
+    email?: string | null;
+    message: string;
+    createdAt: Date;
+    approved: boolean;
+};
 
 const COOKIE_NAME = 'plocos-comments-token';
 const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN ?? '';
@@ -28,10 +39,10 @@ if (!moderationToken || cookieToken !== moderationToken) {
   return Astro.redirect(`/admin/login?redirect=/admin/comments`);
 }
 
-const allComments = await db.select().from(Comments).orderBy(desc(Comments.createdAt));
+const allComments = await db.select().from(CommentsTable).orderBy(desc(CommentsTable.createdAt));
 
-const pendingComments = allComments.filter(comment => comment.approved === false);
-const approvedComments = allComments.filter(comment => comment.approved === true);
+const pendingComments = allComments.filter((comment: CommentsType) => comment.approved === false);
+const approvedComments = allComments.filter((comment: CommentsType) => comment.approved === true);
 ---
 
 <Layout title="Moderación de Comentarios">
@@ -41,7 +52,7 @@ const approvedComments = allComments.filter(comment => comment.approved === true
     <section>
       <h2 class="text-xl font-semibold mb-4">Pendientes ({pendingComments.length})</h2>
       <div class="space-y-4">
-        {pendingComments.map(comment => (
+        {pendingComments.map((comment: CommentsType) => (
           <div class="border p-4 rounded-lg" data-comment-id={comment.id}>
             <p><strong>{comment.name}</strong></p>
             <p class="text-sm text-gray-500 mb-2">{new Date(comment.createdAt).toLocaleString()}</p>
@@ -58,7 +69,7 @@ const approvedComments = allComments.filter(comment => comment.approved === true
     <section class="mt-12">
       <h2 class="text-xl font-semibold mb-4">Aprobados ({approvedComments.length})</h2>
       <div class="space-y-4">
-        {approvedComments.map(comment => (
+        {approvedComments.map((comment: CommentsType) => (
           <div class="border p-4 rounded-lg" data-comment-id={comment.id}>
             <p><strong>{comment.name}</strong></p>
             <p class="text-sm text-gray-500 mb-2">{new Date(comment.createdAt).toLocaleString()}</p>
