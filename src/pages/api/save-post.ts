@@ -19,7 +19,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Construir ruta del archivo
-    const filePath = path.join(process.cwd(), 'src', 'content', 'posts', `${id}.md`);
+    const filePath = path.join(process.cwd(), 'src', 'content', 'blog', `${id}.md`);
 
     if (!fs.existsSync(filePath)) {
       return new Response(JSON.stringify({ error: 'Post no encontrado' }), { 

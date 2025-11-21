@@ -1,6 +1,8 @@
 --- 
+export const prerender = true;
 import { getCollection } from 'astro:content';
-import BlogPost from '../../layouts/BlogPost.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CommentSection from '../../components/CommentSection.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -10,9 +12,12 @@ export async function getStaticPaths() {
   }));
 }
 
-const { post } = Astro.props;
+const post = Astro.props;
 const { Content } = await post.render();
 ---
-<BlogPost {...post.data}>
-  <Content />
-</BlogPost>
+<BaseLayout {...post.data}>
+  <div class="prose">
+    <Content />
+  </div>
+  <CommentSection slug={post.slug} locale={post.data.language} />
+</BaseLayout>

@@ -1,16 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
-import { getPublishedPosts } from '../lib/posts';
+import { getCollection } from 'astro:content';
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
-const posts = await getPublishedPosts({ locale });
+const posts = (await getCollection('blog', ({ data }) => data.language === locale && !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
 const latestPosts = posts.slice(0, 6);
 const translations = getTranslations(locale);
 const home = translations.home;
-const categoriesHref = createLocaleHref(locale, translations.paths.categories);
+const blogHref = createLocaleHref(locale, translations.paths.blog);
 ---
 <BaseLayout title={home.metaTitle} description={home.metaDescription}>
 	<section class="relative overflow-hidden">
@@ -45,7 +47,7 @@ const categoriesHref = createLocaleHref(locale, translations.paths.categories);
 			</div>
 					<div class="flex items-center justify-center pt-4">
 						<a
-							href={categoriesHref}
+							href={blogHref}
 							class="inline-flex items-center gap-2 rounded-full border border-accent-muted bg-accent-soft px-6 py-3 text-sm font-semibold text-text-accent transition hover:border-accent hover:text-text-primary"
 						>
 							{home.cta}

@@ -66,7 +66,7 @@ export default defineConfig({
       {
         name: "posts",
         label: "Publicaciones",
-        path: "src/content/posts/",
+        path: "src/content/blog/",
         format: "md",
         defaultItem: () => {
           const now = new Date().toISOString();

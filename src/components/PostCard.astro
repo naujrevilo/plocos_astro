@@ -1,12 +1,10 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { formatDate } from '../lib/posts';
-import { labelToSlug } from '../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
 
 interface Props {
-  post: CollectionEntry<'posts'>;
+  post: CollectionEntry<'blog'>;
 }
 
 const { post } = Astro.props;
@@ -15,11 +13,15 @@ const translations = getTranslations(locale);
 const { data } = post;
 const postPath = `${translations.paths.posts}/${post.slug}`;
 const postUrl = createLocaleHref(locale, postPath);
-const labels = data.labels ?? [];
-const categories = data.categories ?? [];
+const tags = data.tags ?? [];
+
 const author = data.author ?? 'Michel Saer';
 const labelPath = translations.paths.labels;
-const formattedDate = formatDate(data.pubDate, locale);
+const formattedDate = data.pubDate.toLocaleDateString(locale, {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
 const imageAltPrefix = translations.posts.imageAlt;
 const heroImageAlt = data.heroImageAlt?.trim() || `${imageAltPrefix} ${data.title}`;
 ---
@@ -55,25 +57,17 @@ const heroImageAlt = data.heroImageAlt?.trim() || `${imageAltPrefix} ${data.titl
         </p>
       )}
     </div>
-    {categories.length > 0 && (
-      <ul class="flex flex-wrap gap-2 text-[0.7rem] text-text-secondary">
-        {categories.map((category: string) => (
-          <li class="rounded-full border border-border-subtle bg-surface-muted px-3 py-1 uppercase tracking-wide">
-            {category}
-          </li>
-        ))}
-      </ul>
-    )}
-    {labels.length > 0 && (
+    
+    {tags.length > 0 && (
       <ul class="mt-auto flex flex-wrap gap-2 text-xs text-text-accent">
-        {labels.map((label: string) => (
+        {tags.map((tag: string) => (
           <li>
             <a
-              href={createLocaleHref(locale, `${labelPath}/${labelToSlug(label)}`)}
+              href={createLocaleHref(locale, `${labelPath}/${tag}`)}
               class="inline-flex items-center gap-2 rounded-full border border-accent-muted bg-accent-soft px-3 py-1 transition hover:border-accent hover:text-text-primary"
             >
               <span class="h-1.5 w-1.5 rounded-full bg-accent" />
-              {label}
+              {tag}
             </a>
           </li>
         ))}

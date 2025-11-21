@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, getEntry } from 'astro:content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
+  const posts = await getCollection('blog');
   return posts.map((post) => ({
     params: { id: post.id },
   }));
@@ -12,10 +12,10 @@ export async function getStaticPaths() {
 const { id } = Astro.params;
 if (!id) return Astro.redirect('/editor');
 
-const post = await getEntry('posts', id);
+const post = await getEntry('blog', id);
 if (!post) return Astro.redirect('/editor');
 
-const pubDate = post.data.pubDate ? new Date(post.data.pubDate).toLocaleDateString('es-ES') : '';
+const pubDate = new Date(post.data.pubDate).toLocaleDateString('es-ES');
 ---
 
 <BaseLayout title={`Editar: ${post.data.title}`}>

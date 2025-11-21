@@ -3,12 +3,7 @@ import { Comments, db, eq } from 'astro:db';
 
 const COOKIE_NAME = 'plocos-comments-token';
 
-/**
- * Endpoint para moderar comentarios (aprobar o eliminar).
- * Requiere un token de autorización.
- * @param {APIRoute} context - El contexto de la ruta de Astro.
- * @returns {Response} Una respuesta JSON indicando el resultado de la operación.
- */
+
 export const POST: APIRoute = async ({ request, cookies }) => {
   const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN ?? '';
   const providedToken = cookies.get(COOKIE_NAME)?.value ?? null;

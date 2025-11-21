@@ -35,11 +35,7 @@ function sanitize(input: string, max: number) {
 
 
 
-/**
- * Endpoint para obtener los comentarios aprobados de un post.
- * @param {APIRoute} context - El contexto de la ruta de Astro.
- * @returns {Response} Una respuesta JSON con los comentarios o un error.
- */
+
 export const GET: APIRoute = async ({ url }) => {
   const slug = url.searchParams.get('slug')?.trim();
   const locale = url.searchParams.get('locale')?.trim();
@@ -112,11 +108,7 @@ function validateEmail(input: string) {
   return emailPattern.test(email);
 }
 
-/**
- * Endpoint para enviar un nuevo comentario para moderación.
- * @param {APIRoute} context - El contexto de la ruta de Astro.
- * @returns {Response} Una respuesta JSON indicando el estado de la operación.
- */
+
 export const POST: APIRoute = async ({ request }) => {
   const contentType = request.headers.get('content-type') ?? '';
   let body: CommentPayload | null = null;

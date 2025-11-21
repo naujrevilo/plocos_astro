@@ -7,38 +7,43 @@ import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
 import { createLocaleHref } from '../../../lib/routes';
 
 interface Props {
-  tag: string;
+  category: string;
   posts: CollectionEntry<'blog'>[];
 }
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
-  const tags = new Set<string>();
+  console.log('Posts found in [categoria]:', posts.length);
+  const categories = new Set<string>();
   for (const post of posts) {
-    for (const tag of post.data.tags) {
-      tags.add(tag);
+    const postCategories = Array.isArray(post.data.categories) ? post.data.categories : (post.data.categories ? [post.data.categories] : []);
+    for (const category of postCategories) {
+      categories.add(category);
     }
   }
 
-  return Array.from(tags).map((tag) => {
-    const filteredPosts = posts.filter((post) => post.data.tags.includes(tag));
+  return Array.from(categories).map((category) => {
+        const filteredPosts = posts.filter((post) => {
+      const postCategories = Array.isArray(post.data.categories) ? post.data.categories : (post.data.categories ? [post.data.categories] : []);
+      return postCategories.includes(category);
+    });
     return {
-      params: { label: labelToSlug(tag) },
+      params: { categoria: labelToSlug(category) },
       props: {
-        tag,
+        category,
         posts: filteredPosts,
       },
     };
   });
 }
 
-const { tag, posts } = Astro.props as Props;
+const { category, posts } = Astro.props as Props;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
-const copy = translations.labelsDetail;
-const pageTitle = `${tag} · Plocos`;
-const description = `${copy.descriptionPrefix} ${tag}.`;
-const backHref = createLocaleHref(locale, translations.paths.labels);
+const copy = translations.categoriesDetail;
+const pageTitle = `${category} · Plocos`;
+const description = `${copy.descriptionPrefix} ${category}.`;
+const backHref = createLocaleHref(locale, translations.paths.categories);
 const postsForLocale = posts.filter((post) => post.data.language === locale);
 ---
 <BaseLayout title={pageTitle} description={description}>
@@ -49,7 +54,7 @@ const postsForLocale = posts.filter((post) => post.data.language === locale);
       </a>
       <div class="space-y-2">
         <p class="text-sm uppercase tracking-[0.3em] text-text-secondary opacity-70">{copy.badge}</p>
-        <h1 class="text-4xl font-bold tracking-tight text-text-primary">{tag}</h1>
+        <h1 class="text-4xl font-bold tracking-tight text-text-primary">{category}</h1>
         <p class="text-sm text-text-secondary">
           {postsForLocale.length} {postsForLocale.length === 1 ? copy.count.singular : copy.count.plural}
         </p>
