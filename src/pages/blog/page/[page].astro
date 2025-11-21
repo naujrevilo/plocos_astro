@@ -1,55 +1,40 @@
----
-import type { Page } from 'astro';
-
-export const prerender = true;
-import { getCollection, type CollectionEntry } from 'astro:content';
+--- 
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PostCard from '../../../components/PostCard.astro';
-import { getTranslations, type Locale } from '../../../lib/i18n';
+import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
+import { createLocaleHref } from '../../../lib/routes';
+import { paginate } from '../../../lib/pagination';
 
 const PAGE_SIZE = 6;
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 
-export async function getStaticPaths({ paginate }: { paginate: (data: any[], options: { pageSize: number }) => any[] }) {
-  const allPosts = await getCollection('blog', ({ data }) => !data.draft);
-  const postsByLocale = new Map<Locale, CollectionEntry<'blog'>[]>();
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog', ({ data }) => {
+    return data.draft === false && data.language === locale;
+  });
+  const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  const pagination = paginate(sortedPosts, 1, PAGE_SIZE);
 
-  // Agrupar posts por idioma
-  for (const post of allPosts) {
-    if (!postsByLocale.has(post.data.language)) {
-      postsByLocale.set(post.data.language, []);
-    }
-    postsByLocale.get(post.data.language)!.push(post);
-  }
-
-  const paths: any[] = [];
-  for (const [locale, posts] of postsByLocale.entries()) {
-    const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-    const paginated = paginate(sortedPosts, { pageSize: PAGE_SIZE });
-    
-    paginated.forEach((page: any, index: number) => {
-      paths.push({
-        params: { page: (index + 1).toString() },
-        props: { page, locale },
-      });
-    });
-  }
-
-  return paths;
+  return pagination.pages.map((page) => {
+    return {
+      params: { page: page.page.toString() },
+      props: { page },
+    };
+  });
 }
 
-interface Props {
-  page: Page<CollectionEntry<'blog'>>;
-  locale: Locale;
-}
-
-const { page, locale } = Astro.props;
+const { page } = Astro.props;
 const translations = getTranslations(locale);
 const blog = translations.blog;
 
+const createPageHref = (page: number) =>
+  page === 1
+    ? createLocaleHref(locale, translations.paths.blog)
+    : createLocaleHref(locale, `${translations.paths.blog}/page/${page}`);
 
-
-const prevHref = page.url.prev;
-const nextHref = page.url.next;
+const prevHref = page.currentPage > 1 ? createPageHref(page.currentPage - 1) : null;
+const nextHref = page.currentPage < page.totalPages ? createPageHref(page.currentPage + 1) : null;
 ---
 <BaseLayout title={blog.metaTitle} description={blog.metaDescription}>
   <section class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16">
@@ -60,13 +45,13 @@ const nextHref = page.url.next;
       </p>
     </header>
 
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {page.data.map((post) => (
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {page.pageItems.map((post) => (
         <PostCard post={post} />
       ))}
     </div>
 
-    {page.lastPage > 1 && (
+    {page.totalPages > 1 && (
       <nav aria-label={blog.pagination.ariaLabel} class="flex justify-center w-full">
         <div class="inline-flex rounded-lg shadow-xs border border-border-subtle bg-surface-elevated" role="group">
           <a href={prevHref ?? '#'} aria-label={blog.pagination.previous} class={`inline-flex items-center justify-center rounded-s-lg border-r border-border-subtle px-3 h-9 text-sm font-medium text-text-secondary bg-surface-base transition hover:bg-accent hover:text-surface-base focus:outline-none focus-visible:ring-2 focus-visible:ring-accent${!prevHref ? ' opacity-50 pointer-events-none' : ''}`}
@@ -75,7 +60,7 @@ const nextHref = page.url.next;
             <span class="sr-only">{blog.pagination.previous}</span>
             <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7"/></svg>
           </a>
-          <span class="inline-flex items-center justify-center px-4 h-9 text-sm font-bold text-accent bg-surface-elevated">{page.currentPage} / {page.lastPage}</span>
+          <span class="inline-flex items-center justify-center px-4 h-9 text-sm font-bold text-accent bg-surface-elevated">{page.currentPage} / {page.totalPages}</span>
           <a href={nextHref ?? '#'} aria-label={blog.pagination.next} class={`inline-flex items-center justify-center rounded-e-lg border-l border-border-subtle px-3 h-9 text-sm font-medium text-text-secondary bg-surface-base transition hover:bg-accent hover:text-surface-base focus:outline-none focus-visible:ring-2 focus-visible:ring-accent${!nextHref ? ' opacity-50 pointer-events-none' : ''}`}
             aria-disabled={!nextHref}
           >

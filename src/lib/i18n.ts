@@ -3,7 +3,7 @@ export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = 'es';
 
 interface NavigationItem {
-  id: 'home' | 'blog' | 'categories' | 'contact' | 'about';
+  id: 'home' | 'categories' | 'blog' | 'contact' | 'about';
   label: string;
   path: string;
 }
@@ -21,11 +21,11 @@ interface Translation {
   paths: {
     home: string;
     blog: string;
+    categories: string;
     contact: string;
     about: string;
     labels: string;
     posts: string;
-    categories: string;
     terms: string;
   };
   navigation: NavigationItem[];
@@ -93,6 +93,17 @@ interface Translation {
     title: string;
     paragraphs: string[];
   };
+  categories: {
+    metaTitle: string;
+    metaDescription: string;
+    title: string;
+    description: string[];
+    badge: string;
+    backLink: string;
+    empty: string;
+    count: { singular: string; plural: string };
+    fallbackDescriptionPrefix: string;
+  };
   labelsList: {
     metaTitle: string;
     metaDescription: string;
@@ -102,20 +113,6 @@ interface Translation {
     count: { singular: string; plural: string };
   };
   labelsDetail: {
-    backLink: string;
-    badge: string;
-    count: { singular: string; plural: string };
-    descriptionPrefix: string;
-  };
-  categoriesList: {
-    metaTitle: string;
-    metaDescription: string;
-    title: string;
-    description: string;
-    badge: string;
-    count: { singular: string; plural: string };
-  };
-  categoriesDetail: {
     backLink: string;
     badge: string;
     count: { singular: string; plural: string };
@@ -187,17 +184,17 @@ export const translations: Record<Locale, Translation> = {
     paths: {
       home: '',
       blog: 'blog',
+      categories: 'categorias',
       contact: 'contacto',
       about: 'nuestra-razon-de-ser',
       labels: 'labels',
-      posts: 'blog',
-      categories: 'categorias',
+      posts: 'posts',
       terms: 'terminos',
     },
     navigation: [
       { id: 'home', label: 'Inicio', path: '' },
-      { id: 'blog', label: 'Blog', path: 'blog' },
       { id: 'categories', label: 'Categorías', path: 'categorias' },
+      { id: 'blog', label: 'Blog', path: 'blog' },
       { id: 'contact', label: 'Contacto', path: 'contacto' },
       { id: 'about', label: 'Nuestra razón de ser', path: 'nuestra-razon-de-ser' },
     ],
@@ -276,8 +273,26 @@ export const translations: Record<Locale, Translation> = {
       paragraphs: [
         'No es únicamente un término de mi ideación, o la idea que origino esta propuesta virtual, es el ancla para generar nuevos pensamientos o inclusive, ideas. Un "Bloque de Pensamiento" (fusión de las palabras pensamiento del español y bloc del francés), y elemento central de este portal de arte y filosofía.',
         'Es una pieza de contenido, ya sea un argumento riguroso, una elucubración textual o un verso simbólico, diseñada para desatar la reflexión en el lector. Nace con la intención de establecer un diálogo distinto, de modo sintético y universal. En sus formas más concisas, puede presentarse como una única imagen o verso que ofrece un concepto denso y concreto que el lector puede integrar a su propia experiencia, transformando o enriqueciendo su pensar.',
-        'Es una apuesta deliberada por la revelación sobre la simple narrativa, que busca convertir la distracción en una conexión profundamente pertinente. Su brevedad es deliberada; no busca ser "fácil", sino potente. Son piezas refinadas que pretenden un "anclaje" conceptual con una inversión de tiempo corta, buscando la conexión estética o intelectual inmediata.',
+        'Es una apuesta deliberada por la revelación sobre la simple narrativa, que busca convertir la distracción en una conexión profundamente pertinente. Su brevedad es deliberada; no busca ser "fácil", sino potente. Son piezas refinadas que pretenden un "anclaje" conceptual con una inversión de tiempo corta, buscando la conexión estética o intelectual inmediata.',        
       ],
+    },
+    categories: {
+      metaTitle: 'Categorías · Plocos',
+      metaDescription: 'Explora las categorías que organizan la obra de Plocos.',
+      title: 'Categorías',
+      description: [
+        'Se toparán con categorías tituladas en latín; por ejemplo, "Ex lateribus cogite" que traduce: Piensa desde los lados/fuera del molde. Selecciones, cuya pretensión no es confundir, sino crear un espacio que busca posicionarse como intelectual y reflexivo.',
+        'No solo visual ya que es analítico y discursivo. Donde se estilan conceptos que valoran la escritura ya sea como herramienta de análisis (filosofía) o como fin en sí misma (arte).',
+        'Procuré mantener una redacción culta, articulada y soportada en una base de lectura filosófica, conservando una originalidad conceptual. En ellas, encontrarán el ploco, (Bloque de pensamiento), que aborda temas complejos desde ángulos frescos.',
+      ],
+      badge: 'Categoría',
+      backLink: '← Todas las categorías',
+      empty: 'No hay publicaciones asociadas aún, prueba el buscador o explora otras categorías.',
+        fallbackDescriptionPrefix: 'Archivo',
+      count: {
+        singular: 'publicación seleccionada.',
+        plural: 'publicaciones seleccionadas.',
+      },
     },
     labelsList: {
       metaTitle: 'Etiquetas · Plocos',
@@ -299,27 +314,6 @@ export const translations: Record<Locale, Translation> = {
         plural: 'publicaciones asociadas a esta etiqueta.',
       },
       descriptionPrefix: 'Publicaciones etiquetadas como',
-    },
-    categoriesList: {
-      metaTitle: 'Categorías · Plocos',
-      metaDescription: 'Explora las categorías y conceptos que atraviesan el archivo de Plocos.',
-      title: 'Categorías del archivo',
-      description:
-        'Descubre el archivo completo de Plocos filtrado por categorías temáticas, símbolos recurrentes y proyectos curatoriales. Selecciona una categoría para profundizar en sus publicaciones.',
-      badge: 'Categoría',
-      count: {
-        singular: 'publicación',
-        plural: 'publicaciones',
-      },
-    },
-    categoriesDetail: {
-      backLink: '← Todas las categorías',
-      badge: 'Categoría',
-      count: {
-        singular: 'publicación asociada a esta categoría.',
-        plural: 'publicaciones asociadas a esta categoría.',
-      },
-      descriptionPrefix: 'Publicaciones categorizadas como',
     },
     posts: {
       backToHome: '← Volver al inicio',
@@ -429,17 +423,17 @@ export const translations: Record<Locale, Translation> = {
     paths: {
       home: '',
       blog: 'blog',
+      categories: 'categories',
       contact: 'contact',
       about: 'our-purpose',
       labels: 'labels',
-      posts: 'blog',
-      categories: 'categories',
+      posts: 'posts',
       terms: 'terms',
     },
     navigation: [
       { id: 'home', label: 'Home', path: '' },
-      { id: 'blog', label: 'Blog', path: 'blog' },
       { id: 'categories', label: 'Categories', path: 'categories' },
+      { id: 'blog', label: 'Blog', path: 'blog' },
       { id: 'contact', label: 'Contact', path: 'contact' },
       { id: 'about', label: 'Our reason for being', path: 'our-purpose' },
     ],
@@ -518,8 +512,26 @@ export const translations: Record<Locale, Translation> = {
       paragraphs: [
         'It is not merely a term of my own invention, or the idea that gave rise to this virtual proposal; it is the anchor for generating new thoughts or even ideas. A "Thought Block" (a fusion of the Spanish word "pensamiento" and the French word "bloc"), and the central element of this art and philosophy portal.',
         'It is a piece of content, whether a rigorous argument, a textual elaboration or a symbolic verse, designed to spark reflection in the reader. It was created with the intention of establishing a different dialogue, in a synthetic and universal way. In its most concise forms, it can be presented as a single image or verse that offers a dense and concrete concept that the reader can integrate into their own experience, transforming or enriching their thinking.',
-        'It is a deliberate bet on revelation over simple narrative, which seeks to turn distraction into a deeply relevant connection. Its brevity is deliberate; it does not seek to be "easy", but powerful. They are refined pieces that aim for a conceptual "anchoring" with a short time investment, seeking immediate aesthetic or intellectual connection.',
+        'It is a deliberate commitment to revelation over simple narrative, seeking to turn distraction into a deeply relevant connection. Its brevity is deliberate; it does not seek to be "easy", but powerful. These are refined pieces that aim for a conceptual "anchor" with a short investment of time, seeking immediate aesthetic or intellectual connection.',
       ],
+    },
+    categories: {
+      metaTitle: 'Categories · Plocos',
+      metaDescription: 'Explore the categories that organize Plocos’ work.',
+      title: 'Categories',
+      description: [
+        'You will encounter categories with Latin titles; for example, "Ex lateribus cogite", which translates as: Think outside the box. Selections, whose aim is not to confuse, but to create a space that seeks to position itself as intellectual and reflective.',
+        'Not only visual, as it is analytical and discursive. Where concepts that value writing are used, either as a tool for analysis (philosophy) or as an end in itself (art).',
+        'I tried to maintain a cultured, articulate style based on philosophical reading, while preserving conceptual originality. In them, you will find the ploco (thought block), which addresses complex issues from fresh angles.',
+      ],
+      badge: 'Category',
+      backLink: '← All categories',
+      empty: 'There are no publications yet. Try the search bar or explore other categories.',
+      fallbackDescriptionPrefix: 'Archive',
+      count: {
+        singular: 'selected publication.',
+        plural: 'selected publications.',
+      },
     },
     labelsList: {
       metaTitle: 'Tags · Plocos',
@@ -541,27 +553,6 @@ export const translations: Record<Locale, Translation> = {
         plural: 'publications associated with this tag.',
       },
       descriptionPrefix: 'Entries tagged as',
-    },
-    categoriesList: {
-      metaTitle: 'Categories · Plocos',
-      metaDescription: 'Explore the categories and concepts that weave through the Plocos archive.',
-      title: 'Archive categories',
-      description:
-        'Browse Plocos’ entire archive filtered by thematic categories, recurring symbols, and curatorial projects. Choose a category to dive deeper into its publications.',
-      badge: 'Category',
-      count: {
-        singular: 'publication',
-        plural: 'publications',
-      },
-    },
-    categoriesDetail: {
-      backLink: '← All categories',
-      badge: 'Category',
-      count: {
-        singular: 'publication associated with this category.',
-        plural: 'publications associated with this category.',
-      },
-      descriptionPrefix: 'Entries categorized as',
     },
     posts: {
       backToHome: '← Back to home',

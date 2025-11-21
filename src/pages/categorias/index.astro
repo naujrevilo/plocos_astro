@@ -1,60 +1,49 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { labelToSlug } from '../../lib/taxonomy';
+import { getCategories, getCategoryDescription, getCategoryTitle } from '../../lib/categories';
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 
+const categories = await getCategories();
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
-
-// 1. Get all posts from the 'blog' collection
-const posts = await getCollection('blog', ({ data }) => {
-  // Filter drafts and by language
-  return data.draft === false && data.language === locale;
-});
-
-console.log('Posts found:', posts.length);
-
-// 2. Group and count the categories
-const categoryCounts = new Map<string, number>();
-for (const post of posts) {
-  const categories = Array.isArray(post.data.categories) ? post.data.categories : (post.data.categories ? [post.data.categories] : []);
-  for (const category of categories) {
-    categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1);
-  }
-}
-
-// 3. Convert the map to an array and sort it alphabetically
-const categories = Array.from(categoryCounts.entries())
-  .map(([category, count]) => ({ category, count }))
-  .sort((a, b) => a.category.localeCompare(b.category));
-
 const translations = getTranslations(locale);
-const copy = translations.categoriesList;
+const copy = translations.categories;
 const categoryPath = translations.paths.categories;
+const localizedCategories = categories.map((category) => ({
+  category,
+  title: getCategoryTitle(category, locale),
+  description: getCategoryDescription(category, locale),
+}));
 ---
 <BaseLayout title={copy.metaTitle} description={copy.metaDescription}>
   <section class="mx-auto flex max-w-6xl flex-col gap-12 px-4 py-16">
-    <div class="max-w-3xl space-y-4">
+    <div class="max-w space-y-4">
       <h1 class="text-4xl font-bold tracking-tight text-text-primary">{copy.title}</h1>
-      <p class="text-lg leading-relaxed text-text-secondary">
-        {copy.description}
-      </p>
+      <div class="space-y-4 text-lg leading-relaxed text-text-secondary">
+        {copy.description.map((paragraph) => (
+          <p>{paragraph}</p>
+        ))}
+      </div>
     </div>
 
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {categories.map((item) => (
+      {localizedCategories.map(({ category, title, description }) => (
         <a
-          href={createLocaleHref(locale, `${categoryPath}/${labelToSlug(item.category)}`)}
-          class="group flex flex-col rounded-2xl border border-border-subtle bg-surface-elevated px-6 py-5 transition hover:border-accent"
+          href={createLocaleHref(locale, `${categoryPath}/${category.slug}`)}
+          class="group flex flex-col gap-3 rounded-2xl border border-border-subtle bg-surface-elevated px-6 py-6 transition hover:border-accent"
+          style={{ '--card-accent': category.data.color ?? 'var(--accent)' }}
         >
-          <span class="text-sm uppercase tracking-wider text-text-secondary opacity-70">{copy.badge}</span>
+          <span class="text-xs uppercase tracking-[0.3em] text-text-secondary opacity-70">
+            {copy.badge}
+          </span>
           <h2 class="text-2xl font-semibold text-text-primary group-hover:text-accent">
-            {item.category}
+            {title}
           </h2>
-          <p class="mt-3 text-sm text-text-secondary">
-            {item.count} {item.count === 1 ? copy.count.singular : copy.count.plural}
-          </p>
+          {description && (
+            <p class="text-sm leading-relaxed text-text-secondary">
+              {description}
+            </p>
+          )}
         </a>
       ))}
     </div>

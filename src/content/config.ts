@@ -6,8 +6,7 @@ const blogCollection = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
-    pubDate: z.coerce.date(),
-    updatedDate: z.coerce.date().optional(),
+    pubDate: z.date(),
     author: z.string().default('Michel Saer'),
     language: z.enum(['es', 'en']).default('es'),
     translationKey: z.string().optional(),
@@ -16,8 +15,7 @@ const blogCollection = defineCollection({
     heroImageAlt: z.string().optional(),
     originalUrl: z.string().url().optional(),
     draft: z.boolean().default(false),
-    labels: z.array(z.string()).default([]),
-    categories: z.union([z.string(), z.array(z.string())]).optional(),
+    tags: z.array(z.string()).default([]),
   }),
 });
 
