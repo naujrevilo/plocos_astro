@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
-import { Comments, db, and, eq, desc } from 'astro:db';
+import { Comments, and, db, eq, isDbError, desc } from 'astro:db';
 import { locales, type Locale } from '../../lib/i18n';
+
 
 export const prerender = false;
 
@@ -31,15 +32,6 @@ function sanitize(input: string, max: number) {
 
 
 
-
-
-
-
-/**
- * Endpoint para obtener los comentarios aprobados de un post.
- * @param {APIRoute} context - El contexto de la ruta de Astro.
- * @returns {Response} Una respuesta JSON con los comentarios o un error.
- */
 export const GET: APIRoute = async ({ url }) => {
   const slug = url.searchParams.get('slug')?.trim();
   const locale = url.searchParams.get('locale')?.trim();
@@ -66,7 +58,6 @@ export const GET: APIRoute = async ({ url }) => {
     })
     .from(Comments)
     .where(
-      // Filtra los comentarios para devolver solo los aprobados.
       and(
         eq(Comments.postSlug, slug),
         eq(Comments.locale, locale),
@@ -75,9 +66,8 @@ export const GET: APIRoute = async ({ url }) => {
     )
     .orderBy(desc(Comments.createdAt));
 
-  // Se aplica un tipado explícito para asegurar la estructura de los datos del comentario.
   return jsonResponse(200, {
-    comments: rows.map(({ id, name, message, createdAt }: { id: number; name: string; message: string; createdAt: Date }) => ({
+    comments: rows.map(({ id, name, message, createdAt }) => ({
       id,
       name,
       message,
@@ -112,11 +102,6 @@ function validateEmail(input: string) {
   return emailPattern.test(email);
 }
 
-/**
- * Endpoint para enviar un nuevo comentario para moderación.
- * @param {APIRoute} context - El contexto de la ruta de Astro.
- * @returns {Response} Una respuesta JSON indicando el estado de la operación.
- */
 export const POST: APIRoute = async ({ request }) => {
   const contentType = request.headers.get('content-type') ?? '';
   let body: CommentPayload | null = null;
@@ -149,7 +134,6 @@ export const POST: APIRoute = async ({ request }) => {
   const name = body.name?.trim();
   const email = body.email?.trim() ?? null;
   const message = body.message?.trim();
-  
 
     if (!slug || slug.length > MAX_SLUG_LENGTH) {
       return jsonResponse(400, { error: 'Invalid slug.' });
@@ -160,7 +144,6 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const supportedLocale = locale as Locale;
-  
 
   if (!name) {
     return jsonResponse(400, { error: 'Name is required.' });
@@ -175,7 +158,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const normalizedMessage = message.trim();
-  if (normalizedMessage.length < 8) {
+  if (normalizedMessage.length < 6) {
     return jsonResponse(400, { error: 'Message is too short.' });
   }
 
@@ -194,12 +177,15 @@ export const POST: APIRoute = async ({ request }) => {
       name: sanitize(name, MAX_NAME_LENGTH),
       email: email ? email.trim().slice(0, MAX_EMAIL_LENGTH) : null,
       message: normalizedMessage,
-            // Los nuevos comentarios se guardan como no aprobados (`false`) por defecto para su moderación.
       approved: false,
     });
   } catch (error) {
-    console.error('Database error while creating comment', error);
-    return jsonResponse(500, { error: 'Failed to store comment.' });
+    if (isDbError(error)) {
+      console.error('Database error while creating comment', error);
+      return jsonResponse(500, { error: 'Failed to store comment.' });
+    }
+    console.error('Unexpected error while creating comment', error);
+    return jsonResponse(500, { error: 'Unexpected error.' });
   }
 
   return jsonResponse(201, { status: 'pending' });

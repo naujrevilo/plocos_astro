@@ -8,10 +8,9 @@ export async function GET({ request }: { request: Request }) {
   const localeParam = url.searchParams.get('locale');
   const locale = (localeParam === 'en' || localeParam === 'es' ? localeParam : undefined) as Locale | undefined;
 
-  const postsCollection = await getCollection('blog');
-  const posts = postsCollection.filter((post) => {
-    if (post.data.draft) return false;
-    if (locale && post.data.language !== locale) return false;
+    const posts = await getCollection('posts', ({ data }) => {
+    if (data.draft) return false;
+    if (locale && data.language !== locale) return false;
     return true;
   });
 
@@ -41,7 +40,7 @@ export async function GET({ request }: { request: Request }) {
       labels: post.data.labels ?? [],
       pubDate: post.data.pubDate.toISOString(),
       language: post.data.language,
-      translationKey: post.data.translationKey ?? null,
+
       excerpt,
       keywords: normalise(combined),
     };
