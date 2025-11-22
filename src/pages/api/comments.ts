@@ -87,8 +87,6 @@ function respond(
 }
 
 export const GET: APIRoute = async ({ url }) => {
-  console.log('NETLIFY_ENV_CHECK (GET): ASTRO_DB_REMOTE_URL available?', !!import.meta.env.ASTRO_DB_REMOTE_URL);
-  console.log('NETLIFY_ENV_CHECK (GET): ASTRO_DB_APP_TOKEN available?', !!import.meta.env.ASTRO_DB_APP_TOKEN);
   
   
   const slug = url.searchParams.get('slug')?.trim();
@@ -161,8 +159,6 @@ function validateEmail(input: string) {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  console.log('NETLIFY_ENV_CHECK (POST): ASTRO_DB_REMOTE_URL available?', !!import.meta.env.ASTRO_DB_REMOTE_URL);
-  console.log('NETLIFY_ENV_CHECK (POST): ASTRO_DB_APP_TOKEN available?', !!import.meta.env.ASTRO_DB_APP_TOKEN);
   
   
   const contentType = request.headers.get('content-type') ?? '';
