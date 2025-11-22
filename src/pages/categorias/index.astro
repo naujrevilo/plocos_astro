@@ -13,7 +13,7 @@ const translations = getTranslations(locale);
 const copy = translations.categories;
 
 const allPosts = await getCollection("posts", ({ data }) => {
-  return data.draft === false && data.language === locale;
+  return data.draft === false && (data.language === locale || !data.language);
 });
 
 const allCategories = await getCollection("categories");
@@ -21,15 +21,17 @@ const allCategories = await getCollection("categories");
 const categories = allCategories.map(category => {
   const postsInCategory = allPosts.filter(post => {
     if (!post.data.category) return false;
-    // @ts-ignore
-    return post.data.category.id === category.slug;
+    if (Array.isArray(post.data.category)) {
+      return post.data.category.map(c => c.trim()).includes(category.slug);
+    }
+    return post.data.category.trim() === category.slug;
   });
   return {
     name: category.data.title,
     slug: category.slug,
     count: postsInCategory.length
   };
-}).sort((a, b) => b.count - a.count);
+}).sort((a, b) => b.count - a.count).filter(c => c.count > 0);
 
 ---
 

@@ -39,7 +39,7 @@ import { defineConfig } from "tinacms";
            type: "string", 
            name: "category", 
            label: "Categoría", 
-           list: false, 
+           list: true, 
            ui: { 
              component: CategoryMultiSelect, 
            }, 

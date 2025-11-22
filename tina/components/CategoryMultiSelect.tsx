@@ -73,8 +73,8 @@ const CategoryMultiSelectInner = ({ input, meta }) => {
   const toggleValue = (slug: string) => {
     const next = selected.includes(slug)
       ? selected.filter((value) => value !== slug)
-      : [...selected, slug];
-    input.onChange(next);
+      : [...selected, slug.trim()];
+    input.onChange(next.map(v => v.trim()));
   };
 
   if (status === "loading") {

@@ -1,4 +1,4 @@
---- 
+---
 import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PostCard from '../../../components/PostCard.astro';
@@ -7,27 +7,46 @@ import { createLocaleHref } from '../../../lib/routes';
 import { paginate, type PaginationResult } from '../../../lib/pagination';
 
 const PAGE_SIZE = 6;
-const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 
 export async function getStaticPaths() {
-    const allPosts = await getCollection('posts', ({ data }) => {
-    return data.draft === false && data.language === locale;
+  const allPosts = await getCollection('posts', ({ data }) => data.draft === false);
+  
+  const postsByLanguage: Record<string, any[]> = {};
+  allPosts.forEach(post => {
+    const postLanguage = post.data.language || defaultLocale;
+    if (!postsByLanguage[postLanguage]) {
+      postsByLanguage[postLanguage] = [];
+    }
+    postsByLanguage[postLanguage].push(post);
   });
-  const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-  const pagination: PaginationResult<CollectionEntry<'posts'>> = paginate(sortedPosts, 1, PAGE_SIZE);
 
-  const pages = Array.from({ length: pagination.totalPages }, (_, i) => i + 1);
+  let maxPageCount = 0;
+  for (const lang in postsByLanguage) {
+    const pageCount = Math.ceil(postsByLanguage[lang].length / PAGE_SIZE);
+    if (pageCount > maxPageCount) {
+      maxPageCount = pageCount;
+    }
+  }
 
-  return pages.map((pageNumber) => {
-    const pageData = paginate(sortedPosts, pageNumber, PAGE_SIZE);
-    return {
-      params: { page: pageNumber.toString() },
-      props: { page: pageData },
-    };
-  });
+  const paths = [];
+  for (let i = 1; i <= maxPageCount; i++) {
+    paths.push({ params: { page: i.toString() } });
+  }
+  
+  return paths;
 }
 
-const { page } = Astro.props;
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const { page: pageParam } = Astro.params;
+const currentPage = parseInt(pageParam, 10);
+
+const allPosts = await getCollection('posts', ({ data }) => {
+  const postLanguage = data.language || defaultLocale;
+  return data.draft === false && postLanguage === locale;
+});
+const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const page: PaginationResult<CollectionEntry<'posts'>> = paginate(sortedPosts, currentPage, PAGE_SIZE);
+
 const translations = getTranslations(locale);
 const blog = translations.blog;
 
@@ -49,7 +68,7 @@ const nextHref = page.currentPage < page.totalPages ? createPageHref(page.curren
     </header>
 
   <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {page.pageItems.map((post: CollectionEntry<'posts'>) => (
+      {page.pageItems.map((post: CollectionEntry<'posts'>) => (
         <PostCard post={post} />
       ))}
     </div>
