@@ -1,4 +1,4 @@
-import { getPublishedPosts } from '../lib/posts';
+import { getCollection } from 'astro:content';
 import { defaultLocale, getTranslations } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
 
@@ -8,7 +8,12 @@ const SITE_DESCRIPTION = 'Arte, ideas y narrativas desde Plocos.';
 export async function GET() {
   const locale = defaultLocale;
   const translations = getTranslations(locale);
-  const posts = await getPublishedPosts({ locale });
+  const allPosts = await getCollection('posts', ({ data }) => {
+    if (data.draft) return false;
+    const postLanguage = data.language || defaultLocale;
+    return postLanguage === locale;
+  });
+  const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
   const items = posts
     .slice(0, 50)
