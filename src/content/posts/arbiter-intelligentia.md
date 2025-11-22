@@ -19,6 +19,10 @@ labels:
 originalUrl: "http://www.plocos.com/2025/01/arbiter-intelligentia.html"
 summary: "“Plocos: 'Arbiter Intelligentia, quae fatum hominum dictat: Inteligencia árbitro, que dicta el destino de los hombres' . La humanidad se sumerge en un viaje concurrente, maravilloso e incierto con la intrigante, apasionante y seductora Inteligencia Artificial (IA), mientras, se…"
 draft: false
+author: "Michel Saer"
+category: "general"
+---
+draft: false
 ---
 “Plocos: **'Arbiter Intelligentia, quae fatum hominum dictat: Inteligencia árbitro, que dicta el destino de los hombres'**. La humanidad se sumerge en un viaje concurrente, maravilloso e incierto con la intrigante, apasionante y seductora Inteligencia Artificial (IA), mientras, se debate en la disyuntiva de resistirse o abrazarla sin reservas, a la vez que ignora quién dictará su destino.”
 

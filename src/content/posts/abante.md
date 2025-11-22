@@ -10,5 +10,7 @@ labels:
 originalUrl: "http://www.plocos.com/2023/05/abante.html"
 summary: "Plocos: Siempre es mejor actuar. No podrás evitar sentirte temporalmente decepcionado si no lo logras, pero ciertamente eludirás eternamente la amargura por no haber actuado."
 draft: false
+author: "Michel Saer"
+category: "general"
 ---
 Plocos: Siempre es mejor actuar. No podrás evitar sentirte temporalmente decepcionado si no lo logras, pero ciertamente eludirás eternamente la amargura por no haber actuado.

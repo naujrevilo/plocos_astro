@@ -14,6 +14,8 @@ heroImage: "/images/posts/2018/a-la-mierda-con-la-naturaleza-humana/a-la-mierda-
 originalUrl: "http://www.plocos.com/2018/03/a-la-mierda-con-la-naturaleza-humana.html"
 summary: "Quién no ha estado sentado en un miedoso balancín emotivo. Paralizado, como atrapado en barro duro. Sin ánimo, regodeándose como víctima en su propia auto lástima. Solo contra el mundo, víctima de su propio invento. Renegando, ensimismado y sintiéndose sin opciones. A la mierda…"
 draft: false
+author: "Michel Saer"
+category: "general"
 ---
 [![](/images/posts/2018/a-la-mierda-con-la-naturaleza-humana/a-la-mierda-con-la-naturaleza-humana-1.jpg)](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH0pVXzdBRSk86uBBcxbuA7kXYScV27q_p_7DitMCi3-kgCAR-gNfnE2tHvxhnaSxG3NB7cF0L5_xGME92Coz9XRgwC4fAi7CdLsw1Taro83XrQQN2YRxLlVobKkiCzWhsoKDHgxyoZI8_/s1600/IMG_6463.JPG)
 

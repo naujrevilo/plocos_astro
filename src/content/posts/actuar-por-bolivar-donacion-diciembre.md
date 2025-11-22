@@ -13,6 +13,8 @@ heroImage: "/images/posts/2017/actuar-por-bolivar-donacion-diciembre/actuar-por-
 originalUrl: "http://www.plocos.com/2017/12/actuar-por-bolivar-donacion-diciembre.html"
 summary: ""
 draft: false
+author: "Michel Saer"
+category: "general"
 ---
 [![](/images/posts/2017/actuar-por-bolivar-donacion-diciembre/actuar-por-bolivar-donacion-diciembre-1.jpg)](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhPzX7DUGW-6ANOnJHY0gtzzJ90Npy-NPhyOrV_DD1dhJj3sDXkeEbkD1mL5wSPzu_Ckcya0xCJjoICwoQYxoMBPTNW1Sp4QUIELHY9UR37MlIf1aC6kJGixjku7SFohvOq2-8kYvNZMlOZ/s1600/IMG_7186.JPG)[![](/images/posts/2017/actuar-por-bolivar-donacion-diciembre/actuar-por-bolivar-donacion-diciembre-2.jpg)](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjOB8PyUUxubRyqsD2fffOYyU4FBlDA-kP3cjuK-9dwsqMI6mk-x-de9js8LBWoxrTO6g3wxEk_9r3tHahLH4FA0drd0Ih7BLV4PIe-4LEx3IIByD_dHFWMrCfDV-V2TJlpRg6UASLw6gEc/s1600/IMG_6539.JPG)
 

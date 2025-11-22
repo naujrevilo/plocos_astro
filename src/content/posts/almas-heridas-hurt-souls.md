@@ -14,6 +14,8 @@ heroImage: "/images/posts/2015/almas-heridas-hurt-souls/almas-heridas-hurt-souls
 originalUrl: "http://www.plocos.com/2015/11/almas-heridas-hurt-souls.html"
 summary: "Lo intentas mente ilusa, piensas que puedes escapar. Ilusa, crees que al escapar podrás enfrentar la realidad. Que inútil es pensar que aquello que te ata a la tristeza, la mediocridad y el miedo desaparecerá. Pero, aun cuando creas que no puedes eludir ese camino, al menos inté…"
 draft: false
+author: "Michel Saer"
+category: "general"
 ---
 [![](/images/posts/2015/almas-heridas-hurt-souls/almas-heridas-hurt-souls-1.jpg)](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFYgCyvj4_t7Bn5wQ-IZ2UtH0XVOmDda2EDs3xLQCHdRW3DUfs-aJcPGpqAnU3VAmhqWVBP8xQRPRN3xmRuQVeUnZ8DdYrRWl5LmwEwqiQZqNHrjehgggUDd7_QvW4X-NKfy3G9XJUUa5UBFFcsugOxXFaMjjjj1SXs-LD8qlRC7Z-cLl2zRyJGODfCgg/s1002/Imagen1.jpg)
 

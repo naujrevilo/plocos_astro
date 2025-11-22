@@ -14,6 +14,8 @@ heroImage: "/images/posts/2017/2-encuentro-internacional-de-artistas/2-encuentro
 originalUrl: "http://www.plocos.com/2017/12/2-encuentro-internacional-de-artistas.html"
 summary: ""
 draft: false
+author: "Michel Saer"
+category: "general"
 ---
 [![](/images/posts/2017/2-encuentro-internacional-de-artistas/2-encuentro-internacional-de-artistas-1.jpg)](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjVv31B21r_reicgMBQNIpeOCaCabEdPzysjYeMxc2IqRtcPeYAn4ey-wXONXj42W15lcvhU-w6ExBNKGDw2UAFHfeU6xJpvL3FQKOolIghn4jkM0JiiiQXe7ZfBWDhmG3EJo9QcL_8hKRX/s1600/IMG_6350.JPG)[![](/images/posts/2017/2-encuentro-internacional-de-artistas/2-encuentro-internacional-de-artistas-2.jpg)](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjd1S1DZJpwQTk3o5DYBiUYtrz5ibVRVi_BqZkc-I9BY1xOsNBvt4tWgR1pHeC8OwpcDrJaB0df-i93w33d_H1qy0KkJxpKrA-GL6LRmUIFSfAiWEhXOCyD66xfhaFtl3ylQYsGgB9hS-Fh/s1600/IMG_6360.JPG)
 

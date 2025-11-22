@@ -1,12 +1,24 @@
 ---
-title: "Navegando el Determinismo Poroso"
-pubDate: "2025-11-19T18:54:00.000Z"
-updatedDate: "2025-11-19T20:15:43.000Z"
-labels: []
-originalUrl: "http://www.plocos.com/2025/11/flotar-o-navegar-hacia-una-realidad-de.html"
-summary: "Conocer la realidad no solo nos acerca a ella; revela nuestra interdependencia y la interpenetración con ella. Sin embargo, a menudo operamos bajo una falsa dicotomía, atrapados en un conflicto entre nuestro modelo epistemológico (lo que la ciencia mide) y nuestra intuición (lo…"
+title: Navegando el Determinismo Poroso
+pubDate: 2025-11-19T18:54:00.000Z
+updatedDate: 2025-11-19T20:15:43.000Z
+category:
+  - nomas-que-la-vida
+author: Michel Saer
+language: es
+summary: >-
+  Conocer la realidad no solo nos acerca a ella; revela nuestra interdependencia
+  y la interpenetración con ella. Sin embargo, a menudo operamos bajo una falsa
+  dicotomía, atrapados en un conflicto entre nuestro modelo epistemológico (lo
+  que la ciencia mide) y nuestra intuición (lo…
+heroImage: /uploads/captura-de-pantalla-2025-10-25-133544.png
+heroImageAlt: portada
+
 draft: false
+labels:
+  - la vida
 ---
+
 Conocer la realidad no solo nos acerca a ella; revela nuestra interdependencia y la interpenetración con ella. Sin embargo, a menudo operamos bajo una falsa dicotomía, atrapados en un conflicto entre nuestro modelo epistemológico (lo que la ciencia mide) y nuestra intuición (lo que sentimos).
 
 Pese a que corrientes filosóficas como la fenomenología o el realismo crítico han buscado integrar lo objetivo y lo subjetivo, culturalmente seguimos sintiendo esta escisión. Esta simplificación histórica nos ha llevado a sospechar que la base de lo real podría no ser lo que comúnmente concebimos, cegándonos ante la riqueza de los matices intermedios.
@@ -41,23 +53,23 @@ Desde este punto de vista, debemos matizar: el mundo material existe independien
 
 Esta tensión biológica y física se ha manifestado en la historia del pensamiento como una guerra entre dos paradigmas dominantes:
 
-\-       El Positivismo: Desde Auguste Comte hasta el Círculo de Viena, esta corriente sostiene que existe una realidad objetiva, externa y única, regida por leyes inmutables. Conocer es descubrir "lo dado" (_positum_). La verdad aspira a ser una correspondencia exacta entre el mapa y el territorio.
+-       El Positivismo: Desde Auguste Comte hasta el Círculo de Viena, esta corriente sostiene que existe una realidad objetiva, externa y única, regida por leyes inmutables. Conocer es descubrir "lo dado" (*positum*). La verdad aspira a ser una correspondencia exacta entre el mapa y el territorio.
 
-\-       El Constructivismo: Desde Vico (_Verum ipsum factum_) hasta el constructivismo social, se argumenta que el conocimiento es construido activamente. La realidad es negociada a través del lenguaje y la cultura. No hay un acceso "virgen" a los hechos; siempre hay un observador implicado.
+-       El Constructivismo: Desde Vico (*Verum ipsum factum*) hasta el constructivismo social, se argumenta que el conocimiento es construido activamente. La realidad es negociada a través del lenguaje y la cultura. No hay un acceso "virgen" a los hechos; siempre hay un observador implicado.
 
 El positivismo nos dio el rigor del método científico, pero a menudo tropieza al intentar explicar la subjetividad y el significado. El constructivismo nos dio la comprensión del contexto social, pero corre el riesgo de negar el sustrato real sobre el que nos apoyamos.
 
 Entonces, ¿estamos condenados a elegir uno de los dos bandos? ¿Flotamos a la deriva entre el dogma de la objetividad pura y el abismo del relativismo?
 
-La respuesta radica en la epistemología personal. Modelos de desarrollo psicológico, como el de William Perry o el de Belenky (_Women's Ways of Knowing_), sugieren que los seres humanos evolucionamos en nuestra forma de entender la verdad:
+La respuesta radica en la epistemología personal. Modelos de desarrollo psicológico, como el de William Perry o el de Belenky (*Women's Ways of Knowing*), sugieren que los seres humanos evolucionamos en nuestra forma de entender la verdad:
 
-1.  Pasamos del Dualismo (hay una verdad absoluta y la tiene la autoridad)...
-2.  ...a la Multiplicidad (todas las opiniones son válidas)...
-3.  ...y finalmente al Compromiso dentro del Relativismo.
+1. Pasamos del Dualismo (hay una verdad absoluta y la tiene la autoridad)...
+2. ...a la Multiplicidad (todas las opiniones son válidas)...
+3. ...y finalmente al Compromiso dentro del Relativismo.
 
 En la madurez, desarrollamos una flexibilidad epistemológica. Aprendemos a "navegar". Navegar implica un movimiento activo y hábil. Un individuo maduro puede usar herramientas positivistas para decidir qué tratamiento médico tomar, y herramientas constructivistas para resolver un conflicto humano. No flota pasivamente; utiliza diferentes mapas para diferentes territorios.
 
-Esto nos lleva al concepto central que propongo en _Nomás que la vida_: la naturaleza de la realidad en la que navegamos.
+Esto nos lleva al concepto central que propongo en *Nomás que la vida*: la naturaleza de la realidad en la que navegamos.
 
 Al emerger en un mundo que nos precede (físico) y que nos constriñe, sentimos el peso del determinismo. Sin embargo, experimentamos la novedad genuina de la consciencia y la libertad. ¿Cómo conciliamos esto sin caer en la contradicción científica?
 
@@ -65,9 +77,9 @@ Propongo la idea de un Determinismo Poroso  condicional.
 
 No porque las leyes fundamentales de la física muten con el paso del tiempo, sino porque la rigidez del determinismo se transfigura y se vuelve porosa al cruzar los umbrales de la complejidad emergente.
 
-\-        En los niveles inferiores (escalas macroscópicas simples), el sistema opera con reglas rígidas y predecibles.
+-        En los niveles inferiores (escalas macroscópicas simples), el sistema opera con reglas rígidas y predecibles.
 
-\-        Pero al ascender en complejidad, la interacción de esas partes da lugar a propiedades emergentes (como la vida o la consciencia) que inauguran un nuevo régimen de reglas.
+-        Pero al ascender en complejidad, la interacción de esas partes da lugar a propiedades emergentes (como la vida o la consciencia) que inauguran un nuevo régimen de reglas.
 
 Es transitorio para el observador que transita entre niveles. Vivimos en los intersticios de esa emergencia.
 

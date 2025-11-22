@@ -14,6 +14,8 @@ heroImage: "/images/posts/2025/atados-una-creencia/atados-una-creencia-0.jpg"
 originalUrl: "http://www.plocos.com/2025/06/atados-una-creencia.html"
 summary: "\" Velad por no estar atados a una creencia concreta que niegue las demás, pues os veréis privados de un bien inmenso (…) Dios es demasiado grande para estar encerrado en un credo con exclusión de los otros \" . (Wahdat al-Wujūd): Ibn ʻ Arabī - Místico, pensador y poeta musulmán,…"
 draft: false
+author: "Michel Saer"
+category: "general"
 ---
 [![](/images/posts/2025/atados-una-creencia/atados-una-creencia-1.jpg)](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjwFi4TymyAxEE_uNHKdptqVncfUnnPwYkz6gaBZGrJvM_ZkjSRrbL0VpouxkqZtzpHWacdpikrry6tlWq54TOitKrM3gwZmXeDj9LQB12-5er7NcxxTykV7Sey0TrZGdWL2paxLsbfAjXNmIWBPYJo_DwIVn92-alfCnJQfPO100mtUVYifE79TZvEzPU/s542/Cabilando.jpg)
 

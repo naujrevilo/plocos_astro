@@ -16,5 +16,7 @@ labels:
 originalUrl: "http://www.plocos.com/2023/12/amor-eterno.html"
 summary: "\"Plocos: A l amante que se va, dejadlo id, no sea que, como la marea que se aleja para regresar con más fuerza, erosione lentamente tu amor, desvaneciéndolo en amargura.\""
 draft: false
+author: "Michel Saer"
+category: "general"
 ---
 "Plocos: Al amante que se va, dejadlo id, no sea que,  como la marea que se aleja para regresar con más fuerza, erosione lentamente tu amor, desvaneciéndolo en amargura."

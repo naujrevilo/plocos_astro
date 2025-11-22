@@ -12,5 +12,7 @@ heroImage: "/images/posts/2013/berninnas-re-edited/berninnas-re-edited-0.jpg"
 originalUrl: "http://www.plocos.com/2013/01/berninnas-re-edited.html"
 summary: ""
 draft: false
+author: "Michel Saer"
+category: "general"
 ---
 [![](/images/posts/2013/berninnas-re-edited/berninnas-re-edited-1.jpg)](/images/posts/2013/berninnas-re-edited/berninnas-re-edited-1.jpg)
