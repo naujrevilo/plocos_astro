@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { createClient } from '@libsql/client';
 import { Comments, and, asc, db, eq, isDbError, desc } from 'astro:db';
 import { locales, type Locale, getTranslations } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
@@ -228,6 +229,19 @@ export const POST: APIRoute = async ({ request }) => {
 
   if (email && !validateEmail(email)) {
     return jsonResponse(400, { error: 'Invalid email address.' });
+  }
+
+  // Manual Turso connection test
+  try {
+    console.log('Attempting manual Turso connection...');
+    const manualClient = createClient({
+        url: import.meta.env.ASTRO_DB_REMOTE_URL!,
+        authToken: import.meta.env.ASTRO_DB_APP_TOKEN!,
+    });
+    const rs = await manualClient.execute('SELECT 1');
+    console.log('Manual Turso connection successful:', rs.rows.length > 0);
+  } catch (e) {
+      console.error('Manual Turso connection FAILED:', e);
   }
 
   try {
