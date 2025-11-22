@@ -1,7 +1,7 @@
 {
   "name": "plocos",
   "type": "module",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -9,10 +9,10 @@
     "build": "tinacms build && astro build --remote",
     "preview": "astro preview",
     "astro": "astro",
-    "tina": "tinacms dev -c \"pnpm run dev\"",
+    "tina": "tinacms dev",
     "tinacms:dev": "pnpm exec tinacms dev -c \"pnpm dev --remote\"",
     "tinacms:build": "tinacms build",
-    "sync:algolia": "tsx scripts/sync-algolia.ts",
+    "tinacms:datalayer": "tsx tina/database.ts",
     "import:plocos": "node scripts/import-plocos.js",
     "flatten:posts": "node scripts/flatten-posts.mjs",
     "flatten:posts:write": "node scripts/flatten-posts.mjs --write"
@@ -28,6 +28,7 @@
     "@astrojs/sitemap": "3.6.0",
     "@astrojs/tailwind": "6.0.2",
     "@astrojs/vue": "5.1.3",
+    "@tinacms/auth": "1.1.0",
     "algoliasearch": "5.44.0",
     "astro": "5.16.0",
     "astro-google-analytics": "1.0.3",
@@ -43,6 +44,8 @@
   "devDependencies": {
     "@tailwindcss/typography": "0.5.19",
     "@tinacms/cli": "1.12.4",
+    "@tinacms/datalayer": "1.4.1",
+    "@types/node": "^24.10.1",
     "@types/react": "18.3.3",
     "autoprefixer": "10.4.22",
     "dotenv": "17.2.3",
@@ -54,6 +57,7 @@
     "sharp": "0.34.5",
     "tailwindcss": "3.4.18",
     "tinacms": "2.9.5",
+    "tinacms-gitprovider-github": "3.0.1",
     "ts-node": "10.9.2",
     "tsx": "4.20.6",
     "turndown": "7.2.2",
@@ -67,6 +71,12 @@
       "fs-extra": "9.1.0",
       "zod": "3.23.8",
       "zod-to-json-schema": "3.23.5"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "better-sqlite3",
+      "esbuild",
+      "sharp"
+    ]
   }
 }
