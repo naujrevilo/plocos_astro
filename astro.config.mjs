@@ -13,7 +13,7 @@ import react from '@astrojs/react';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://plocos.netlify.app',
-  output: 'hybrid',
+  output: 'server',
   adapter: netlify(),
 
   integrations: [
