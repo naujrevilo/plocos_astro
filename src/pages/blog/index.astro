@@ -10,8 +10,8 @@ const PAGE_SIZE = 6;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const blog = translations.blog;
-const allPosts = await getCollection('blog', ({ data }) => {
-  return data.draft === false && data.language === locale;
+const allPosts = await getCollection('posts', ({ data }) => {
+  return data.draft === false && (data.language === locale || !data.language);
 });
 const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 const pagination = paginate(sortedPosts, 1, PAGE_SIZE);

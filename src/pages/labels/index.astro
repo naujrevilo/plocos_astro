@@ -1,24 +1,26 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import { labelToSlug } from '../../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
-const posts = await getCollection('blog');
+const posts = await getCollection('posts', ({ data }) => {
+  if (data.draft) return false;
+  if (locale && data.language !== locale) return false;
+  return true;
+});
 
 const labels = posts.reduce((acc, post) => {
-  if (post.data.labels) {
-    post.data.labels.forEach((label) => {
-      const existingLabel = acc.find((item) => item.label === label);
-      if (existingLabel) {
-        existingLabel.count++;
-      } else {
-        acc.push({ label, count: 1 });
-      }
-    });
-  }
+  (post.data.labels ?? []).forEach(label => {
+    const existingLabel = acc.find(item => item.label === label);
+    if (existingLabel) {
+      existingLabel.count++;
+    } else {
+      acc.push({ label, count: 1 });
+    }
+  });
   return acc;
 }, [] as { label: string; count: number }[]);
 const translations = getTranslations(locale);

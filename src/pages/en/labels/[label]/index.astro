@@ -1,37 +1,31 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../../../layouts/BaseLayout.astro';
 import PostCard from '../../../../components/PostCard.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
 import { labelToSlug } from '../../../../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../../../../lib/i18n';
 import { createLocaleHref } from '../../../../lib/routes';
 
-interface Props {
-  label: string;
-  posts: CollectionEntry<'blog'>[];
-}
-
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  const labelMap = new Map<string, string>();
-
-    posts.forEach((post) => {
-    (post.data.labels ?? []).forEach((label: string) => {
-      labelMap.set(labelToSlug(label), label);
-    });
+  const posts = await getCollection('posts', ({ data }) => !data.draft && data.language === 'en');
+  const allLabels = new Set<string>();
+  posts.forEach(post => {
+    (post.data.labels ?? []).forEach(label => allLabels.add(label));
   });
 
-  return Array.from(labelMap.entries()).map(([slug, label]) => ({
-    params: { label: slug },
-    props: {
-      label,
-            posts: posts.filter((post) => (post.data.labels ?? []).includes(label)),
-    },
+  return Array.from(allLabels).map(label => ({
+    params: { label: labelToSlug(label) },
+    props: { label },
   }));
 }
 
-const { label, posts } = Astro.props;
+const { label } = Astro.props;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const allPosts = await getCollection('posts', ({ data }) => !data.draft && data.language === locale);
+const posts = allPosts.filter(post => 
+  (post.data.labels ?? []).map(l => labelToSlug(l)).includes(label)
+);
+
 const translations = getTranslations(locale);
 const copy = translations.labelsDetail;
 const pageTitle = `${label} · Plocos`;

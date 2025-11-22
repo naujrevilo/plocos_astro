@@ -1,7 +1,7 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { labelToSlug } from '../../lib/taxonomy';
+
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 import SocialIcon from '../../components/icons/SocialIcon.astro';
@@ -10,24 +10,22 @@ import CommentSection from '../../components/CommentSection.astro';
 export const prerender = true;
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = await getCollection('posts');
   return posts.map((post) => ({
     params: { slug: post.slug },
     props: post,
   }));
 }
 
-type Props = {
-  post: CollectionEntry<'blog'>;
-};
+type Props = CollectionEntry<'posts'>;
 
-const post = Astro.props;
+const post: Props = Astro.props;
 const { Content } = await post.render();
 const { data } = post;
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 
-const allLocalePosts = (await getCollection('blog', ({ data }) => data.language === locale))
+const allLocalePosts = (await getCollection('posts', ({ data }) => data.language === locale))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 const postIndex = allLocalePosts.findIndex(p => p.id === post.id);
@@ -38,11 +36,9 @@ const translations = getTranslations(locale);
 const postCopy = translations.posts;
 const navigationCopy = postCopy.navigation;
 const shareCopy = postCopy.share;
-const initialCommentStatusParam = Astro.url.searchParams.get('comment');
-const allowedCommentStatuses = ['pending', 'success', 'error'] as const;
-const initialCommentStatus = allowedCommentStatuses.includes(initialCommentStatusParam as (typeof allowedCommentStatuses)[number])
-  ? (initialCommentStatusParam as (typeof allowedCommentStatuses)[number])
-  : null;
+
+
+
 
 const formattedDate = new Date(data.pubDate).toLocaleDateString(locale, {
   year: 'numeric',
@@ -53,12 +49,12 @@ const formattedDate = new Date(data.pubDate).toLocaleDateString(locale, {
 const title = `${data.title} · Plocos`;
 const description = data.summary ?? `${postCopy.defaultDescriptionPrefix} ${formattedDate}.`;
 const base = Astro.site?.origin ?? '';
-const canonicalPath = createLocaleHref(locale, post.id.replace(/\\/g, '/'));
+const canonicalPath = createLocaleHref(locale, `blog/${post.slug}`);
 const canonical = base ? new URL(canonicalPath, base).toString() : canonicalPath;
-const categories = data.categories ?? [];
+
 const author = data.author ?? 'Michel Saer';
 const backHref = createLocaleHref(locale);
-const labelPath = translations.paths.labels;
+
 const shareUrl = canonical;
 const encodedShareUrl = encodeURIComponent(shareUrl);
 const encodedShareTitle = encodeURIComponent(data.title);
@@ -78,9 +74,9 @@ const shareItems = [
 ] as const;
 const heroImageAlt = data.heroImageAlt?.trim() || `${postCopy.imageAlt} ${data.title}`;
 const previousHref = previousPost
-  ? createLocaleHref(locale, previousPost.id.replace(/\\/g, '/'))
+  ? createLocaleHref(locale, `blog/${previousPost.slug}`)
   : null;
-const nextHref = nextPost ? createLocaleHref(locale, nextPost.id.replace(/\\/g, '/')) : null;
+const nextHref = nextPost ? createLocaleHref(locale, `blog/${nextPost.slug}`) : null;
 ---
 <BaseLayout title={title} description={description} image={data.heroImage} canonicalUrl={canonical}>
   <article class="mx-auto max-w-3xl px-4 py-16">
@@ -126,19 +122,17 @@ const nextHref = nextPost ? createLocaleHref(locale, nextPost.id.replace(/\\/g, 
                   class="flex h-9 w-9 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated text-text-secondary transition hover:border-accent hover:text-accent"
                   aria-label={item.label}
                 >
-                  <SocialIcon id={item.id} />
+                  <SocialIcon name={item.id} />
                 </a>
               </li>
             ))}
           </ul>
         </div>
-        {categories.length > 0 && (
+        {data.category && (
           <ul class="flex flex-wrap gap-2">
-            {categories.map((category: string) => (
-              <li class="rounded-full border border-border-subtle bg-surface-muted px-3 py-1 text-xs uppercase tracking-wide text-text-secondary">
-                {category}
-              </li>
-            ))}
+            <li class="rounded-full border border-border-subtle bg-surface-muted px-3 py-1 text-xs uppercase tracking-wide text-text-secondary">
+              {data.category}
+            </li>
           </ul>
         )}
       </div>
@@ -156,7 +150,7 @@ const nextHref = nextPost ? createLocaleHref(locale, nextPost.id.replace(/\\/g, 
           </a>
         )}
       </nav>
-      <CommentSection slug={post.id} />
+      <CommentSection slug={post.id} locale={locale} />
     </footer>
   </article>
 </BaseLayout>

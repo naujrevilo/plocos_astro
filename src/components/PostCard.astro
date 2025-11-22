@@ -1,21 +1,27 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import { getEntry, type CollectionEntry } from 'astro:content';
 import { labelToSlug } from '../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
 
 interface Props {
-  post: CollectionEntry<'blog'>;
+  post: CollectionEntry<'posts'>;
 }
 
 const { post } = Astro.props;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const { data } = post;
-const postPath = post.id.replace(/\\/g, '/');
-const postUrl = createLocaleHref(locale, postPath);
+const postUrl = createLocaleHref(locale, `blog/${post.slug}`);
 const labels = data.labels ?? [];
-const categories = data.categories ?? [];
+const categorySlugs = Array.isArray(data.category)
+  ? data.category
+  : typeof data.category === 'string'
+  ? [data.category]
+  : [];
+const categoriesData = (
+  await Promise.all(categorySlugs.map((slug) => getEntry('categories', slug)))
+).filter(Boolean) as CollectionEntry<'categories'>[];
 const author = data.author ?? 'Michel Saer';
 const labelPath = translations.paths.labels;
 const formattedDate = new Date(data.pubDate).toLocaleDateString(locale, {
@@ -58,11 +64,13 @@ const heroImageAlt = data.heroImageAlt?.trim() || `${imageAltPrefix} ${data.titl
         </p>
       )}
     </div>
-    {categories.length > 0 && (
+    {categoriesData.length > 0 && (
       <ul class="flex flex-wrap gap-2 text-[0.7rem] text-text-secondary">
-        {categories.map((category: string) => (
-          <li class="rounded-full border border-border-subtle bg-surface-muted px-3 py-1 uppercase tracking-wide">
-            {category}
+        {categoriesData.map((category) => (
+          <li class="rounded-full border border-border-subtle px-3 py-1 uppercase tracking-wide" style={`background-color: ${category.data.color}`}>
+            <a href={createLocaleHref(locale, `${translations.paths.categories}/${category.slug}`)}>
+              {category.data.title}
+            </a>
           </li>
         ))}
       </ul>

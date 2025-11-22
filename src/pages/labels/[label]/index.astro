@@ -8,14 +8,14 @@ import { createLocaleHref } from '../../../lib/routes';
 
 interface Props {
   label: string;
-  posts: CollectionEntry<'blog'>[];
+  posts: CollectionEntry<'posts'>[];
 }
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
   const labelMap = new Map<string, string>();
 
-    posts.forEach((post) => {
+  posts.forEach((post: CollectionEntry<'posts'>) => {
     (post.data.labels ?? []).forEach((label: string) => {
       labelMap.set(labelToSlug(label), label);
     });
@@ -30,7 +30,7 @@ export async function getStaticPaths() {
   }));
 }
 
-const { label, posts } = Astro.props;
+const { label, posts } = Astro.props as Props;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const copy = translations.labelsDetail;

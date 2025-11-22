@@ -6,16 +6,16 @@ const { path } = Astro.params;
 // The path could be '2025/flotar-o-navegar-hacia-una-realidad-de.md'
 // or '2025/flotar-o-navegar-hacia-una-realidad-de'
 // We just want the last part as the slug.
-const slugFragment = path.split('/').filter(segment => segment).pop()?.replace('.md', '');
+const slugFragment = path?.split('/').filter(segment => segment).pop()?.replace('.md', '');
 
 if (slugFragment) {
-  const posts = await getCollection('blog');
+    const posts = await getCollection('posts');
   // Find a post where the slug *ends with* the fragment.
   // This is safer than an exact match if there were nested folders.
-  const post = posts.find(p => p.slug === slugFragment);
+    const post = posts.find(p => p.id === slugFragment);
 
   if (post) {
-    return Astro.redirect(`/blog/${post.slug}`, 301); // 301 Permanent Redirect
+        return Astro.redirect(`/blog/${post.id}`, 301); // 301 Permanent Redirect
   }
 }
 

@@ -7,22 +7,23 @@ import {
   type Locale,
 } from "../../lib/i18n";
 import { createLocaleHref } from "../../lib/routes";
-import { labelToSlug } from "../../lib/taxonomy.ts";
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const copy = translations.categories;
 
-const allPosts = await getCollection("blog", ({ data }) => {
+const allPosts = await getCollection("posts", ({ data }) => {
   return data.draft === false && data.language === locale;
 });
 
 const allCategories = await getCollection("categories");
 
 const categories = allCategories.map(category => {
-  const postsInCategory = allPosts.filter(post => 
-    post.data.category && post.data.category.slug === category.slug
-  );
+  const postsInCategory = allPosts.filter(post => {
+    if (!post.data.category) return false;
+    // @ts-ignore
+    return post.data.category.id === category.slug;
+  });
   return {
     name: category.data.title,
     slug: category.slug,

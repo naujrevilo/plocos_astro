@@ -75,7 +75,7 @@ const label = 'Buscar en Plocos';
     items.slice(0, 30).forEach((item) => {
       const anchor = document.createElement('a');
       anchor.className = 'flex flex-col gap-2 border-b border-border-subtle px-4 py-3 text-left transition hover:bg-surface-muted';
-      anchor.href = `/blog/${item.slug}/`;
+      anchor.href = `/posts/${item.slug}/`;
 
       const title = document.createElement('span');
       title.className = 'text-sm font-semibold text-text-primary';

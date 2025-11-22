@@ -8,8 +8,8 @@ import { createLocaleHref } from '../lib/routes';
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 
 // Fetch all published posts for the current locale
-const posts = await getCollection('blog', ({ data }) => {
-  return data.draft === false && data.language === locale;
+const posts = await getCollection('posts', ({ data }) => {
+  return data.draft === false;
 });
 
 // Sort posts by date in descending order
@@ -17,7 +17,7 @@ const sortedPosts = posts.sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
-const latestPosts = sortedPosts.slice(0, 6);
+const latestPosts = sortedPosts.slice(0, 12);
 const translations = getTranslations(locale);
 const home = translations.home;
 const categoriesHref = createLocaleHref(locale, translations.paths.categories);
@@ -48,7 +48,7 @@ const categoriesHref = createLocaleHref(locale, translations.paths.categories);
 					))}
 				</div>
 			</div>
-			<div class="grid gap-6 md:grid-cols-2">
+			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{latestPosts.map((post) => (
 					<PostCard post={post} />
 				))}

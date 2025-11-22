@@ -1,21 +1,6 @@
 ---
 import { getTranslations, type Locale } from '../lib/i18n';
-import { db, Comments, and, desc, eq } from 'astro:db';
-
-
-/**
- * Define la estructura de datos para un comentario, asegurando un tipado consistente.
- */
-type CommentsType = {
-    id: number;
-    postSlug: string;
-    locale: string;
-    name: string;
-    email?: string | null;
-    message: string;
-    createdAt: Date;
-    approved: boolean;
-};
+import { db, Comments, eq, and, desc } from 'astro:db';
 
 interface Props {
   slug: string;
@@ -37,7 +22,6 @@ const initialStatusText =
 const comments = await db
   .select()
   .from(Comments)
-    // Se filtra por `approved: true` para mayor claridad y consistencia en lugar de `1`.
   .where(and(eq(Comments.postSlug, slug), eq(Comments.locale, locale), eq(Comments.approved, true)))
   .orderBy(desc(Comments.createdAt));
 
@@ -115,7 +99,7 @@ const dateFormatter = new Intl.DateTimeFormat(locale, {
         minlength="8"
         maxlength="2000"
         rows="6"
-        class="rounded-xl border border-border-subtle bg-surface px-3 py-2 text-sm text-text-primary outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+        class="rounded-xl border border-border-subtle bg-surface px-3 py-2 text-sm text-prosy-body outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
       ></textarea>
     </div>
 
@@ -151,7 +135,7 @@ const dateFormatter = new Intl.DateTimeFormat(locale, {
 
   <div class="space-y-4">
     <ul class="space-y-4" data-comments-list>
-      {comments.map((comment: CommentsType) => (
+      {comments.map(comment => (
         <li class="overflow-hidden rounded-2xl border border-border-subtle bg-surface p-6 shadow-contemplation transition-all duration-300 ease-in-out hover:border-border hover:shadow-sm">
           <div class="flex items-center justify-between text-xs text-text-secondary/80">
             <span class="font-semibold text-text-primary">{comment.name}</span>
