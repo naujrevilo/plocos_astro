@@ -87,6 +87,10 @@ function respond(
 }
 
 export const GET: APIRoute = async ({ url }) => {
+  const urlHint = import.meta.env.ASTRO_DB_REMOTE_URL ? `${import.meta.env.ASTRO_DB_REMOTE_URL.slice(0, 15)}...${import.meta.env.ASTRO_DB_REMOTE_URL.slice(-15)}` : 'Not found';
+  const tokenHint = import.meta.env.ASTRO_DB_APP_TOKEN ? `${import.meta.env.ASTRO_DB_APP_TOKEN.slice(0, 15)}...${import.meta.env.ASTRO_DB_APP_TOKEN.slice(-15)}` : 'Not found';
+  console.log('NETLIFY_CREDENTIAL_HINT (GET): URL Hint:', urlHint);
+  console.log('NETLIFY_CREDENTIAL_HINT (GET): Token Hint:', tokenHint);
   
   
   const slug = url.searchParams.get('slug')?.trim();
@@ -159,6 +163,10 @@ function validateEmail(input: string) {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const urlHint = import.meta.env.ASTRO_DB_REMOTE_URL ? `${import.meta.env.ASTRO_DB_REMOTE_URL.slice(0, 15)}...${import.meta.env.ASTRO_DB_REMOTE_URL.slice(-15)}` : 'Not found';
+  const tokenHint = import.meta.env.ASTRO_DB_APP_TOKEN ? `${import.meta.env.ASTRO_DB_APP_TOKEN.slice(0, 15)}...${import.meta.env.ASTRO_DB_APP_TOKEN.slice(-15)}` : 'Not found';
+  console.log('NETLIFY_CREDENTIAL_HINT (POST): URL Hint:', urlHint);
+  console.log('NETLIFY_CREDENTIAL_HINT (POST): Token Hint:', tokenHint);
   
   
   const contentType = request.headers.get('content-type') ?? '';
