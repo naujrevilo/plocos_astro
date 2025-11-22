@@ -22,7 +22,7 @@
     "@algolia/autocomplete-plugin-recent-searches": "1.19.4",
     "@algolia/autocomplete-theme-classic": "1.19.4",
     "@astrojs/check": "0.9.5",
-    "@astrojs/db": "0.18.2",
+    "@astrojs/db": "0.18.3",
     "@astrojs/netlify": "6.6.2",
     "@astrojs/react": "4.4.2",
     "@astrojs/sitemap": "3.6.0",
