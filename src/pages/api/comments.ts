@@ -87,8 +87,6 @@ function respond(
 }
 
 export const GET: APIRoute = async ({ url }) => {
-  console.log('GET DB URL:', import.meta.env.ASTRO_DB_REMOTE_URL?.slice(0, 20));
-  console.log('GET DB TOKEN IS SET:', !!import.meta.env.ASTRO_DB_APP_TOKEN);
   
   
   const slug = url.searchParams.get('slug')?.trim();
@@ -161,8 +159,6 @@ function validateEmail(input: string) {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  console.log('POST DB URL:', import.meta.env.ASTRO_DB_REMOTE_URL?.slice(0, 20));
-  console.log('POST DB TOKEN IS SET:', !!import.meta.env.ASTRO_DB_APP_TOKEN);
   
   
   const contentType = request.headers.get('content-type') ?? '';
