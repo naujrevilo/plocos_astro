@@ -3,6 +3,11 @@ export const prerender = false;
 import { Comments as CommentsTable, db, desc } from 'astro:db';
 import Layout from '../../layouts/BaseLayout.astro';
 
+const url = import.meta.env.ASTRO_DB_REMOTE_URL ?? '';
+const token = import.meta.env.ASTRO_DB_APP_TOKEN ?? '';
+console.log('DB URL Hint:', url.substring(0, 15) + '...' + url.substring(url.length - 15));
+console.log('DB Token Hint:', token.substring(0, 15) + '...' + token.substring(token.length - 15));
+
 const COOKIE_NAME = 'plocos-comments-token';
 const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN ?? '';
 console.log('Moderation Token:', moderationToken);
