@@ -87,8 +87,8 @@ function respond(
 }
 
 export const GET: APIRoute = async ({ url }) => {
-  console.log('GET /api/comments invoked');
-  console.log('DB URL Used:', import.meta.env.ASTRO_DB_REMOTE_URL ? 'Exists' : 'MISSING');
+  
+  
   const slug = url.searchParams.get('slug')?.trim();
   const locale = url.searchParams.get('locale')?.trim();
 
@@ -159,8 +159,8 @@ function validateEmail(input: string) {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  console.log('POST /api/comments invoked');
-  console.log('DB URL Used:', import.meta.env.ASTRO_DB_REMOTE_URL ? 'Exists' : 'MISSING');
+  
+  
   const contentType = request.headers.get('content-type') ?? '';
   let body: CommentPayload | null = null;
 
