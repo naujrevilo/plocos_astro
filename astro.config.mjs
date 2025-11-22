@@ -14,7 +14,7 @@ import react from '@astrojs/react';
 export default defineConfig({
   site: 'https://plocos.netlify.app',
   output: 'server',
-  adapter: netlify(),
+  adapter: netlify({ edgeMiddleware: true }),
 
   integrations: [
       tailwind({
