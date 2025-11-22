@@ -188,6 +188,7 @@ export const translations: Record<Locale, Translation> = {
       contact: 'contacto',
       about: 'nuestra-razon-de-ser',
       labels: 'labels',
+
       posts: 'posts',
       terms: 'terminos',
     },

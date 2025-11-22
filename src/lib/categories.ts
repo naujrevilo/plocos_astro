@@ -1,6 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { labelToSlug } from './taxonomy';
-import type { PostEntry } from './posts';
+type PostEntry = CollectionEntry<'posts'>;
 import type { Locale } from './i18n';
 
 export type CategoryEntry = CollectionEntry<'categories'>;
@@ -22,7 +22,7 @@ export function filterPostsByCategory(category: CategoryEntry, posts: PostEntry[
   const labelSlugs = new Set(category.data.labels.map((label) => labelToSlug(label)));
   return posts.filter((post) => {
     const postLabels = post.data.labels ?? [];
-    return postLabels.some((label) => labelSlugs.has(labelToSlug(label)));
+    return postLabels.some((label: string) => labelSlugs.has(labelToSlug(label)));
   });
 }
 

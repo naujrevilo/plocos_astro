@@ -1,5 +1,4 @@
 // @ts-check
-import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
 import tailwind from '@astrojs/tailwind';

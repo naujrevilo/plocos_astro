@@ -1,13 +1,3 @@
-// Genera un slug solo a partir del título
-function slugifyTitle(title) {
-  return title
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .toLowerCase();
-}
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
