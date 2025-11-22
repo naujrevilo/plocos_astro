@@ -3,19 +3,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
-    "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "esModuleInterop": true
   },
-  "include": [
-    "src",
-    ".astro"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
 }
