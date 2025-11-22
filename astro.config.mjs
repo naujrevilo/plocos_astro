@@ -20,7 +20,7 @@ export default defineConfig({
       tailwind({
           applyBaseStyles: false,
       }),
-      db({ mode: 'web' }),
+      db(),
       vue(),
       react(),
       sitemap(),
