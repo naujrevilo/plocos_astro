@@ -9,7 +9,7 @@ const Comments = defineTable({
     email: column.text({ optional: true }),
     message: column.text(),
     createdAt: column.date({ default: NOW }),
-    approved: column.boolean({ default: false }),
+    approved: column.number({ default: 0 }),
   },
   indexes: [{ on: ['postSlug', 'locale', 'approved'] }],
 });

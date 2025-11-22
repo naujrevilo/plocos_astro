@@ -22,7 +22,7 @@ const initialStatusText =
 const comments = await db
   .select()
   .from(Comments)
-  .where(and(eq(Comments.postSlug, slug), eq(Comments.locale, locale), eq(Comments.approved, true)))
+  .where(and(eq(Comments.postSlug, slug), eq(Comments.locale, locale), eq(Comments.approved, 1)))
   .orderBy(desc(Comments.createdAt));
 
 const dateFormatter = new Intl.DateTimeFormat(locale, {
@@ -99,7 +99,7 @@ const dateFormatter = new Intl.DateTimeFormat(locale, {
         minlength="8"
         maxlength="2000"
         rows="6"
-        class="rounded-xl border border-border-subtle bg-surface px-3 py-2 text-sm text-text-primary outline-none transition placeholder:text-text-secondary/80 focus:border-accent focus:ring-2 focus:ring-accent/20"
+        class="rounded-xl border border-border-subtle bg-surface px-3 py-2 text-sm text-text-primary outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
       ></textarea>
     </div>
 

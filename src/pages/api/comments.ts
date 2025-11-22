@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { Comments, and, db, eq, isDbError, desc } from 'astro:db';
-import { locales, type Locale } from '../../lib/i18n';
-
+import { Comments, and, asc, db, eq, isDbError, desc } from 'astro:db';
+import { locales, type Locale, getTranslations } from '../../lib/i18n';
+import { createLocaleHref } from '../../lib/routes';
 
 export const prerender = false;
 
@@ -30,7 +30,61 @@ function sanitize(input: string, max: number) {
   return input.trim().replace(/\s+/g, ' ').slice(0, max);
 }
 
+function wantsJson(request: Request) {
+  const accept = request.headers.get('accept') ?? '';
+  if (accept.includes('application/json')) {
+    return true;
+  }
+  if (accept.includes('text/html')) {
+    return false;
+  }
+  const contentType = request.headers.get('content-type') ?? '';
+  return contentType.includes('application/json');
+}
 
+function buildCommentPath(locale: Locale, slug: string, status: 'pending' | 'error') {
+  const translations = getTranslations(locale);
+  const basePath = createLocaleHref(locale, `${translations.paths.posts}/${slug}`);
+  const url = new URL(basePath, 'http://localhost');
+  url.searchParams.set('comment', status);
+  url.hash = 'comments';
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
+function respond(
+  request: Request,
+  status: number,
+  body: Record<string, unknown>,
+  fallback?: { locale?: Locale; slug?: string; status: 'pending' | 'error' }
+) {
+  if (!wantsJson(request)) {
+    if (fallback?.locale && fallback.slug) {
+      return new Response(null, {
+        status: 303,
+        headers: {
+          Location: buildCommentPath(fallback.locale, fallback.slug, fallback.status),
+        },
+      });
+    }
+    const referer = request.headers.get('referer');
+    if (referer) {
+      try {
+        const redirect = new URL(referer);
+        if (fallback?.status) {
+          redirect.searchParams.set('comment', fallback.status);
+          redirect.hash = 'comments';
+        }
+        return new Response(null, {
+          status: 303,
+          headers: { Location: redirect.toString() },
+        });
+      } catch (error) {
+        console.warn('Failed to build referer fallback', error);
+      }
+    }
+  }
+  return jsonResponse(status, body);
+}
 
 export const GET: APIRoute = async ({ url }) => {
   const slug = url.searchParams.get('slug')?.trim();
@@ -61,7 +115,7 @@ export const GET: APIRoute = async ({ url }) => {
       and(
         eq(Comments.postSlug, slug),
         eq(Comments.locale, locale),
-        eq(Comments.approved, true)
+        eq(Comments.approved, 1)
       )
     )
     .orderBy(desc(Comments.createdAt));
@@ -134,6 +188,7 @@ export const POST: APIRoute = async ({ request }) => {
   const name = body.name?.trim();
   const email = body.email?.trim() ?? null;
   const message = body.message?.trim();
+  const website = body.website?.trim();
 
     if (!slug || slug.length > MAX_SLUG_LENGTH) {
       return jsonResponse(400, { error: 'Invalid slug.' });
@@ -144,6 +199,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const supportedLocale = locale as Locale;
+  const errorFallback = { locale: supportedLocale, slug, status: 'error' as const };
 
   if (!name) {
     return jsonResponse(400, { error: 'Name is required.' });
@@ -158,7 +214,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const normalizedMessage = message.trim();
-  if (normalizedMessage.length < 6) {
+  if (normalizedMessage.length < 8) {
     return jsonResponse(400, { error: 'Message is too short.' });
   }
 
@@ -177,7 +233,7 @@ export const POST: APIRoute = async ({ request }) => {
       name: sanitize(name, MAX_NAME_LENGTH),
       email: email ? email.trim().slice(0, MAX_EMAIL_LENGTH) : null,
       message: normalizedMessage,
-      approved: false,
+      approved: 0,
     });
   } catch (error) {
     if (isDbError(error)) {

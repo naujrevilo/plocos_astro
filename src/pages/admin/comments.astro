@@ -28,10 +28,17 @@ if (!moderationToken || cookieToken !== moderationToken) {
   return Astro.redirect(`/admin/login?redirect=/admin/comments`);
 }
 
-const allComments = await db.select().from(CommentsTable).orderBy(desc(CommentsTable.createdAt));
+const allComments = await db.select({ 
+  id: CommentsTable.id,
+  name: CommentsTable.name,
+  message: CommentsTable.message,
+  createdAt: CommentsTable.createdAt,
+  approved: CommentsTable.approved,
+  postSlug: CommentsTable.postSlug, 
+}).from(CommentsTable).orderBy(desc(CommentsTable.createdAt));
 
-const pendingComments = allComments.filter(comment => comment.approved === false);
-const approvedComments = allComments.filter(comment => comment.approved === true);
+const pendingComments = allComments.filter(comment => comment.approved === 0);
+const approvedComments = allComments.filter(comment => comment.approved === 1);
 ---
 
 <Layout title="Moderación de Comentarios">
@@ -42,7 +49,7 @@ const approvedComments = allComments.filter(comment => comment.approved === true
       <h2 class="text-xl font-semibold mb-4">Pendientes ({pendingComments.length})</h2>
       <div class="space-y-4">
         {pendingComments.map(comment => (
-          <div class="border p-4 rounded-lg" data-comment-id={comment.id}>
+          <div class="border p-4 rounded-lg" data-comment-id={comment.id} data-post-slug={comment.postSlug}>
             <p><strong>{comment.name}</strong></p>
             <p class="text-sm text-gray-500 mb-2">{new Date(comment.createdAt).toLocaleString()}</p>
             <p>{comment.message}</p>
@@ -99,6 +106,9 @@ const approvedComments = allComments.filter(comment => comment.approved === true
         });
 
         if (response.ok) {
+          const postSlug = commentElement.getAttribute('data-post-slug');
+          const channel = new BroadcastChannel(`comments-${postSlug}`);
+          channel.postMessage({ type: 'comment-approved' });
           commentElement.remove();
           // You might want to refresh the page or move the element to the 'approved' list
           location.reload();
