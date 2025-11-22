@@ -135,6 +135,10 @@ public/
 scripts/              # Herramientas de migración y normalización (ignoradas en git)
 ```
 
+## Solución de Problemas
+
+Para un registro detallado de los problemas encontrados y sus soluciones durante el desarrollo, consulta el documento [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
 ## Flujo editorial actual
 
 1. Levanta los servicios con `pnpm tinacms:dev`.
