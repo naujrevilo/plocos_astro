@@ -13,3 +13,7 @@
   from = "/tina-admin/*"
   to = "/tina-admin/index.html"
   status = 200
+
+[functions]
+  included_files = ["db/**"]
+  external_node_modules = ["@libsql/linux-x64-gnu"]
