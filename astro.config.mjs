@@ -10,6 +10,8 @@ import db from '@astrojs/db';
 import react from '@astrojs/react';
 
 
+const isNetlifyProduction = process.env.NETLIFY && process.env.CONTEXT === 'production';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://plocos.netlify.app',
@@ -20,12 +22,12 @@ export default defineConfig({
       tailwind({
           applyBaseStyles: false,
       }),
-      db(),
+      !isNetlifyProduction && db(),
       vue(),
       react(),
       sitemap(),
       
-  ],
+  ].filter(Boolean),
 
   
 

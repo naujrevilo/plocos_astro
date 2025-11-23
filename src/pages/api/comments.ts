@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { Comments, and, asc, db, eq, isDbError, desc } from 'astro:db';
+import { Comments, and, asc, eq, isDbError, desc } from 'astro:db';
+import { getDb } from '../../lib/db';
 import { locales, type Locale, getTranslations } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 
@@ -158,7 +159,8 @@ function validateEmail(input: string) {
   return emailPattern.test(email);
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
+  const db = getDb(locals);
   
   
   const contentType = request.headers.get('content-type') ?? '';

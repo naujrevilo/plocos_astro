@@ -1,10 +1,12 @@
 import type { APIRoute } from 'astro';
-import { Comments, db, eq, and } from 'astro:db';
+import { Comments, eq } from 'astro:db';
+import { getDb } from '../../../lib/db';
 
 const COOKIE_NAME = 'plocos-comments-token';
 
 export const POST: APIRoute = async ({ request, cookies, locals }) => {
-  const moderationToken = process.env.COMMENTS_MODERATION_TOKEN ?? '';
+  const db = getDb(locals);
+  const moderationToken = locals.runtime.env.COMMENTS_MODERATION_TOKEN;
   const providedToken = cookies.get(COOKIE_NAME)?.value ?? null;
 
   if (!moderationToken || providedToken !== moderationToken) {

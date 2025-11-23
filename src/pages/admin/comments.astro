@@ -1,7 +1,10 @@
 ---
 export const prerender = false;
-import { Comments as CommentsTable, db, desc } from 'astro:db';
+import { Comments as CommentsTable, desc } from 'astro:db';
+import { getDb } from '../../lib/db';
 import Layout from '../../layouts/BaseLayout.astro';
+
+const db = getDb(Astro.locals);
 
 const COOKIE_NAME = 'plocos-comments-token';
 const moderationToken = process.env.COMMENTS_MODERATION_TOKEN ?? '';
