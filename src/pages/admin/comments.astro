@@ -14,7 +14,7 @@ if (urlToken) {
     Astro.cookies.set(COOKIE_NAME, urlToken, {
       path: '/',
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: Astro.locals.runtime.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
     return Astro.redirect('/admin/comments');
