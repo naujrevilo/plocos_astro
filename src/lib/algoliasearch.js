@@ -1,38 +1,58 @@
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 dotenv.config();
 
-// helloAlgolia.mjs
-import { algoliasearch } from "algoliasearch";
+import { algoliasearch } from 'algoliasearch';
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
 
-const appID = process.env.ALGOLIA_APP_ID;
-// API key with `addObject` and `editSettings` ACL
-const apiKey = process.env.ALGOLIA_WRITE_API_KEY;
-const indexName = process.env.ALGOLIA_INDEX_NAME;
+// 1. Use the named import and initialize the client
+const client = algoliasearch(process.env.ALGOLIA_APP_ID, process.env.ALGOLIA_WRITE_API_KEY);
 
-const client = algoliasearch(appID, apiKey);
+const postsDirectory = path.join(process.cwd(), 'src/content/posts');
 
-const record = { objectID: "object-1", name: "test record" };
+function getPostSlugs() {
+  return fs.readdirSync(postsDirectory);
+}
 
-// Add record to an index
-const { taskID } = await client.saveObject({
-  indexName,
-  body: record,
-});
+function getPostBySlug(slug) {
+  const realSlug = slug.replace(/\.md$/, '');
+  const fullPath = path.join(postsDirectory, `${realSlug}.md`);
+  const fileContents = fs.readFileSync(fullPath, 'utf8');
+  const { data, content } = matter(fileContents);
 
-// Wait until indexing is done
-await client.waitForTask({
-  indexName,
-  taskID,
-});
+  return { slug: realSlug, frontmatter: data, content };
+}
 
-// Search for "test"
-const { results } = await client.search({
-  requests: [
-    {
-      indexName,
-      query: "test",
-    },
-  ],
-});
+function getAllPosts() {
+  const slugs = getPostSlugs();
+  const posts = slugs.map((slug) => getPostBySlug(slug));
+  return posts;
+}
 
-console.log(JSON.stringify(results));
+async function syncWithAlgolia() {
+  const posts = getAllPosts();
+
+  const records = posts.map(post => ({
+    objectID: post.slug,
+    title: post.frontmatter.title,
+    description: post.frontmatter.description,
+    pubDate: post.frontmatter.pubDate,
+    content: post.content.substring(0, 8000),
+  }));
+
+  try {
+    // 2. Call clearObjects and saveObjects directly on the client,
+    // passing the index name.
+    await client.clearObjects({ indexName: process.env.ALGOLIA_INDEX_NAME });
+    const response = await client.saveObjects({
+      indexName: process.env.ALGOLIA_INDEX_NAME,
+      objects: records,
+    });
+    console.log(`Successfully indexed ${response[0].objectIDs.length} posts to Algolia.`);
+  } catch (error) {
+    console.error('Error syncing with Algolia:', error);
+  }
+}
+
+syncWithAlgolia();
