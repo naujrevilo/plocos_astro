@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.35] - 2025-11-22
+
+### Fixed
+
+- Resuelve problemas de conexión con la base de datos en Netlify para el sistema de comentarios.
+- Corrige el acceso a variables de entorno en el lado del servidor para los endpoints de la API y las páginas de Astro.
+
 ## [0.1.34] - 2025-11-22
 
 ### Fixed
