@@ -222,7 +222,7 @@ const initialStatusText =
 
     async function refreshComments() {
       try {
-        const response = await fetch(`/api/comments.json?slug=${slug}&locale=${locale}`);
+        const response = await fetch(`/api/comments?slug=${slug}&locale=${locale}`);
         if (!response.ok) {
           console.error('Failed to fetch comments');
           return;
