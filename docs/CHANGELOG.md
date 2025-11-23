@@ -1,5 +1,16 @@
 # Changelog PLOCOS
 
+## [0.1.37] - 2025-11-22
+### 🐛 Correcciones
+- Se solucionó el error 500 en páginas de posts reemplazando la obtención de la entrada de la colección con `getEntryBySlug` y renderizándola correctamente.
+- Se corrigió la URL de la API de comentarios en el script del cliente (de `/api/comments.json` a `/api/comments`).
+- Se actualizó la versión del proyecto a `0.1.37`.
+
+### 📚 Documentación
+- Se añadieron logs de depuración a la API de comentarios para rastrear la obtención de comentarios por `slug` y `locale`.
+
+
+
 ## [0.1.36] - 2025-11-22
 ### 🐛 Correcciones
 - Se corrigió un error que impedía mostrar los comentarios en las publicaciones. La causa era una combinación de pre-renderizado de páginas y el paso de un `slug` incorrecto al componente de comentarios.
