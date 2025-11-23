@@ -70,7 +70,9 @@ function respond(
     }
     const referer = request.headers.get('referer');
     if (referer) {
-      try {
+      console.log(`Fetching comments for slug: ${slug}, locale: ${locale}`);
+
+  try {
         const redirect = new URL(referer);
         if (fallback?.status) {
           redirect.searchParams.set('comment', fallback.status);
@@ -120,6 +122,8 @@ export const GET: APIRoute = async ({ url }) => {
         )
       )
       .orderBy(desc(Comments.createdAt));
+
+    console.log(`Found ${rows.length} approved comments for slug: ${slug}`);
 
     return jsonResponse(200, {
       comments: rows.map(({ name, message, createdAt }) => ({
