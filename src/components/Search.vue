@@ -9,7 +9,7 @@
         v-model="query"
         @input="search"
         placeholder="Buscar artículos..."
-        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent text-text-primary"
       />
       <div v-if="isLoading" class="mt-4 text-center">Cargando...</div>
       <ul v-if="results.length > 0" class="mt-4 space-y-2">
@@ -27,20 +27,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import * as algoliasearch from 'algoliasearch/lite';
+import { ref, onMounted } from 'vue';
 
 const isSearchVisible = ref(false);
 const query = ref('');
 const results = ref([]);
 const isLoading = ref(false);
+let index = null; // Will be initialized on mount
 
 const APP_ID = import.meta.env.PUBLIC_ALGOLIA_APP_ID;
 const API_KEY = import.meta.env.PUBLIC_ALGOLIA_SEARCH_API_KEY;
 const INDEX_NAME = import.meta.env.PUBLIC_ALGOLIA_INDEX_NAME;
 
-const client = algoliasearch.default(APP_ID, API_KEY);
-const index = client.initIndex(INDEX_NAME);
+onMounted(async () => {
+  try {
+    const { default: algoliasearch } = await import('algoliasearch/lite');
+    const client = algoliasearch(APP_ID, API_KEY);
+    index = client.initIndex(INDEX_NAME);
+  } catch (error) {
+    console.error('Failed to load Algolia search client:', error);
+  }
+});
 
 const toggleSearch = () => {
   isSearchVisible.value = !isSearchVisible.value;
@@ -51,7 +58,7 @@ let searchTimeout = null;
 const search = () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(async () => {
-    if (query.value.trim() === '') {
+    if (!index || query.value.trim() === '') {
       results.value = [];
       return;
     }
