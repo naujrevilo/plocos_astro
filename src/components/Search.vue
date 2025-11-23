@@ -39,7 +39,7 @@ const APP_ID = import.meta.env.PUBLIC_ALGOLIA_APP_ID;
 const API_KEY = import.meta.env.PUBLIC_ALGOLIA_SEARCH_API_KEY;
 const INDEX_NAME = import.meta.env.PUBLIC_ALGOLIA_INDEX_NAME;
 
-const client = algoliasearch(APP_ID, API_KEY);
+const client = algoliasearch.default(APP_ID, API_KEY);
 const index = client.initIndex(INDEX_NAME);
 
 const toggleSearch = () => {
