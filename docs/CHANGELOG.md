@@ -1,5 +1,14 @@
 # Changelog PLOCOS
 
+## [0.1.36] - 2025-11-22
+### 🐛 Correcciones
+- Se corrigió un error que impedía mostrar los comentarios en las publicaciones. La causa era una combinación de pre-renderizado de páginas y el paso de un `slug` incorrecto al componente de comentarios.
+- Se actualizó la versión del proyecto a `0.1.36`.
+
+### 📚 Documentación
+- Se actualizó `TROUBLESHOOTING.md` con nuevas entradas sobre errores comunes y sus soluciones.
+
+
 ## [1.3.0] - 2025-11-16
 ### ✨ Cambios principales
 - Refactor completo del header móvil y escritorio: distribución horizontal, responsive y accesible.

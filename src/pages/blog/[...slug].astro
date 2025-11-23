@@ -7,7 +7,7 @@ import { createLocaleHref } from '../../lib/routes';
 import SocialIcon from '../../components/icons/SocialIcon.astro';
 import CommentSection from '../../components/CommentSection.astro';
 
-export const prerender = true;
+export const prerender = false;
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -150,7 +150,7 @@ const nextHref = nextPost ? createLocaleHref(locale, `blog/${nextPost.slug}`) : 
           </a>
         )}
       </nav>
-      <CommentSection slug={post.id} locale={locale} />
+      <CommentSection slug={post.slug} locale={locale} />
     </footer>
   </article>
 </BaseLayout>
