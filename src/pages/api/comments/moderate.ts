@@ -4,7 +4,7 @@ import { Comments, db, eq, and } from 'astro:db';
 const COOKIE_NAME = 'plocos-comments-token';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-  const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN ?? '';
+  const moderationToken = process.env.COMMENTS_MODERATION_TOKEN ?? '';
   const providedToken = cookies.get(COOKIE_NAME)?.value ?? null;
 
   if (!moderationToken || providedToken !== moderationToken) {
