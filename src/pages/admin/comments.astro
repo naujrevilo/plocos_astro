@@ -1,41 +1,12 @@
 ---
 export const prerender = false;
-import { createClient } from '@libsql/client';
+import { Comments as CommentsTable, db, desc } from 'astro:db';
 import Layout from '../../layouts/BaseLayout.astro';
 
 const COOKIE_NAME = 'plocos-comments-token';
-const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN ?? '';
+const moderationToken = process.env.COMMENTS_MODERATION_TOKEN ?? '';
 const cookieToken = Astro.cookies.get(COOKIE_NAME)?.value;
 const urlToken = Astro.url.searchParams.get('token');
-
-let allComments = [];
-let pendingComments = [];
-let approvedComments = [];
-let error = null;
-
-try {
-  const client = createClient({
-    url: import.meta.env.ASTRO_DB_REMOTE_URL,
-    authToken: process.env.ASTRO_DB_APP_TOKEN,
-  });
-
-  const rs = await client.execute("SELECT * FROM Comments ORDER BY createdAt DESC");
-  allComments = rs.rows.map(row => ({
-    id: row.id,
-    name: row.name,
-    message: row.message,
-    createdAt: row.createdAt,
-    approved: row.approved,
-    postSlug: row.postSlug,
-  }));
-
-  pendingComments = allComments.filter(comment => comment.approved === 0);
-  approvedComments = allComments.filter(comment => comment.approved === 1);
-
-} catch (e) {
-  error = e.message;
-  console.error(e);
-}
 
 // Priority 1: Handle token from URL
 if (urlToken) {
@@ -43,7 +14,7 @@ if (urlToken) {
     Astro.cookies.set(COOKIE_NAME, urlToken, {
       path: '/',
       httpOnly: true,
-      secure: import.meta.env.PROD,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
     return Astro.redirect('/admin/comments');
@@ -54,18 +25,23 @@ if (urlToken) {
 if (!moderationToken || cookieToken !== moderationToken) {
   return Astro.redirect(`/admin/login?redirect=/admin/comments`);
 }
+
+const allComments = await db.select({
+  id: CommentsTable.id,
+  name: CommentsTable.name,
+  message: CommentsTable.message,
+  createdAt: CommentsTable.createdAt,
+  approved: CommentsTable.approved,
+  postSlug: CommentsTable.postSlug,
+}).from(CommentsTable).orderBy(desc(CommentsTable.createdAt));
+
+const pendingComments = allComments.filter(comment => comment.approved === 0);
+const approvedComments = allComments.filter(comment => comment.approved === 1);
 ---
 
 <Layout title="Moderación de Comentarios">
   <main class="container mx-auto px-4 py-8">
     <h1 class="text-2xl font-bold mb-6">Moderación de Comentarios</h1>
-
-    {error && (
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
-        <strong class="font-bold">Error de Conexión:</strong>
-        <span class="block sm:inline">{error}</span>
-      </div>
-    )}
 
     <section>
       <h2 class="text-xl font-semibold mb-4">Pendientes ({pendingComments.length})</h2>
