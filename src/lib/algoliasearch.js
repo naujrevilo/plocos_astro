@@ -26,7 +26,15 @@ function getPostBySlug(slug) {
 
 function getAllPosts() {
   const slugs = getPostSlugs();
-  const posts = slugs.map((slug) => getPostBySlug(slug));
+  const posts = slugs.reduce((acc, slug) => {
+    try {
+      const post = getPostBySlug(slug);
+      acc.push(post);
+    } catch (e) {
+      // Silently ignore files that fail to parse.
+    }
+    return acc;
+  }, []);
   return posts;
 }
 
@@ -35,6 +43,7 @@ async function syncWithAlgolia() {
 
   const records = posts.map(post => ({
     objectID: post.slug,
+    image: post.frontmatter.image,
     title: post.frontmatter.title,
     description: post.frontmatter.description,
     pubDate: post.frontmatter.pubDate,
@@ -42,14 +51,26 @@ async function syncWithAlgolia() {
   }));
 
   try {
-    // 2. Call clearObjects and saveObjects directly on the client,
-    // passing the index name.
     await client.clearObjects({ indexName: process.env.ALGOLIA_INDEX_NAME });
+    
     const response = await client.saveObjects({
       indexName: process.env.ALGOLIA_INDEX_NAME,
       objects: records,
     });
     console.log(`Successfully indexed ${response[0].objectIDs.length} posts to Algolia.`);
+
+    await client.setSettings({
+      indexName: process.env.ALGOLIA_INDEX_NAME,
+      indexSettings: {
+        searchableAttributes: [
+          'title',
+          'description',
+          'content'
+        ]
+      }
+    });
+    console.log('Successfully set searchableAttributes.');
+
   } catch (error) {
     console.error('Error syncing with Algolia:', error);
   }
