@@ -100,7 +100,7 @@ const languageOptions = [
 
         <!-- Controles Derecha (Desktop) -->
         <div class="hidden md:flex items-center gap-2">
-          <Search client:only="vue" />
+          <Search client:load />
           <ThemeToggle />
           <div class="flex gap-1 ml-2">
             <a href={languageOptions[0].href} aria-label="Español" class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'es' ? 'ring-2 ring-accent' : ''}`}>
@@ -114,7 +114,7 @@ const languageOptions = [
 
         <!-- Controles Derecha (Mobile) -->
         <div class="flex md:hidden items-center gap-2">
-          <Search client:only="vue" />
+          <Search client:load />
           <ThemeToggle />
           <button data-collapse-toggle="mobile-nav" type="button" class="hamburger-btn flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated text-text-primary transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2" aria-label="Abrir menú" aria-controls="mobile-nav" aria-expanded="false">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
