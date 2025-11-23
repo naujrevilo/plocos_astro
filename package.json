@@ -22,8 +22,8 @@
     "@algolia/autocomplete-plugin-recent-searches": "1.19.4",
     "@algolia/autocomplete-theme-classic": "1.19.4",
     "@astrojs/check": "0.9.5",
-    "@astrojs/db": "0.18.3",
     "@astrojs/netlify": "6.6.2",
+    "@libsql/client": "^0.7.0",
     "@astrojs/react": "4.4.2",
     "@astrojs/sitemap": "3.6.0",
     "@astrojs/tailwind": "6.0.2",
@@ -42,6 +42,8 @@
     "vue-instantsearch": "4.22.3"
   },
   "devDependencies": {
+    "drizzle-orm": "^0.32.1",
+    "drizzle-kit": "^0.23.0",
     "@tailwindcss/typography": "0.5.19",
     "@tinacms/cli": "1.12.4",
     "@tinacms/datalayer": "1.4.1",
@@ -70,7 +72,8 @@
       "yup": "0.32.11",
       "fs-extra": "9.1.0",
       "zod": "3.23.8",
-      "zod-to-json-schema": "3.23.5"
+      "zod-to-json-schema": "3.23.5",
+      "@libsql/client": "0.15.15"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",

@@ -118,4 +118,3 @@ const CategoryMultiSelectInner = ({ input, meta }) => {
 };
 
 export const CategoryMultiSelect = wrapFieldsWithMeta(CategoryMultiSelectInner);
-export default CategoryMultiSelect;

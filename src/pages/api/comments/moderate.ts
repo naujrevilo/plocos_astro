@@ -1,12 +1,12 @@
 import type { APIRoute } from 'astro';
-import { Comments, eq } from 'astro:db';
-import { getDb } from '../../../lib/db';
+import { db } from '../../../lib/db';
+import { Comments } from '../../../lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 const COOKIE_NAME = 'plocos-comments-token';
 
-export const POST: APIRoute = async ({ request, cookies, locals }) => {
-  const db = getDb(locals);
-  const moderationToken = locals.runtime.env.COMMENTS_MODERATION_TOKEN;
+export const POST: APIRoute = async ({ request, cookies }) => {
+  const moderationToken = process.env.COMMENTS_MODERATION_TOKEN;
   const providedToken = cookies.get(COOKIE_NAME)?.value ?? null;
 
   if (!moderationToken || providedToken !== moderationToken) {

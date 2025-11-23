@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
-import { Comments, and, asc, eq, isDbError, desc } from 'astro:db';
-import { getDb } from '../../lib/db';
+import { db } from '../../lib/db';
+import { Comments } from '../../lib/db/schema';
+import { and, eq, desc } from 'drizzle-orm';
 import { locales, type Locale, getTranslations } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
 
@@ -88,8 +89,6 @@ function respond(
 }
 
 export const GET: APIRoute = async ({ url }) => {
-  
-  
   const slug = url.searchParams.get('slug')?.trim();
   const locale = url.searchParams.get('locale')?.trim();
 
@@ -105,33 +104,35 @@ export const GET: APIRoute = async ({ url }) => {
     return jsonResponse(400, { error: 'Unsupported locale.' });
   }
 
-  const rows = await db
-    .select({
-      id: Comments.id,
-      name: Comments.name,
-      message: Comments.message,
-      createdAt: Comments.createdAt,
-      approved: Comments.approved,
-    })
-    .from(Comments)
-    .where(
-      and(
-        eq(Comments.postSlug, slug),
-        eq(Comments.locale, locale),
-        eq(Comments.approved, 1)
+  try {
+    const rows = await db
+      .select({
+        name: Comments.name,
+        message: Comments.message,
+        createdAt: Comments.createdAt,
+      })
+      .from(Comments)
+      .where(
+        and(
+          eq(Comments.postSlug, slug),
+          eq(Comments.locale, locale),
+          eq(Comments.approved, 1)
+        )
       )
-    )
-    .orderBy(desc(Comments.createdAt));
+      .orderBy(desc(Comments.createdAt));
 
-  return jsonResponse(200, {
-    comments: rows.map(({ id, name, message, createdAt }) => ({
-      id,
-      name,
-      message,
-      createdAt: createdAt instanceof Date ? createdAt.toISOString() : new Date(createdAt).toISOString(),
-    })),
-    count: rows.length,
-  });
+    return jsonResponse(200, {
+      comments: rows.map(({ name, message, createdAt }) => ({
+        name,
+        message,
+        createdAt: createdAt.toISOString(),
+      })),
+      count: rows.length,
+    });
+  } catch (error) {
+    console.error('Failed to fetch comments', error);
+    return jsonResponse(500, { error: 'Failed to fetch comments.' });
+  }
 };
 
 interface CommentPayload {
@@ -159,10 +160,7 @@ function validateEmail(input: string) {
   return emailPattern.test(email);
 }
 
-export const POST: APIRoute = async ({ request, locals }) => {
-  const db = getDb(locals);
-  
-  
+export const POST: APIRoute = async ({ request }) => {
   const contentType = request.headers.get('content-type') ?? '';
   let body: CommentPayload | null = null;
 
@@ -194,7 +192,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const name = body.name?.trim();
   const email = body.email?.trim() ?? null;
   const message = body.message?.trim();
-  const website = body.website?.trim();
+  
 
     if (!slug || slug.length > MAX_SLUG_LENGTH) {
       return jsonResponse(400, { error: 'Invalid slug.' });
@@ -240,15 +238,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       email: email ? email.trim().slice(0, MAX_EMAIL_LENGTH) : null,
       message: normalizedMessage,
       approved: 0,
+      createdAt: new Date(),
     });
   } catch (error) {
-    if (isDbError(error)) {
-      console.error('Database error while creating comment', error);
-      return jsonResponse(500, { error: 'Failed to store comment.' });
-    }
-    console.error('Unexpected error while creating comment', error);
-    return jsonResponse(500, { error: 'Unexpected error.' });
+    console.error('Error creating comment', error);
+    return respond(request, 500, { error: 'Failed to store comment.' }, errorFallback);
   }
 
-  return jsonResponse(201, { status: 'pending' });
+  return respond(request, 201, { status: 'pending' }, { locale: supportedLocale, slug, status: 'pending' });
 };

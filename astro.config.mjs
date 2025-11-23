@@ -6,11 +6,10 @@ import sitemap from '@astrojs/sitemap';
 
 
 import vue from '@astrojs/vue';
-import db from '@astrojs/db';
 import react from '@astrojs/react';
 
 
-const isNetlifyProduction = process.env.NETLIFY && process.env.CONTEXT === 'production';
+
 
 // https://astro.build/config
 export default defineConfig({
@@ -22,12 +21,11 @@ export default defineConfig({
       tailwind({
           applyBaseStyles: false,
       }),
-      !isNetlifyProduction && db(),
       vue(),
       react(),
       sitemap(),
       
-  ].filter(Boolean),
+  ],
 
   
 

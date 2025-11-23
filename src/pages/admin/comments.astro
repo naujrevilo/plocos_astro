@@ -1,10 +1,9 @@
 ---
 export const prerender = false;
-import { Comments as CommentsTable, desc } from 'astro:db';
-import { getDb } from '../../lib/db';
+import { db } from '../../lib/db';
+import { Comments as CommentsTable } from '../../lib/db/schema';
+import { desc } from 'drizzle-orm';
 import Layout from '../../layouts/BaseLayout.astro';
-
-const db = getDb(Astro.locals);
 
 const COOKIE_NAME = 'plocos-comments-token';
 const moderationToken = process.env.COMMENTS_MODERATION_TOKEN ?? '';
@@ -17,7 +16,7 @@ if (urlToken) {
     Astro.cookies.set(COOKIE_NAME, urlToken, {
       path: '/',
       httpOnly: true,
-      secure: Astro.locals.runtime.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
     return Astro.redirect('/admin/comments');
@@ -29,14 +28,7 @@ if (!moderationToken || cookieToken !== moderationToken) {
   return Astro.redirect(`/admin/login?redirect=/admin/comments`);
 }
 
-const allComments = await db.select({
-  id: CommentsTable.id,
-  name: CommentsTable.name,
-  message: CommentsTable.message,
-  createdAt: CommentsTable.createdAt,
-  approved: CommentsTable.approved,
-  postSlug: CommentsTable.postSlug,
-}).from(CommentsTable).orderBy(desc(CommentsTable.createdAt));
+const allComments = await db.select().from(CommentsTable).orderBy(desc(CommentsTable.createdAt));
 
 const pendingComments = allComments.filter(comment => comment.approved === 0);
 const approvedComments = allComments.filter(comment => comment.approved === 1);

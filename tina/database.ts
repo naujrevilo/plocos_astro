@@ -1,3 +1,3 @@
-import { createLocalDatabase, TinaLevelClient } from '@tinacms/datalayer'
+import { createLocalDatabase } from '@tinacms/datalayer'
 
-export default createLocalDatabase({ level: new TinaLevelClient() });
+export default createLocalDatabase();

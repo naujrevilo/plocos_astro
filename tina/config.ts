@@ -41,6 +41,7 @@ import { defineConfig } from "tinacms";
            label: "Categoría", 
            list: true, 
            ui: { 
+            // @ts-ignore
              component: CategoryMultiSelect, 
            }, 
          }, 
