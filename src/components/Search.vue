@@ -28,7 +28,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import algoliasearch from 'algoliasearch/lite';
+import * as algoliasearch from 'algoliasearch/lite';
 
 const isSearchVisible = ref(false);
 const query = ref('');
