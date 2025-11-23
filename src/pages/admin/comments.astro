@@ -16,7 +16,7 @@ let error = null;
 try {
   const client = createClient({
     url: import.meta.env.ASTRO_DB_REMOTE_URL,
-    authToken: import.meta.env.ASTRO_DB_APP_TOKEN,
+    authToken: process.env.ASTRO_DB_APP_TOKEN,
   });
 
   const rs = await client.execute("SELECT * FROM Comments ORDER BY createdAt DESC");
