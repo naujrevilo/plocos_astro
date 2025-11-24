@@ -8,15 +8,25 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 
-// 1. Use the named import and initialize the client
+// Inicializa el cliente de Algolia con las credenciales de entorno.
 const client = algoliasearch(process.env.ALGOLIA_APP_ID, process.env.ALGOLIA_ADMIN_KEY);
 
+// Define el directorio donde se encuentran los posts.
 const postsDirectory = path.join(process.cwd(), 'src/content/posts');
 
+/**
+ * Obtiene los slugs (nombres de archivo) de todos los posts.
+ * @returns {string[]} Un array de slugs de posts.
+ */
 function getPostSlugs() {
   return fs.readdirSync(postsDirectory);
 }
 
+/**
+ * Obtiene el contenido de un post por su slug.
+ * @param {string} slug - El slug del post.
+ * @returns {{slug: string, frontmatter: object, content: string}} El post con su slug, frontmatter y contenido.
+ */
 function getPostBySlug(slug) {
   const realSlug = slug.replace(/\.md$/, '');
   const fullPath = path.join(postsDirectory, `${realSlug}.md`);
@@ -26,6 +36,10 @@ function getPostBySlug(slug) {
   return { slug: realSlug, frontmatter: data, content };
 }
 
+/**
+ * Obtiene todos los posts.
+ * @returns {Array<object>} Un array de todos los posts.
+ */
 function getAllPosts() {
   const slugs = getPostSlugs();
   const posts = slugs.reduce((acc, slug) => {
@@ -33,18 +47,27 @@ function getAllPosts() {
       const post = getPostBySlug(slug);
       acc.push(post);
     } catch (e) {
-      // Silently ignore files that fail to parse.
+      // Ignora silenciosamente los archivos que no se pueden parsear.
     }
     return acc;
   }, []);
   return posts;
 }
 
+/**
+ * Extrae la URL de la primera imagen de un contenido en formato Markdown.
+ * @param {string} content - El contenido del post en Markdown.
+ * @returns {string|null} La URL de la imagen o null si no se encuentra.
+ */
 function extractImageUrl(content) {
-  const match = content.match(/!\\\[.*?\\\]\\((.*?)\\)/);
+  const match = content.match(/!\[.*?\]\((.*?)\)/);
   return match ? match[1] : null;
 }
 
+/**
+ * Sincroniza todos los posts con Algolia.
+ * Borra los objetos existentes, sube los nuevos y configura los atributos de búsqueda.
+ */
 async function syncWithAlgolia() {
   const posts = getAllPosts();
 
