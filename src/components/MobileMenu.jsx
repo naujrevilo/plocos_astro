@@ -1,5 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+/**
+ * @component MobileMenu
+ * @description Un componente de React que proporciona un menú de navegación móvil.
+ * Incluye un botón de hamburguesa para abrir/cerrar, y el menú se puede cerrar
+ * con la tecla Escape o haciendo clic fuera de él.
+ *
+ * @param {object} props - Las props del componente.
+ * @param {Array<object>} props.navItems - Un array de objetos que representan los elementos de navegación.
+ * @param {string} props.navItems.id - El ID único del elemento de navegación.
+ * @param {string} props.navItems.path - La ruta del enlace de navegación.
+ * @param {string} props.navItems.label - El texto a mostrar para el enlace.
+ * @param {string} props.locale - El locale actual para la internacionalización.
+ * @param {(locale: string, path: string) => string} props.createLocaleHref - Una función para crear URLs localizadas.
+ * @param {(path: string) => boolean} props.isActive - Una función para determinar si un enlace está activo.
+ * @param {string} props.navAriaLabel - El `aria-label` para el elemento de navegación.
+ */
 export default function MobileMenu({ navItems, locale, createLocaleHref, isActive, navAriaLabel }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);

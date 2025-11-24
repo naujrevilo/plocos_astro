@@ -1,4 +1,9 @@
----
+---/**
+ * @component SiteFooter
+ * @description Renderiza el pie de página del sitio, que incluye información de derechos de autor,
+ * enlaces de navegación (Términos, RSS) y enlaces a redes sociales con iconos.
+ * Utiliza i18n para las traducciones y carga los datos de contacto desde un archivo JSON.
+ */
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
 import SocialIcon from './icons/SocialIcon.astro';

@@ -1,4 +1,13 @@
 ---
+/**
+ * @component CommentSection
+ * @description Un componente interactivo para mostrar y enviar comentarios en una página de post.
+ * Incluye un formulario para nuevos comentarios, una lista de comentarios existentes y manejo de estados.
+ *
+ * @prop {string} slug - El slug del post al que pertenecen los comentarios.
+ * @prop {Locale} locale - El idioma actual para la internacionalización de los textos.
+ * @prop {'pending' | 'success' | 'error' | null} [initialStatus] - El estado inicial del formulario de comentarios.
+ */
 import { getTranslations, type Locale } from '../lib/i18n';
 
 
@@ -18,10 +27,6 @@ const initialStatusText =
       : initialStatus === 'error'
         ? copy.error
         : '';
-
-
-
-
 ---
 <section
   id="comments"
@@ -145,6 +150,15 @@ const initialStatusText =
 </section>
 
 <script is:inline>
+  /**
+   * @script CommentSection Client-Side
+   * @description Gestiona la interactividad de la sección de comentarios.
+   * - Carga inicial de comentarios.
+   * - Envío del formulario de nuevo comentario vía fetch.
+   * - Actualización en tiempo real de nuevos comentarios aprobados usando BroadcastChannel.
+   * - Paginación de comentarios ("Cargar más").
+   * - Manejo de estados (pendiente, éxito, error) y feedback al usuario.
+   */
   document.addEventListener('DOMContentLoaded', () => {
     const section = document.querySelector('[data-comment-section]');
     if (!(section instanceof HTMLElement)) {
@@ -152,6 +166,7 @@ const initialStatusText =
       return;
     }
 
+    // --- Extracción de datos y elementos del DOM ---
     const slug = section.dataset.slug ?? '';
     const locale = section.dataset.locale ?? 'es';
     const messages = {
@@ -180,6 +195,7 @@ const initialStatusText =
       timeStyle: 'short',
     });
 
+    // --- Manejo del estado inicial desde la URL ---
     const currentUrl = new URL(window.location.href);
     const commentParam = currentUrl.searchParams.get('comment');
     if (commentParam && status instanceof HTMLElement) {
@@ -197,6 +213,10 @@ const initialStatusText =
     const COMMENTS_VISIBLE = 5;
     let commentItems = Array.from(list.children);
 
+    /**
+     * Configura la funcionalidad "Cargar más".
+     * Oculta los comentarios que exceden el límite inicial y muestra un botón para revelarlos.
+     */
     function setupLoadMore() {
       commentItems.forEach((item, index) => {
         if (index >= COMMENTS_VISIBLE) {
@@ -220,6 +240,9 @@ const initialStatusText =
       }
     }
 
+    /**
+     * Obtiene y renderiza los comentarios desde la API.
+     */
     async function refreshComments() {
       try {
         const response = await fetch(`/api/comments?slug=${slug}&locale=${locale}`);
@@ -265,6 +288,7 @@ const initialStatusText =
       }
     }
 
+    // --- Event Listener para el envío del formulario ---
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (!(submitButton instanceof HTMLButtonElement) || !(status instanceof HTMLElement)) return;
@@ -300,6 +324,7 @@ const initialStatusText =
       submitButton.disabled = false;
     });
 
+    // --- BroadcastChannel para actualizaciones en tiempo real ---
     const channel = new BroadcastChannel(`comments-${slug}`);
     channel.onmessage = (event) => {
       if (event.data.type === 'comment-approved') {
@@ -307,6 +332,7 @@ const initialStatusText =
       }
     };
 
+    // Carga inicial de comentarios
     refreshComments();
   });
 </script>

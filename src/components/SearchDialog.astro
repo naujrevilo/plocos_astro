@@ -43,11 +43,18 @@ const label = 'Buscar en Plocos';
   </dialog>
 </div>
 <script is:inline>
+/**
+ * @script
+ * @description Script del lado del cliente para el componente SearchDialog.
+ * Maneja la apertura/cierre del diálogo, la obtención de datos de búsqueda, la lógica de búsqueda en el cliente
+ * y la renderización de los resultados.
+ */
   const root = document.currentScript?.previousElementSibling;
   if (!(root instanceof HTMLElement)) {
     throw new Error('search dialog container not found');
   }
 
+  // Selección de elementos del DOM
   const openButton = root.querySelector('[data-search-open]');
   const dialog = root.querySelector('[data-search-dialog]');
   const input = root.querySelector('[data-search-input]');
@@ -59,9 +66,14 @@ const label = 'Buscar en Plocos';
     throw new Error('search dialog setup failed');
   }
 
+  // Almacena los datos de búsqueda y el estado de carga
   let dataset = [];
   let loaded = false;
 
+  /**
+   * Renderiza los resultados de la búsqueda en el DOM.
+   * @param {Array<object>} items - Los elementos a renderizar.
+   */
   const renderResults = (items) => {
     resultsBox.innerHTML = '';
     if (items.length === 0) {
@@ -96,8 +108,17 @@ const label = 'Buscar en Plocos';
     resultsBox.appendChild(fragment);
   };
 
+  /**
+   * Normaliza el texto eliminando diacríticos y convirtiéndolo a minúsculas.
+   * @param {string} value - El texto a normalizar.
+   * @returns {string}
+   */
   const normaliseText = (value) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
+  /**
+   * Filtra el dataset en función de la consulta de búsqueda.
+   * @param {string} query - La consulta de búsqueda.
+   */
   const search = (query) => {
     const normalised = normaliseText(query.trim());
     if (!normalised) {
@@ -109,6 +130,9 @@ const label = 'Buscar en Plocos';
     renderResults(matches);
   };
 
+  /**
+   * Asegura que los datos de búsqueda se hayan cargado desde la API.
+   */
   const ensureData = async () => {
     if (loaded) {
       return;
@@ -133,6 +157,7 @@ const label = 'Buscar en Plocos';
     renderResults(dataset.slice(0, 10));
   };
 
+  // Event listener para abrir el diálogo
   openButton.addEventListener('click', async () => {
     await ensureData();
     dialog.showModal();
@@ -141,17 +166,20 @@ const label = 'Buscar en Plocos';
     input.focus();
   });
 
+  // Event listener para cerrar el diálogo
   closeButton.addEventListener('click', () => {
     dialog.close();
     openButton.focus();
   });
 
+  // Maneja el evento de cancelación del diálogo (ej. tecla Escape)
   dialog.addEventListener('cancel', (event) => {
     event.preventDefault();
     dialog.close();
     openButton.focus();
   });
 
+  // Event listener para la entrada de texto en el campo de búsqueda
   input.addEventListener('input', (event) => {
     search(event.target.value);
   });

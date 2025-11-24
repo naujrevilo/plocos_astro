@@ -27,18 +27,34 @@
 </template>
 
 <script setup>
+/**
+ * @module Search.vue
+ * @description Un componente de Vue para la búsqueda de artículos en el blog utilizando Algolia.
+ * Proporciona una interfaz de búsqueda desplegable que muestra resultados en tiempo real.
+ */
 import { ref, onMounted } from 'vue';
 
+// Estado para la visibilidad del cuadro de búsqueda
 const isSearchVisible = ref(false);
+// El término de búsqueda introducido por el usuario
 const query = ref('');
+// Los resultados de búsqueda obtenidos de Algolia
 const results = ref([]);
+// Estado de carga para la operación de búsqueda
 const isLoading = ref(false);
-let index = null; // Will be initialized on mount
+// Instancia del índice de Algolia
+let index = null;
 
+// Credenciales de Algolia desde las variables de entorno
 const APP_ID = import.meta.env.PUBLIC_ALGOLIA_APP_ID;
 const API_KEY = import.meta.env.PUBLIC_ALGOLIA_SEARCH_API_KEY;
 const INDEX_NAME = import.meta.env.PUBLIC_ALGOLIA_INDEX_NAME;
 
+/**
+ * @function onMounted
+ * @description Se ejecuta cuando el componente se monta. Importa dinámicamente el cliente de Algolia
+ * y lo inicializa para evitar cargarlo en el lado del servidor.
+ */
 onMounted(async () => {
   try {
     const { default: algoliasearch } = await import('algoliasearch/lite');
@@ -49,12 +65,22 @@ onMounted(async () => {
   }
 });
 
+/**
+ * @function toggleSearch
+ * @description Muestra u oculta la interfaz de búsqueda.
+ */
 const toggleSearch = () => {
   isSearchVisible.value = !isSearchVisible.value;
 };
 
+// Temporizador para el debounce de la búsqueda
 let searchTimeout = null;
 
+/**
+ * @function search
+ * @description Realiza una búsqueda en el índice de Algolia con la consulta actual.
+ * Utiliza un debounce para limitar la frecuencia de las solicitudes de búsqueda.
+ */
 const search = () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(async () => {
@@ -71,6 +97,6 @@ const search = () => {
     } finally {
       isLoading.value = false;
     }
-  }, 300); // Debounce search to avoid too many requests
+  }, 300); // Debounce para evitar demasiadas solicitudes
 };
 </script>

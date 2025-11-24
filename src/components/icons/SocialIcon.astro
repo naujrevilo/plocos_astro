@@ -1,4 +1,12 @@
 ---
+/**
+ * @component SocialIcon
+ * @description Renderiza un icono de red social (Facebook, Instagram, X) o un icono de correo electrónico.
+ * El icono a mostrar se determina por la prop `name`.
+ *
+ * @prop {'facebook' | 'instagram' | 'x' | 'email'} name - El nombre del icono a renderizar.
+ * @prop {string} [class] - Clases CSS adicionales para aplicar al SVG del icono.
+ */
 interface Props {
   name: 'facebook' | 'instagram' | 'x' | 'email';
   class?: string;
@@ -42,4 +50,4 @@ const svgClasses = `${className} fill-current`;
         </svg>
       );
   }
-})()}
+})()

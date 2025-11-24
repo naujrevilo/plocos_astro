@@ -25,6 +25,11 @@ const iconMap: Record<'light' | 'dark' | 'system', string> = {
   </select>
 </label>
 <script is:inline>
+/**
+ * @script
+ * @description Script del lado del cliente para el ThemeToggle. Maneja la detección, aplicación y persistencia
+ * de la preferencia de tema del usuario (claro, oscuro o sistema).
+ */
   (() => {
     const storageKey = 'plocos-theme';
     const wrapper = document.currentScript?.previousElementSibling;
@@ -41,6 +46,7 @@ const iconMap: Record<'light' | 'dark' | 'system', string> = {
       throw new Error('theme toggle select missing');
     }
 
+    // Obtiene la preferencia de tema guardada en localStorage.
     const getStored = () => {
       try {
         const saved = localStorage.getItem(storageKey);
@@ -50,6 +56,7 @@ const iconMap: Record<'light' | 'dark' | 'system', string> = {
       }
     };
 
+    // Aplica la preferencia de tema al documento.
     const setPreference = (mode) => {
       doc.dataset.themePreference = mode;
       if (mode === 'light') {
@@ -61,6 +68,7 @@ const iconMap: Record<'light' | 'dark' | 'system', string> = {
       }
     };
 
+    // Actualiza el valor del select para reflejar el tema activo.
     const reflect = (mode) => {
       select.value = mode;
     };
@@ -69,6 +77,7 @@ const iconMap: Record<'light' | 'dark' | 'system', string> = {
     setPreference(preference);
     reflect(preference);
 
+    // Guarda la preferencia de tema en localStorage.
     const persist = (mode) => {
       try {
         if (mode === 'system') {
@@ -77,10 +86,11 @@ const iconMap: Record<'light' | 'dark' | 'system', string> = {
           localStorage.setItem(storageKey, mode);
         }
       } catch (error) {
-        /* ignore persistence errors */
+        /* ignorar errores de persistencia */
       }
     };
 
+    // Maneja los cambios en la preferencia de color del sistema operativo.
     const handleSystemChange = () => {
       const active = doc.dataset.themePreference ?? 'system';
       if (active === 'system') {
@@ -88,6 +98,7 @@ const iconMap: Record<'light' | 'dark' | 'system', string> = {
       }
     };
 
+    // Event listener para el cambio en el select.
     select.addEventListener('change', (event) => {
       const value = event.target instanceof HTMLSelectElement ? event.target.value : select.value;
       preference = value === 'light' || value === 'dark' ? value : 'system';
@@ -96,6 +107,7 @@ const iconMap: Record<'light' | 'dark' | 'system', string> = {
       reflect(preference);
     });
 
+    // Event listener para cambios en la preferencia de color del sistema.
     media.addEventListener('change', handleSystemChange);
   })();
 </script>

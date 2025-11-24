@@ -1,4 +1,10 @@
----
+---/**
+ * @component PostCard
+ * @description Muestra una tarjeta de vista previa para una publicación del blog, incluyendo la imagen principal,
+ * el título, la fecha, el autor, el resumen, las categorías y las etiquetas.
+ *
+ * @prop {CollectionEntry<'posts'>} post - El objeto de entrada del post desde la colección de contenido de Astro.
+ */
 import { getEntry, type CollectionEntry } from 'astro:content';
 import { labelToSlug } from '../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';

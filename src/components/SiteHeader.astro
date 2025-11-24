@@ -1,4 +1,12 @@
----
+---/**
+ * @component SiteHeader
+ * @description Renderiza la cabecera principal del sitio, incluyendo el logo, la navegación principal (escritorio y móvil),
+ * el conmutador de tema, la búsqueda y el selector de idioma. Gestiona el estado activo de los enlaces de navegación
+ * y la lógica para cambiar entre idiomas manteniendo el contexto de la página actual.
+ *
+ * @prop {string} [currentPath="/"] - La ruta actual de la URL para determinar el enlace activo.
+ * @prop {string} locale - El locale actual para la internacionalización.
+ */
 
 import Search from './Search.vue';
 import ThemeToggle from "./ThemeToggle.astro";
