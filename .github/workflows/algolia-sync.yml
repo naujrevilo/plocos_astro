@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Debug Algolia Index Name
+        run: echo "Algolia Index Name is: ${{ secrets.ALGOLIA_INDEX_NAME }}"
+
       - name: Run Algolia sync script
         run: node src/lib/algoliasearch.js
         env:
