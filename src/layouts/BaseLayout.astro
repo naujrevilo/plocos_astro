@@ -1,4 +1,14 @@
 ---
+/**
+ * @component BaseLayout
+ * @description Un layout base para todas las páginas del sitio. Incluye el encabezado, el pie de página,
+ * metadatos para SEO y scripts esenciales.
+ *
+ * @prop {string} [title] - El título de la página. Si no se proporciona, se utiliza el título del sitio por defecto.
+ * @prop {string} [description] - La descripción de la página para los metadatos SEO. Si no se proporciona, se utiliza la descripción del sitio por defecto.
+ * @prop {string} [image] - La URL de una imagen para los metadatos de Open Graph.
+ * @prop {string} [canonicalUrl] - La URL canónica de la página.
+ */
 import "../styles/tailwind.css";
 import "instantsearch.css/themes/algolia.css";
 import SiteHeader from "../components/SiteHeader.astro";

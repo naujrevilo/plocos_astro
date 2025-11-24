@@ -1,3 +1,8 @@
+/**
+ * @file src/pages/api/comments/moderate.ts
+ * @description Endpoint de la API para moderar comentarios. Permite aprobar o eliminar un comentario por su ID.
+ * @requires Autenticación mediante un token de moderación.
+ */
 import type { APIRoute } from 'astro';
 import { db } from '../../../lib/db';
 import { Comments } from '../../../lib/db/schema';

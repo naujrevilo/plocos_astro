@@ -1,4 +1,15 @@
 ---
+/**
+ * @file src/pages/editor.astro
+ * @description This page provides a list of all blog posts for local editing.
+ * It's designed to be used in a development environment, offering a simple interface
+ * to navigate to the editor page for any given post. Posts are sorted by publication
+ * date in descending order.
+ *
+ * @see getCollection - Used to fetch all posts.
+ * @see BaseLayout - The main layout component for the page.
+ * @see /src/pages/editor/[...id].astro - The destination page for editing a single post.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 

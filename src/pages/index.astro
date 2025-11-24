@@ -1,4 +1,18 @@
 ---
+/**
+ * @file src/pages/index.astro
+ * @description The main landing page of the website.
+ * It displays a hero section with a title, description, and tags, followed by a grid
+ * of the 12 most recent blog posts. It also includes a call-to-action button
+ * that links to the categories page. The content is internationalized based on the
+ * current locale.
+ *
+ * @see getCollection - Used to fetch all published posts.
+ * @see BaseLayout - The main layout component for the page.
+ * @see PostCard - The component used to display each blog post preview.
+ * @see getTranslations - Used to get localized strings for the UI.
+ * @see createLocaleHref - Used to create localized links.
+ */
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';

@@ -1,4 +1,10 @@
 ---
+/**
+ * @file src/pages/blog/index.astro
+ * @description This page displays a paginated list of all blog posts, sorted by publication date.
+ * @see /src/components/PostCard.astro
+ * @see /src/pages/blog/page/[page].astro
+ */
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';

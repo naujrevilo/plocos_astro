@@ -1,4 +1,8 @@
 ---
+/**
+ * @file src/pages/contacto/index.astro
+ * @description This page displays contact information, a contact form, and social media links.
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import SocialIcon from '../../components/icons/SocialIcon.astro';
@@ -113,11 +117,7 @@ const buttonClasses =
       </form>
     </div>
 
-    <div class={cardClasses}>
-      
-      <div id="paypal-container-L9HZ7KPD7S28A" class="mt-4"></div>
-
-    </div>
+    <div
 
     <div class={cardClasses}>
       <h2 class="text-lg font-semibold text-text-primary">{contact.socialHeading}</h2>
@@ -143,12 +143,7 @@ const buttonClasses =
 
     <p class="text-sm opacity-80">{contact.note}</p>
   </section>
-<script is:inline src="https://www.paypal.com/sdk/js?client-id=BAAutVLDry6FJf2iLeWFIYBf66y2A7oy_Z9SD79AJ8jhv9oeV71VK46adlOYMqyCWoJEw8l3MngbRig2aA&components=hosted-buttons&disable-funding=venmo&currency=USD"></script>
-<script is:inline>
-  paypal.HostedButtons({
-    hostedButtonId: "L9HZ7KPD7S28A",
-  }).render("#paypal-container-L9HZ7KPD7S28A");
-</script>
+
 </BaseLayout>
 
 <script is:inline src="https://www.paypal.com/sdk/js?client-id=BAAutVLDry6FJf2iLeWFIYBf66y2A7oy_Z9SD79AJ8jhv9oeV71VK46adlOYMqyCWoJEw8l3MngbRig2aA&components=hosted-buttons&disable-funding=venmo&currency=USD"></script>
