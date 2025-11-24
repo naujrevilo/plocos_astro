@@ -40,7 +40,12 @@ function getAllPosts() {
   return posts;
 }
 
-function extractImageUrl(content) {\n  const match = content.match(/!\\\[.*?\\]\\((.*?)\\)/);\n  return match ? match[1] : null;\n}\n\nasync function syncWithAlgolia() {
+function extractImageUrl(content) {
+  const match = content.match(/!\\\[.*?\\\]\\((.*?)\\)/);
+  return match ? match[1] : null;
+}
+
+async function syncWithAlgolia() {
   const posts = getAllPosts();
 
   const records = posts.map(post => ({
