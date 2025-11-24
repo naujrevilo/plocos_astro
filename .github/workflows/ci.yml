@@ -16,14 +16,14 @@ jobs:
       ANALYTICS_ID: ""
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20.11.1"
-          cache: "pnpm"
       - uses: pnpm/action-setup@v4
         with:
           version: "10.22.0"
           run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.11.1"
+          cache: "pnpm"
       - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
       - name: Generar panel de TinaCMS
