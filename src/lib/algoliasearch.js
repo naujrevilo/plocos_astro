@@ -1,5 +1,7 @@
 import * as dotenv from 'dotenv';
-dotenv.config();
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 import { algoliasearch } from 'algoliasearch';
 import fs from 'fs';
@@ -7,7 +9,7 @@ import path from 'path';
 import matter from 'gray-matter';
 
 // 1. Use the named import and initialize the client
-const client = algoliasearch(process.env.ALGOLIA_APP_ID, process.env.ALGOLIA_WRITE_API_KEY);
+const client = algoliasearch(process.env.ALGOLIA_APP_ID, process.env.ALGOLIA_ADMIN_KEY);
 
 const postsDirectory = path.join(process.cwd(), 'src/content/posts');
 
