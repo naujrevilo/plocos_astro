@@ -8,7 +8,6 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -28,13 +27,11 @@ jobs:
         run: pnpm install
 
       - name: Debug Algolia Index Name
-        env:
-          INDEX_NAME: ${{ secrets.ALGOLIA_INDEX_NAME }}
-        run: echo "Algolia Index Name is: $INDEX_NAME"
+        run: echo "Algolia Index Name is ${{ secrets.ALGOLIA_INDEX_NAME }}"
 
       - name: Run Algolia sync script
-        run: node src/lib/algoliasearch.js
         env:
           ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
           ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
           ALGOLIA_INDEX_NAME: ${{ secrets.ALGOLIA_INDEX_NAME }}
+        run: node src/lib/algoliasearch.js
