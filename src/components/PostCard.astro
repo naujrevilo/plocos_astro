@@ -51,7 +51,7 @@ const heroImageAlt = data.heroImageAlt?.trim() || `${imageAltPrefix} ${data.titl
   )}
   <div class="flex flex-1 flex-col gap-4 px-6 py-6">
     <div class="flex items-center justify-between text-xs uppercase tracking-wide text-text-secondary opacity-80">
-  <time datetime={data.pubDate.toISOString()} class="font-semibold text-text-secondary">
+  <time datetime={data.pubDate.toLocaleDateString()} class="font-semibold text-text-secondary">
         {formattedDate}
       </time>
       <span class="flex items-center gap-1 text-[0.7rem] text-text-secondary">
