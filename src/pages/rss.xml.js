@@ -1,14 +1,3 @@
-/**
- * @file src/pages/rss.xml.js
- * @description Generates an RSS feed for the blog posts.
- * This endpoint fetches the 50 most recent, non-draft posts for the default locale,
- * and constructs an RSS 2.0 XML feed. The feed includes the post title, link,
- * publication date, and summary.
- *
- * @see getCollection - Used to fetch all published posts for the default locale.
- * @see getTranslations - Used to get localized path segments.
- * @see createLocaleHref - Used to construct the full URL for each post.
- */
 import { getCollection } from 'astro:content';
 import { defaultLocale, getTranslations } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';

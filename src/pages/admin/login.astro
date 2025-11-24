@@ -1,13 +1,8 @@
 ---
-/**
- * @file src/pages/admin/login.astro
- * @description Página de inicio de sesión para administradores. Utiliza un token para autenticar y redirigir a la página de moderación.
- * @component
- */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const COOKIE_NAME = 'plocos-comments-token';
-const redirectUrl = Astro.url.searchParams.get('redirect') || '/admin/comments';
+
 
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();

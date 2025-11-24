@@ -1,8 +1,3 @@
-/**
- * @file src/pages/api/posts.json.ts
- * @description API endpoint to get all posts in JSON format.
- * @returns {Response} - A JSON response with the posts.
- */
 import { getCollection } from 'astro:content';
 import type { Locale } from '../../lib/i18n';
 

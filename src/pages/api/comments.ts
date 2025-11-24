@@ -1,20 +1,3 @@
-/**
- * @file src/pages/api/comments.ts
- * @description API endpoint for managing comments.
- *
- * @method GET
- * @description Fetches approved comments for a given post slug and locale.
- * @param {string} slug - The slug of the post.
- * @param {string} locale - The locale of the post.
- * @returns {Response} - A JSON response with the comments or an error message.
- *
- * @method POST
- * @description Creates a new comment for a given post slug.
- * @param {Request} request - The request object, containing the comment data in the body.
- * @returns {Response} - A JSON response with a success or error message.
- *
- * @see {@link /src/pages/admin/comments.astro} - The page that uses this endpoint to display and moderate comments.
- */
 import type { APIRoute } from 'astro';
 import { db } from '../../lib/db';
 import { Comments } from '../../lib/db/schema';

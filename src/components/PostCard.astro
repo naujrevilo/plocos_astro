@@ -9,7 +9,6 @@ import { getEntry, type CollectionEntry } from 'astro:content';
 import { labelToSlug } from '../lib/taxonomy';
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
-import { parseDate } from '../lib/date';
 
 interface Props {
   post: CollectionEntry<'posts'>;
@@ -31,7 +30,7 @@ const categoriesData = (
 ).filter(Boolean) as CollectionEntry<'categories'>[];
 const author = data.author ?? 'Michel Saer';
 const labelPath = translations.paths.labels;
-const formattedDate = parseDate(data.pubDate).toLocaleDateString(locale, {
+const formattedDate = new Date(data.pubDate).toLocaleDateString(locale, {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
@@ -52,7 +51,7 @@ const heroImageAlt = data.heroImageAlt?.trim() || `${imageAltPrefix} ${data.titl
   )}
   <div class="flex flex-1 flex-col gap-4 px-6 py-6">
     <div class="flex items-center justify-between text-xs uppercase tracking-wide text-text-secondary opacity-80">
-  <time datetime={parseDate(data.pubDate).toISOString()} class="font-semibold text-text-secondary">
+  <time datetime={data.pubDate.toISOString()} class="font-semibold text-text-secondary">
         {formattedDate}
       </time>
       <span class="flex items-center gap-1 text-[0.7rem] text-text-secondary">

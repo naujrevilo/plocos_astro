@@ -1,8 +1,3 @@
-/**
- * @module db
- * @description Este módulo inicializa y exporta la conexión a la base de datos utilizando Drizzle ORM y libSQL.
- * Lee la URL de la base de datos y el token de autenticación de las variables de entorno.
- */
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import * as schema from './db/schema';

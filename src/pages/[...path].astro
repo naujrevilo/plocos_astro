@@ -1,15 +1,4 @@
 ---
-/**
- * @file src/pages/[...path].astro
- * @description This page handles legacy URL redirection for blog posts.
- * It captures a slug from the URL, finds the corresponding post, and issues a
- * 301 permanent redirect to the correct new URL format (`/blog/[slug]`).
- * This is crucial for SEO and maintaining link equity from old URLs.
- * If no matching post is found, Astro's default 404 page is rendered.
- *
- * @see getCollection - Used to fetch all posts for slug matching.
- * @see Astro.redirect - Used to perform the 301 redirect.
- */
 import { getCollection } from 'astro:content';
 
 const { path } = Astro.params;

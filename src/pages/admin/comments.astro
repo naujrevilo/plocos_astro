@@ -1,11 +1,4 @@
 ---
-/**
- * @file src/pages/admin/comments.astro
- * @description Página de moderación de comentarios. Permite a un administrador aprobar o eliminar comentarios.
- * @component
- * @see {@link /api/comments/moderate} - Endpoint para moderar comentarios.
- * @see {@link /admin/login} - Página de inicio de sesión para acceder a la moderación.
- */
 export const prerender = false;
 import { db } from '../../lib/db';
 import { Comments as CommentsTable } from '../../lib/db/schema';

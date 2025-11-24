@@ -1,9 +1,3 @@
-/**
- * @module i18n
- * @description Este módulo gestiona la internacionalización (i18n) del sitio.
- * Define los idiomas soportados, las traducciones de texto para cada idioma y
- * funciones de utilidad para obtener las traducciones correctas y crear enlaces localizados.
- */
 export const locales = ['es', 'en'] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = 'es';
@@ -361,7 +355,7 @@ export const translations: Record<Locale, Translation> = {
       },
     },
     terms: {
-      metaTitle: 'Térmimos del sitio · Plocos',
+      metaTitle: 'Términos del sitio · Plocos',
       metaDescription:
         'Condiciones de uso y lineamientos editoriales del archivo digital Plocos.',
       title: 'Términos del sitio',
@@ -518,8 +512,8 @@ export const translations: Record<Locale, Translation> = {
       title: 'Our reason for being',
       paragraphs: [
         'It is not merely a term of my own invention, or the idea that gave rise to this virtual proposal; it is the anchor for generating new thoughts or even ideas. A "Thought Block" (a fusion of the Spanish word "pensamiento" and the French word "bloc"), and the central element of this art and philosophy portal.',
-        'It is a piece of content, whether a rigorous argument, a textual rumination, or a symbolic verse, designed to unleash reflection in the reader. It is born with the intention of establishing a different kind of dialogue, in a synthetic and universal way. In its most concise forms, it can be presented as a single image or verse that offers a dense and concrete concept that the reader can integrate into their own experience, transforming or enriching their thinking.',
-        'It is a deliberate bet on revelation over simple narrative, seeking to turn distraction into a deeply relevant connection. Its brevity is deliberate; it does not seek to be "easy," but powerful. They are refined pieces that aim for a conceptual "anchoring" with a short investment of time, seeking immediate aesthetic or intellectual connection.',
+        'It is a piece of content, whether a rigorous argument, a textual elaboration or a symbolic verse, designed to spark reflection in the reader. It was created with the intention of establishing a different dialogue, in a synthetic and universal way. In its most concise forms, it can be presented as a single image or verse that offers a dense and concrete concept that the reader can integrate into their own experience, transforming or enriching their thinking.',
+        'It is a deliberate commitment to revelation over simple narrative, seeking to turn distraction into a deeply relevant connection. Its brevity is deliberate; it does not seek to be "easy", but powerful. These are refined pieces that aim for a conceptual "anchor" with a short investment of time, seeking immediate aesthetic or intellectual connection.',
       ],
     },
     categories: {
@@ -527,150 +521,140 @@ export const translations: Record<Locale, Translation> = {
       metaDescription: 'Explore the categories that organize Plocos’ work.',
       title: 'Categories',
       description: [
-        'You will come across categories titled in Latin; for example, "Ex lateribus cogite" which translates to: Think from the sides/outside the box. Selections, whose intention is not to confuse, but to create a space that seeks to position itself as intellectual and reflective.',
-        'Not only visual as it is analytical and discursive. Where concepts that value writing either as a tool for analysis (philosophy) or as an end in itself (art) are styled.',
-        'I have tried to maintain a cultured, articulate writing supported by a philosophical reading base, preserving a conceptual originality. In them, you will find the ploco, (Thought Block), which addresses complex issues from fresh angles.',
+        'You will encounter categories with Latin titles; for example, "Ex lateribus cogite", which translates as: Think outside the box. Selections, whose aim is not to confuse, but to create a space that seeks to position itself as intellectual and reflective.',
+        'Not only visual, as it is analytical and discursive. Where concepts that value writing are used, either as a tool for analysis (philosophy) or as an end in itself (art).',
+        'I tried to maintain a cultured, articulate style based on philosophical reading, while preserving conceptual originality. In them, you will find the ploco (thought block), which addresses complex issues from fresh angles.',
       ],
       badge: 'Category',
       backLink: '← All categories',
-      empty: 'No posts associated yet, try the search or explore other categories.',
+      empty: 'There are no publications yet. Try the search bar or explore other categories.',
       fallbackDescriptionPrefix: 'Archive',
       count: {
-        singular: 'selected post.',
-        plural: 'selected posts.',
+        singular: 'selected publication.',
+        plural: 'selected publications.',
       },
     },
     labelsList: {
-      metaTitle: 'Labels · Plocos',
-      metaDescription: 'Explore the tags and concepts that run through the Plocos archive.',
-      title: 'Archive labels',
+      metaTitle: 'Tags · Plocos',
+      metaDescription: 'Explore the tags and concepts that weave through the Plocos archive.',
+      title: 'Archive tags',
       description:
-        'Discover the complete Plocos archive filtered by thematic tags, recurring symbols, and curatorial projects. Select a tag to delve into its publications.',
-      badge: 'Label',
+        'Browse Plocos’ entire archive filtered by thematic tags, recurring symbols, and curatorial projects. Choose a tag to dive deeper into its publications.',
+      badge: 'Tag',
       count: {
-        singular: 'post',
-        plural: 'posts',
+        singular: 'publication',
+        plural: 'publications',
       },
     },
     labelsDetail: {
-      backLink: '← All labels',
-      badge: 'Label',
+      backLink: '← All tags',
+      badge: 'Tag',
       count: {
-        singular: 'post associated with this label.',
-        plural: 'posts associated with this label.',
+        singular: 'publication associated with this tag.',
+        plural: 'publications associated with this tag.',
       },
-      descriptionPrefix: 'Posts tagged as',
+      descriptionPrefix: 'Entries tagged as',
     },
     posts: {
       backToHome: '← Back to home',
       updatedPrefix: 'Updated on',
-      originalLabel: 'Original post',
+      originalLabel: 'Original publication',
       footerNote: 'Reflections and art by Plocos.',
       imageAlt: 'Illustration of',
-      defaultDescriptionPrefix: 'Post published on',
+      defaultDescriptionPrefix: 'Entry published on',
       navigation: {
         terms: 'terms',
         heading: 'Navigation',
-        previous: '← Previous post',
-        next: 'Next post →',
+        previous: '← Previous entry',
+        next: 'Next entry →',
       },
       share: {
         heading: 'Share',
         x: 'Share on X',
         facebook: 'Share on Facebook',
         instagram: 'Share on Instagram',
-        email: 'Send via email',
+        email: 'Send by email',
       },
-      comments: {
-        heading: 'Comments',
-        description:
-          'Join the conversation with respect and context. Each contribution is editorially reviewed before being published.',
-        empty: 'No comments have been published yet. Be the first to write.',
-        pending:
-          'Comment received. We will review it before publishing to take care of the archive.',
-        success: 'Thanks for contributing to the conversation!',
-        error:
-          'We could not send your comment. Please try again in a few minutes or contact us directly.',
-        nameLabel: 'Name',
-        emailLabel: 'Email (optional, only to reply to you)',
-        messageLabel: 'Comment',
-        submitLabel: 'Send comment',
-        moderationNotice:
-          'We moderate each comment to ensure the conversation remains respectful and in line with Plocos’ editorial guidelines.',
-      },
+        comments: {
+          heading: 'Comments',
+          description:
+            'Join the conversation with context and respect. Every contribution goes through editorial moderation before it appears.',
+          empty: 'No comments have been published yet. Be the first to share your thoughts.',
+          pending: 'Comment received. We will review it before publishing to safeguard the archive.',
+          success: 'Thanks for contributing to the conversation!',
+          error:
+            'We could not send your comment. Please try again shortly or reach out via email.',
+          nameLabel: 'Name',
+          emailLabel: 'Email (optional, used only to reply)',
+          messageLabel: 'Comment',
+          submitLabel: 'Post comment',
+          moderationNotice:
+            'We moderate each comment to keep the discussion aligned with Plocos’ editorial standards.',
+        },
     },
     terms: {
-      metaTitle: 'Site terms · Plocos',
-      metaDescription: 'Terms of use and editorial guidelines for the Plocos digital archive.',
-      title: 'Site terms',
+      metaTitle: 'Site Terms · Plocos',
+      metaDescription:
+        'Usage guidelines and editorial policies for the Plocos digital archive.',
+      title: 'Site Terms',
       updatedLabel: 'Last updated',
       updatedValue: 'November 8, 2025',
       introduction:
-        'By accessing Plocos you agree to the guidelines that protect this archive and guide its responsible use.',
+        'By accessing Plocos you agree to the guidelines that protect this archive and ensure responsible use.',
       sections: [
         {
-          heading: 'Editorial use of content',
+          heading: 'Editorial use of the content',
           body:
-            'The works published in Plocos—texts, images, and any artistic expression—are the exclusive property of the author unless otherwise indicated. The archive is offered for personal, educational, and cultural consultation; any reuse requires written authorization requested through the official contact channels.',
+            'Works published on Plocos—texts, images, and every form of artistic expression—remain the exclusive property of the author unless otherwise noted. The archive is provided for personal, educational, and cultural reference; any reuse requires written permission requested through our official contact channels.',
         },
         {
-          heading: 'Expressly prohibited uses',
+          heading: 'Explicitly prohibited uses',
           body:
-            'It is not permitted to distribute or host Plocos material on media that violate the ethics of this archive. In particular, it is prohibited to reuse it in projects that:',
+            'The material may not be distributed or hosted in contexts that compromise the ethics of this archive. In particular, it cannot be reused in projects that:',
           bullets: [
-            'Infringe or contravene human dignity and its principles.',
+            'Infringe or undermine human dignity and its principles.',
             'Violate the rights of children and adolescents.',
-            'Are unconstitutional or contrary to law.',
-            'Limit freedom of expression in any of its forms.',
+            'Are unconstitutional or unlawful.',
+            'Restrict freedom of expression in any of its forms.',
             'Promote violence, sexual exploitation, terrorism, racism, obscenity, or pornographic material.',
-            'Disseminate P2P links, torrents, direct downloads, or other schemes intended to profit from protected material.',
+            'Distribute P2P links, torrents, direct downloads, or other schemes intended to profit from copyrighted works.',
           ],
         },
         {
           heading: 'Copyright',
           body:
-            'All work retains its rights. Any approved reproduction must cite the source, preserve the integrity of the piece, and respect the original context.',
+            'Every work retains its copyright. Any approved reproduction must credit the source, preserve the integrity of the piece, and respect the original context.',
         },
         {
-          heading: 'Contributions and comments',
+          heading: 'Contributions and feedback',
           body:
-            'If you share material or annotations with the archive, we may adjust style and format to maintain editorial consistency. The submission of content implies that you have the necessary permissions.',
+            'When you share materials or notes with the archive, we may adjust style and formatting to maintain editorial coherence. Submitting content assumes you hold the necessary permissions.',
         },
         {
           heading: 'Editorial responsibility',
           body:
-            'The use that third parties make of the content—with or without our consent—does not imply endorsement of their opinions, messages, or positions. We reject any interpretation that seeks to link Plocos with external agendas.',
+            'The way third parties use this content—whether or not we granted permission—does not imply that Plocos endorses their opinions, messages, or agendas. We reject any interpretation that attempts to link the archive to unrelated initiatives.',
         },
         {
           heading: 'Privacy and data',
           body:
-            'We do not collect personal data beyond the information essential to respond to your messages. Anonymous metrics are periodically reviewed to improve the experience.',
+            'We do not collect personal data beyond what is essential to reply to your messages. Anonymous metrics are reviewed periodically to improve the experience.',
         },
       ],
       contactNotice:
-        'If you need additional clarity or wish to process specific permissions, contact us and we will review your request.',
-      contactLinkLabel: 'Go to contact',
+        'If you need further clarification or want to process specific permissions, get in touch and we will review your request.',
+      contactLinkLabel: 'Contact us',
     },
   },
 };
 
-/**
- * Obtiene el objeto de traducción para un idioma específico.
- * @param {Locale} locale - El idioma para el que se obtendrán las traducciones.
- * @returns {Translation} El objeto de traducción para el idioma especificado.
- */
-export function getTranslations(locale: Locale): Translation {
-  return translations[locale];
+export function getTranslations(locale?: string) {
+  if (locale && locale in translations) {
+    return translations[locale as Locale];
+  }
+  return translations[defaultLocale];
 }
 
-/**
- * Crea una URL localizada para una ruta, anteponiendo el prefijo del idioma si no es el idioma por defecto.
- * @param {string} path - La ruta a localizar.
- * @param {Locale} locale - El idioma de destino.
- * @returns {string} La URL localizada.
- */
-export function createLocaleHref(path: string, locale: Locale): string {
-  const isDefaultLocale = locale === defaultLocale;
-  const localePath = isDefaultLocale ? '' : `/${locale}`;
-  return `${localePath}/${path}`.replace(/\/$/, '') || '/';
+export function getLocalePath(_locale: Locale, path: string) {
+  return path.startsWith('/') ? path.slice(1) : path;
 }

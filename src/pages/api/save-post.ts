@@ -1,8 +1,3 @@
-/**
- * @file src/pages/api/save-post.ts
- * @description API endpoint to save changes to a post.
- * @returns {Response} - A JSON response with a success or error message.
- */
 import type { APIRoute } from 'astro';
 import fs from 'fs';
 import path from 'path';
