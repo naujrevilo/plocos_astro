@@ -1,17 +1,18 @@
----/**
+---
+/**
  * @component PostCard
  * @description Muestra una tarjeta de vista previa para una publicación del blog, incluyendo la imagen principal,
  * el título, la fecha, el autor, el resumen, las categorías y las etiquetas.
  *
  * @prop {CollectionEntry<'posts'>} post - El objeto de entrada del post desde la colección de contenido de Astro.
  */
-import { getEntry, type CollectionEntry } from 'astro:content';
-import { labelToSlug } from '../lib/taxonomy';
-import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
-import { createLocaleHref } from '../lib/routes';
+import { getEntry, type CollectionEntry } from "astro:content";
+import { labelToSlug } from "../lib/taxonomy";
+import { defaultLocale, getTranslations, type Locale } from "../lib/i18n";
+import { createLocaleHref } from "../lib/routes";
 
 interface Props {
-  post: CollectionEntry<'posts'>;
+  post: CollectionEntry<"posts">;
 }
 
 const { post } = Astro.props;
@@ -22,36 +23,47 @@ const postUrl = createLocaleHref(locale, `blog/${post.slug}`);
 const labels = data.labels ?? [];
 const categorySlugs = Array.isArray(data.category)
   ? data.category
-  : typeof data.category === 'string'
-  ? [data.category]
-  : [];
+  : typeof data.category === "string"
+    ? [data.category]
+    : [];
 const categoriesData = (
-  await Promise.all(categorySlugs.map((slug) => getEntry('categories', slug)))
-).filter(Boolean) as CollectionEntry<'categories'>[];
-const author = data.author ?? 'Michel Saer';
+  await Promise.all(categorySlugs.map((slug) => getEntry("categories", slug)))
+).filter(Boolean) as CollectionEntry<"categories">[];
+const author = data.author ?? "Michel Saer";
 const labelPath = translations.paths.labels;
 const formattedDate = new Date(data.pubDate).toLocaleDateString(locale, {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
+  year: "numeric",
+  month: "long",
+  day: "numeric",
 });
 const imageAltPrefix = translations.posts.imageAlt;
-const heroImageAlt = data.heroImageAlt?.trim() || `${imageAltPrefix} ${data.title}`;
+const heroImageAlt =
+  data.heroImageAlt?.trim() || `${imageAltPrefix} ${data.title}`;
 ---
-<article class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-elevated shadow-contemplation transition hover:border-accent">
-  {data.heroImage && (
-    <a href={postUrl} class="block overflow-hidden">
-      <img
-        src={data.heroImage}
-        alt={heroImageAlt}
-        loading="lazy"
-        class="h-60 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-      />
-    </a>
-  )}
+
+<article
+  class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-elevated shadow-contemplation transition hover:border-accent"
+>
+  {
+    data.heroImage && (
+      <a href={postUrl} class="block overflow-hidden">
+        <img
+          src={data.heroImage}
+          alt={heroImageAlt}
+          loading="lazy"
+          class="h-60 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+        />
+      </a>
+    )
+  }
   <div class="flex flex-1 flex-col gap-4 px-6 py-6">
-    <div class="flex items-center justify-between text-xs uppercase tracking-wide text-text-secondary opacity-80">
-  <time datetime={data.pubDate.toLocaleDateString()} class="font-semibold text-text-secondary">
+    <div
+      class="flex items-center justify-between text-xs uppercase tracking-wide text-text-secondary opacity-80"
+    >
+      <time
+        datetime={data.pubDate.toLocaleDateString()}
+        class="font-semibold text-text-secondary"
+      >
         {formattedDate}
       </time>
       <span class="flex items-center gap-1 text-[0.7rem] text-text-secondary">
@@ -64,37 +76,54 @@ const heroImageAlt = data.heroImageAlt?.trim() || `${imageAltPrefix} ${data.titl
           {data.title}
         </a>
       </h2>
-      {data.summary && (
-        <p class="line-clamp-4 text-sm leading-relaxed text-text-secondary">
-          {data.summary}
-        </p>
-      )}
+      {
+        data.summary && (
+          <p class="line-clamp-4 text-sm leading-relaxed text-text-secondary">
+            {data.summary}
+          </p>
+        )
+      }
     </div>
-    {categoriesData.length > 0 && (
-      <ul class="flex flex-wrap gap-2 text-[0.7rem] text-text-secondary">
-        {categoriesData.map((category) => (
-          <li class="rounded-full border border-border-subtle px-3 py-1 uppercase tracking-wide" style={`background-color: ${category.data.color}`}>
-            <a href={createLocaleHref(locale, `${translations.paths.categories}/${category.slug}`)}>
-              {category.data.title}
-            </a>
-          </li>
-        ))}
-      </ul>
-    )}
-    {labels.length > 0 && (
-      <ul class="mt-auto flex flex-wrap gap-2 text-xs text-text-accent">
-        {labels.map((label: string) => (
-          <li>
-            <a
-              href={createLocaleHref(locale, `${labelPath}/${labelToSlug(label)}`)}
-              class="inline-flex items-center gap-2 rounded-full border border-accent-muted bg-accent-soft px-3 py-1 transition hover:border-accent hover:text-text-primary"
+    {
+      categoriesData.length > 0 && (
+        <ul class="flex flex-wrap gap-2 text-[0.7rem] text-text-secondary">
+          {categoriesData.map((category) => (
+            <li
+              class="rounded-full border border-border-subtle px-3 py-1 uppercase tracking-wide"
+              style={`background-color: ${category.data.color}; color: white;`}
             >
-              <span class="h-1.5 w-1.5 rounded-full bg-accent" />
-              {label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    )}
+              <a
+                href={createLocaleHref(
+                  locale,
+                  `${translations.paths.categories}/${category.slug}`,
+                )}
+              >
+                {category.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+    {
+      labels.length > 0 && (
+        <ul class="mt-auto flex flex-wrap gap-2 text-xs text-text-accent">
+          {labels.map((label: string) => (
+            <li>
+              <a
+                href={createLocaleHref(
+                  locale,
+                  `${labelPath}/${labelToSlug(label)}`,
+                )}
+                class="inline-flex items-center gap-2 rounded-full border border-accent-muted bg-accent-soft px-3 py-1 transition hover:border-accent hover:text-text-primary"
+              >
+                <span class="h-1.5 w-1.5 rounded-full bg-accent" />
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
   </div>
 </article>
