@@ -4,6 +4,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 const COOKIE_NAME = 'plocos-comments-token';
 
 
+const redirectUrl = Astro.url.searchParams.get('redirect') ?? '/admin/comments';
+
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
   const token = formData.get('token')?.toString() ?? '';
