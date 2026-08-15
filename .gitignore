@@ -45,3 +45,6 @@ node_modules
 # Local database
 local.db
 local.db-journal
+
+# Agentic tool layer (skills, registry, workspace state)
+.atl/
