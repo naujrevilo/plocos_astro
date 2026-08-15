@@ -90,9 +90,10 @@ const heroImageAlt =
           {categoriesData.map((category) => (
             <li
               class="rounded-full border border-border-subtle px-3 py-1 uppercase tracking-wide"
-              style={`background-color: ${category.data.color}; color: white;`}
+              style={`background-color: ${category.data.color}; color: white; text-decoration: none;`}
             >
               <a
+                class="text-white hover:text-white"
                 href={createLocaleHref(
                   locale,
                   `${translations.paths.categories}/${category.slug}`,
