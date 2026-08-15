@@ -1,9 +1,5 @@
 # build output
 dist/
-# TinaCMS build output
-public/admin/assets/
-public/tina-admin/
-tina/__generated__/
 # Netlify build output
 .netlify/
 # generated types
@@ -30,7 +26,6 @@ pnpm-debug.log*
 # GitHub metadata (allow workflows and instructions to be tracked)
 !.github/
 !.github/**
-
 
 # jetbrains setting folder
 .idea/

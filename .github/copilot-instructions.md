@@ -1,4 +1,5 @@
-<!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
+<!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/editor/customrepos#_customizing-github-copilot -->
+
 - [x] Verify that the copilot-instructions.md file in the .github directory is created. (created file)
 
 - [x] Clarify Project Requirements (requirements provided by user request)
@@ -14,7 +15,7 @@
 	Otherwise, create the project structure manually using available file creation tools.
 	-->
 
-- [x] Customize the Project (hero image alt configurable desde Tina y consumido en el sitio)
+- [x] Customize the Project
 	<!--
 	Verify that all previous steps have been completed successfully and you have marked the step as completed.
 	Develop a plan to modify codebase according to user requirements.
@@ -22,8 +23,8 @@
 	Skip this step for "Hello World" projects.
 	-->
 
-- [x] Install Required Extensions (no extensions indicadas)
-	<!-- ONLY install extensions provided mentioned in the get_project_setup_info. Skip this step otherwise and mark as completed. -->
+- [x] Install Required Extensions (no extensions indicated)
+	<!-- ONLY install extensions provided mentioned in the get_project_setup_info. Skip this step otherwise and mark it as completed. -->
 
 - [ ] Compile the Project
 	<!--
@@ -67,7 +68,7 @@ COMMUNICATION RULES:
 - Keep explanations concise and focused.
 
 DEVELOPMENT RULES:
-- Use '.' as the working directory unless user specifies otherwise.
+- Use '.' as the current directory unless the user specifies otherwise.
 - Avoid adding media or external links unless explicitly requested.
 - Use placeholders only with a note that they should be replaced.
 - Use VS Code API tool only for VS Code extension projects.
@@ -90,7 +91,7 @@ PROJECT CONTENT RULES:
 - If you need to use any media assets as placeholders, let the user know that these are placeholders and should be replaced with the actual assets later.
 - Ensure all generated components serve a clear purpose within the user's requested workflow.
 - If a feature is assumed but not confirmed, prompt the user for clarification before including it.
-- If you are working on a VS Code extension, use the VS Code API tool with a query to find relevant VS Code API references and samples related to that query.
+- If you are using a VS Code extension API tool to query for VS Code API references and samples related to your query, do so.
 
 TASK COMPLETION RULES:
 - Your task is complete when:

@@ -10,9 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
-      TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
-      TINA_BRANCH: main
       ANALYTICS_ID: ""
     steps:
       - uses: actions/checkout@v4
@@ -26,8 +23,6 @@ jobs:
           cache: "pnpm"
       - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
-      - name: Generar panel de TinaCMS
-        run: pnpm run tinacms:build
       - name: Chequeo de tipos de Astro
         run: pnpm run astro check
       - name: Compilar proyecto

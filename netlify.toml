@@ -1,18 +1,12 @@
 # Configuración de construcción para Netlify
 [build]
-  command = "pnpm run tinacms:build && pnpm build --remote"
+  command = "pnpm build --remote"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "22.21.1"
   PNPM_VERSION = "10.22.0"
   NETLIFY_USE_PNPM = "true"
-
-# Enrutamiento para la SPA del panel de TinaCMS
-[[redirects]]
-  from = "/tina-admin/*"
-  to = "/tina-admin/index.html"
-  status = 200
 
 [functions]
   included_files = ["db/**"]

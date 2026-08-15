@@ -1,72 +1,19 @@
-# Plocos — Archivo digital con Astro + TinaCMS
+# Plocos — Archivo digital con Astro
 
-Sitio estático moderno que preserva el archivo histórico de [plocos.com](https://www.plocos.com/) usando Astro 5, Tailwind CSS 3 y TinaCMS 2 como panel editorial local. El repositorio contiene scripts de migración desde Blogger, colecciones tipadas y un flujo de trabajo local sin dependencias externas.
+Sitio estático moderno que preserva el archivo histórico de [plocos.com](https://www.plocos.com/) usando Astro 5 y Tailwind CSS 3. El repositorio contiene scripts de migración desde Blogger, colecciones tipadas y un flujo de trabajo local.
 
 
 ## Cambios recientes (v0.1.4)
 ## Estado actual del proyecto
 ## Versión 0.1.4
-**v0.1.4** — 16/11/2025
-# Identificador público de tu proyecto en Tina Cloud.
 **v0.1.5** — 16/11/2025
-# Token con permisos de escritura para Tina Cloud. Mantén este valor privado.
-TINA_TOKEN=tu_token
-# Rama por defecto que debe editar Tina (generalmente main).
-TINA_BRANCH=main
-- **UI social**: Botones de compartir y redes reducidos a íconos accesibles reutilizan el componente `SocialIcon`.
 ## Variables de entorno
 
 - Duplica el archivo `.env.example` como `.env` y rellena los valores. El ID de Google Analytics (`ANALYTICS_ID`) es opcional; déjalo vacío para desactivar la medición.
-- No subas jamás el `.env` al repositorio. `TINA_TOKEN` es un secreto con permisos de escritura y debe guardarse únicamente en gestores seguros (GitHub Secrets, Netlify Environment).
+- No subas jamás el `.env` al repositorio.
 - En entornos locales añade las variables a `.env`; en Netlify defínelas desde la interfaz de configuración (Site settings → Build & deploy → Environment).
 - Para conectar Astro DB a Turso define `ASTRO_DB_REMOTE_URL` y `ASTRO_DB_APP_TOKEN`. Genera las credenciales con el CLI de Turso (`turso db show` / `turso db tokens create`) y ejecútalas en local y en el proveedor de hosting.
 - Define un `COMMENTS_MODERATION_TOKEN` (cualquier cadena segura). El panel `/admin/comments` y el endpoint `/api/comments/moderate` lo usan para autenticar las acciones de aprobación/eliminación.
-| Comando | Descripción |
-## Despliegue con Netlify + Tina Cloud
-
-- Netlify usa el archivo `netlify.toml`; el comando de build ejecuta `pnpm run tinacms:build && pnpm build` y publica la carpeta `dist/`.
-- Configura en Netlify (Site settings → Build & deploy → Environment) los valores:
-  - `TINA_PUBLIC_CLIENT_ID` y `TINA_TOKEN` provistos por Tina Cloud (asegúrate de que el proyecto exista y las credenciales sean válidas).
-  - `TINA_BRANCH` con la rama por defecto (`main`, salvo que uses otra).
-  - `PUBLIC_SITE_URL` con la URL definitiva del sitio.
-  - `ANALYTICS_ID` si usas GA4.
-- Habilita “Deploy Previews” para revisar cambios de contenido en ramas antes de fusionarlos.
-- La SPA del panel (`/admin`) queda disponible tras ejecutar `tinacms build`; Netlify aplica una redirección interna para permitir rutas internas del panel.
-## Documentación y changelog
-
-La documentación técnica y el changelog se encuentran en la carpeta `docs/`.
-Revisa `docs/README-usuario.md` para instrucciones de uso y `docs/CHANGELOG.md` para el historial de cambios agrupados.
-
-
-## Versión 0.1.2
-**v1.3.0** — 16/11/2025
- **Framework**: Astro 5.15 con TypeScript habilitado mediante `astro:content`.
-## Desarrollo local
-
-1. Ejecuta `pnpm tinacms:dev` para lanzar Astro y el datalayer de TinaCMS.
-2. Abre `http://localhost:4321/admin/index.html` (sirve el archivo de `public/admin`) y el panel cargará los assets desde `http://localhost:4101` mientras la API GraphQL escucha en `http://localhost:4001`.
-3. Las ediciones se escriben directamente sobre los archivos Markdown del repositorio; no se requiere backend remoto.
-
-> Nota: si los puertos 4321 u 4101 están ocupados, libera los procesos antes de iniciar TinaCMS (por ejemplo `npx kill-port 4321 4101 4001 9000`).
-
-## Variables de entorno
-
-- Duplica el archivo `.env.example` como `.env` y rellena los valores. El ID de Google Analytics (`ANALYTICS_ID`) es opcional; déjalo vacío para desactivar la medición.
-- No subas jamás el `.env` al repositorio. `TINA_TOKEN` es un secreto con permisos de escritura y debe guardarse únicamente en gestores seguros (GitHub Secrets, Netlify Environment).
-- En entornos locales añade las variables a `.env`; en CI/Netlify defínelas desde la interfaz de configuración.
-- Para conectar Astro DB a Turso define `ASTRO_DB_REMOTE_URL` y `ASTRO_DB_APP_TOKEN`. Genera las credenciales con el CLI de Turso (`turso db show` / `turso db tokens create`) y ejecútalas en local y en el proveedor de hosting.
-- Define un `COMMENTS_MODERATION_TOKEN` (cualquier cadena segura). El panel `/admin/comments` y el endpoint `/api/comments/moderate` lo usan para autenticar las acciones de aprobación/eliminación.
-
-## Despliegue con Netlify + Tina Cloud
-
-- Netlify usa el archivo `netlify.toml`; el comando de build ejecuta `pnpm run tinacms:build && pnpm build` y publica la carpeta `dist/`.
-- Configura en Netlify (Site settings → Build & deploy → Environment) los valores:
-  - `TINA_PUBLIC_CLIENT_ID` y `TINA_TOKEN` provistos por Tina Cloud.
-  - `TINA_BRANCH` con la rama por defecto (`main`, salvo que uses otra).
-  - `PUBLIC_SITE_URL` con la URL definitiva del sitio.
-  - `ANALYTICS_ID` si usas GA4.
-- Habilita “Deploy Previews” para revisar cambios de contenido en ramas antes de fusionarlos.
-- La SPA del panel (`/admin`) queda disponible tras ejecutar `tinacms build`; Netlify aplica una redirección interna para permitir rutas internas del panel.
 
 ### Formularios de Netlify
 
@@ -87,34 +34,21 @@ Para moderar sin CLI visita `/admin/comments?token=TU_TOKEN` (solo la primera ve
 
 ### GitHub Actions
 
-- El workflow `/.github/workflows/ci.yml` valida cada push/PR a `main` ejecutando instalación, compilación del panel, `astro check` y `pnpm build`.
-- Define los secretos `TINA_PUBLIC_CLIENT_ID` y `TINA_TOKEN` en *Settings → Secrets and variables → Actions*; sin ellos el pipeline fallará.
+- El workflow `/.github/workflows/ci.yml` valida cada push/PR a `main` ejecutando instalación, `astro check` y `pnpm build`.
+- Define los secretos `ANALYTICS_ID` en *Settings → Secrets and variables → Actions* si usas Google Analytics.
 - Protege la rama `main` exigiendo revisiones y la ejecución satisfactoria del workflow antes de permitir merges.
 
 ### Consideraciones de seguridad
 
 **¡Importante!** El `COMMENTS_MODERATION_TOKEN` nunca debe compartirse ni mostrarse en la interfaz, URL o HTML. Solo se almacena en una cookie httpOnly tras el login y se elimina de la URL automáticamente. Trátalo como un secreto crítico: no compartir por correo/IM, rotar ante cualquier sospecha y definirlo solo en gestores seguros (GitHub Secrets, Netlify Environment, .env local privado). Si tienes problemas de acceso al panel, revisa que la cookie se guarde correctamente y que el archivo tenga `export const prerender = false;`.
 
-El `TINA_TOKEN` concede acceso de escritura al repositorio; trátalo como un secreto crítico (no compartir por correo/IM, rotarlo ante cualquier sospecha).
-Restringe el acceso al panel de Tina Cloud a cuentas invitadas; no compartas credenciales genéricas.
-Mantén activado 2FA en GitHub, Netlify y Tina Cloud.
-Programa copias de seguridad periódicas del contenido (por ejemplo, etiquetas semanales o mirrors privados del repo) para recuperaciones rápidas ante errores humanos.
+## Estructura del contenido
 
-## Colecciones y esquema
-
-El esquema de Tina se define en `tina/config.ts` y refleja la estructura actual del contenido:
+El esquema de contenido se define en `src/content/config.ts` usando Zod para validar el frontmatter al momento de compilar Astro:
 
 - `posts`: campos principales (`title`, `pubDate`, `language`, `summary`, `author`, `label` como lista de etiquetas, `categories`, `heroImage`, `heroImageAlt`, `draft`, `translationKey`, `originalUrl`, `body`).
 - `categories`: metadatos de categorías (`title`, `description`, `color`, `featured`, `body`).
 - `authors`: fichas de autores (`title`, `role`, `bio`, `portrait`, `body`).
-
-En paralelo, `src/content/config.ts` valida el frontmatter mediante Zod al momento de compilar Astro. Asegúrate de mantener ambos esquemas sincronizados cuando agregues campos.
-
-### Personalizaciones del panel TinaCMS
-
-- El selector de categorías usa un componente React (`tina/components/CategoryMultiSelect.tsx`) que consulta la API GraphQL local para mostrar las categorías disponibles en formato de casillas horizontal, guardando los slugs originales en frontmatter.
-- El campo `body` de los posts está configurado como `rich-text`, habilitando un editor visual con formato enriquecido en el panel.
-- El campo `heroImageAlt` permite registrar texto alternativo personalizado para la imagen destacada desde el panel, manteniendo un fallback automático con el título del post.
 
 ## Estructura destacada
 
@@ -130,28 +64,35 @@ src/
 │  └─ labels/         # Taxonomía y filtros
 └─ styles/tailwind.css
 public/
-├─ admin/             # SPA generada por TinaCMS
-└─ images/            # Activos migrados y cargas nuevas
+├─ images/            # Activos migrados y uploads nuevos
 scripts/              # Herramientas de migración y normalización (ignoradas en git)
 ```
 
-## Solución de Problemas
+## Desarrollo local
 
-Para un registro detallado de los problemas encontrados y sus soluciones durante el desarrollo, consulta el documento [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+1. Ejecuta `pnpm dev` para lanzar Astro en modo desarrollo.
+2. Abre `http://localhost:4321/` para ver el sitio.
+3. Las ediciones se realizan directamente sobre los archivos Markdown del contenido.
 
-## Flujo editorial actual
+## Despliegue con Netlify
 
-1. Levanta los servicios con `pnpm tinacms:dev`.
-2. Edita o crea contenido desde el panel (`/admin/index.html`).
-3. Confirma los cambios en los archivos Markdown del repositorio.
-4. Ejecuta `pnpm build` únicamente cuando desees generar la salida estática para despliegue (no requerido para el flujo de edición).
+- Netlify usa el archivo `netlify.toml`; el comando de build ejecuta `pnpm build` y publica la carpeta `dist/`.
+- Configura en Netlify (Site settings → Build & deploy → Environment) los valores:
+  - `PUBLIC_SITE_URL` con la URL definitiva del sitio.
+  - `ANALYTICS_ID` si usas GA4.
+- Habilita "Deploy Previews" para revisar cambios de contenido en ramas antes de fusionarlos.
+
+## Flujo editorial
+
+1. Edita o crea contenido en los archivos Markdown de `src/content/posts/`.
+2. Confirma los cambios en el repositorio.
+3. Ejecuta `pnpm build` cuando desees generar la salida estática para despliegue.
 
 ## Mantenimiento y notas técnicas
 
 - El importador (`scripts/import-plocos.js`) respeta rutas originales y evita duplicados de imágenes.
 - Las utilidades en `scripts/*.mjs` permiten normalizar metadatos y recuperar fechas originales.
 - Tailwind se configura vía `tailwind.config.js` y `src/styles/tailwind.css`; ahí viven las reglas de color, fuentes y utilidades globales.
-- Los assets del panel (desarrollo) viven en `http://localhost:4101`; verifica firewall o proxys si el panel no carga.
 - Dependabot y auditorías de seguridad pueden manejarse por separado; ninguna corrección automática se aplica desde este repositorio.
 - La carpeta `.github/` se reserva para instrucciones locales y permanece fuera de control de versiones (misma lógica para `scripts/`).
 - Si Astro arroja `PAGE_SIZE is not defined` al construir `/blog/page/[page]`, exporta la constante `PAGE_SIZE` en `src/pages/blog/page/[page].astro`; `getStaticPaths` se ejecuta fuera del alcance interno del componente.
@@ -169,14 +110,13 @@ Para un registro detallado de los problemas encontrados y sus soluciones durante
 - `src/pages/posts/[...slug].astro` reutiliza las mismas redes para compartir publicaciones mediante botones de ícono único.
 - El listado del blog (`src/pages/blog`) usa `paginate` para dividir las entradas en páginas de 12 ítems y enlaces generados con `createLocaleHref`.
 
-## Próximos pasos sugeridos
+## Documentación y changelog
 
-- Revisar la alineación entre `tina/config.ts` y `src/content/config.ts` al añadir campos nuevos.
-- Automatizar la limpieza de imágenes huérfanas dentro de `public/images/uploads` si el flujo editorial lo requiere.
-- Evaluar despliegues estáticos en servicios compatibles con Astro (por ejemplo, Vercel, Netlify o Cloudflare Pages).
+La documentación técnica y el changelog se encuentran en la carpeta `docs/`.
+Revisa `docs/README-usuario.md` para instrucciones de uso y `docs/CHANGELOG.md` para el historial de cambios agrupados.
 
 ---
 
 **Changelog**
-- 2025-11-14: Mejoras en autenticación del panel de moderación, documentación actualizada, troubleshooting añadido, guías separadas para desarrollo y cliente.
+- 2025-11-14: Mejoras en autenticación del panel de moderación, documentación actualizada.
 - Versión 0.1.2
