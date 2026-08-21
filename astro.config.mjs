@@ -1,3 +1,4 @@
+import astroConsent from "astro-consent";
 // @ts-check
 import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
@@ -18,6 +19,25 @@ export default defineConfig({
   adapter: netlify(),
 
   integrations: [
+    // astro-consent:start
+    astroConsent({
+      siteName: "My Website",
+      headline: "Manage cookie preferences for My Website",
+      description: "We use cookies to improve site performance, measure traffic, and support marketing.",
+      acceptLabel: "Accept all",
+      rejectLabel: "Reject all",
+      manageLabel: "Manage preferences",
+      cookiePolicyUrl: "/cookie-policy",
+      privacyPolicyUrl: "/privacy",
+      displayUntilIdle: true,
+      displayIdleDelayMs: 1000,
+      consent: {
+        days: 30,
+        storageKey: "astro-consent"
+      }
+    }),
+    // astro-consent:end
+
       tailwind({
           applyBaseStyles: false,
       }),
