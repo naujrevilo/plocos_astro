@@ -1,0 +1,137 @@
+---
+import { defaultLocale, getTranslations, type Locale } from "../lib/i18n";
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const splash = getTranslations(locale).splash;
+---
+<sensitive-splash data-storage-key="plocos-sensitive-content-acknowledged">
+  <dialog
+    id="plocos-splash"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="splash-title"
+    aria-describedby="splash-body"
+    class="splash-dialog"
+  >
+    <h2 id="splash-title" class="splash-title">{splash.title}</h2>
+    <p id="splash-body" class="splash-body">{splash.body}</p>
+    <form method="dialog" class="splash-actions">
+      <button type="submit" data-action="acknowledge" class="splash-btn-primary">
+        {splash.acknowledge}
+      </button>
+      <button type="button" data-action="exit" class="splash-btn-secondary">
+        {splash.reject}
+      </button>
+    </form>
+  </dialog>
+</sensitive-splash>
+
+<script is:inline>
+  (function () {
+    var KEY = "plocos-sensitive-content-acknowledged";
+    var dialog = document.getElementById("plocos-splash");
+    if (!dialog || typeof dialog.showModal !== "function") return;
+    try {
+      if (localStorage.getItem(KEY) === "true") return;
+    } catch (e) {
+      // localStorage unavailable (e.g. Safari private mode): show splash anyway
+    }
+    dialog.showModal();
+    // REQ-splash-7: forbid Esc dismissal
+    dialog.addEventListener("cancel", function (e) {
+      e.preventDefault();
+    });
+    dialog.addEventListener("click", function (e) {
+      var t = e.target;
+      if (!(t instanceof HTMLElement)) return;
+      if (t.dataset.action === "acknowledge") {
+        try {
+          localStorage.setItem(KEY, "true");
+        } catch (e) {
+          // ignore storage errors; dialog still closes
+        }
+        dialog.close();
+      }
+      if (t.dataset.action === "exit") {
+        window.location.href = "about:blank";
+      }
+    });
+  })();
+</script>
+
+<style>
+  .splash-dialog {
+    border: 1px solid var(--color-border-subtle, rgba(120, 120, 120, 0.25));
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 32rem;
+    width: calc(100vw - 2rem);
+    background: var(--color-surface-elevated, #f5f1e6);
+    color: var(--color-text-primary, #1f2937);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+    box-shadow: 0 24px 80px rgba(2, 6, 23, 0.34);
+  }
+
+  .splash-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .splash-title {
+    margin: 0 0 1rem 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .splash-body {
+    margin: 0 0 1.5rem 0;
+    line-height: 1.55;
+  }
+
+  .splash-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .splash-btn-primary,
+  .splash-btn-secondary {
+    appearance: none;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font: inherit;
+    font-weight: 650;
+    padding: 0.8rem 1.1rem;
+    cursor: pointer;
+    transition:
+      transform 160ms ease,
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .splash-btn-primary {
+    background: linear-gradient(135deg, #38bdf8, #34d399);
+    color: #00111a;
+    border-color: transparent;
+  }
+
+  .splash-btn-secondary {
+    background: rgba(0, 0, 0, 0.04);
+    color: inherit;
+    border-color: rgba(0, 0, 0, 0.18);
+  }
+
+  .splash-btn-primary:hover,
+  .splash-btn-secondary:hover {
+    transform: translateY(-1px);
+  }
+
+  .splash-btn-primary:focus-visible,
+  .splash-btn-secondary:focus-visible {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+  }
+</style>
