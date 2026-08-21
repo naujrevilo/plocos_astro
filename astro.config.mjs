@@ -22,8 +22,8 @@ export default defineConfig({
 // astro-consent:start
     astroConsent({
       siteName: "Plocos",
-      cookiePolicyUrl: "/cookie-policy",
-      privacyPolicyUrl: "/privacy",
+      cookiePolicyUrl: "/politica-de-cookies",
+      privacyPolicyUrl: "/privacidad",
       displayUntilIdle: true,
       displayIdleDelayMs: 1000,
       consent: {
