@@ -1,8 +1,12 @@
 ---
 import { defaultLocale, getTranslations, type Locale } from "../lib/i18n";
+import { createLocaleHref } from "../lib/routes";
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
-const consent = getTranslations(locale).consent;
+const translations = getTranslations(locale);
+const consent = translations.consent;
+const cookieHref = createLocaleHref(locale, translations.paths.cookiePolicy);
+const privacyHref = createLocaleHref(locale, translations.paths.privacy);
 ---
 <cookie-consent-banner data-storage-key="astro-consent">
   <div
@@ -17,9 +21,9 @@ const consent = getTranslations(locale).consent;
       <h2 id="plocos-cb-headline" class="plocos-cb-headline">{consent.headline}</h2>
       <p id="plocos-cb-desc" class="plocos-cb-desc">{consent.description}</p>
       <p class="plocos-cb-links">
-        <a href="/cookie-policy">{consent.cookiePolicyLink}</a>
+        <a href={cookieHref}>{consent.cookiePolicyLink}</a>
         <span aria-hidden="true">·</span>
-        <a href="/privacy">{consent.privacyPolicyLink}</a>
+        <a href={privacyHref}>{consent.privacyPolicyLink}</a>
       </p>
     </div>
     <div class="plocos-cb-actions">
