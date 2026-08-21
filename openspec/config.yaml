@@ -1,0 +1,26 @@
+# OpenSpec — local artifact store for SDD cycles
+#
+# This repository uses OpenSpec files under openspec/changes/ as the
+# durable side of the artifact store. Engram is the cross-session index.
+#
+# Each change lives at openspec/changes/<change-name>/ and contains:
+#   proposal.md    (intent, scope, approach)
+#   specs/<capability>/spec.md    (delta from main specs/<capability>/spec.md)
+#   design.md      (architecture, modules, contracts)
+#   tasks.md       (implementation tasks, ordered)
+#   apply-progress.md   (incremental state from sdd-apply)
+#   verify-report.md   (results from sdd-verify)
+#   archive-report.md  (results from sdd-archive)
+#
+# The SDD dispatcher reads ONLY this directory. When the artifact
+# store mode is `engram`, the dispatcher is bypassed entirely and
+# status comes from Engram topic keys (sdd/<change>/...).
+
+project: plocos_astro
+locale:
+  primary: es
+  secondary: en
+legal_jurisdiction:
+  primary: colombia
+  authority: SIC
+  statutes: [Ley-1581-2012, Decreto-1377-2013]
