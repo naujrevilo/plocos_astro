@@ -688,6 +688,8 @@ export const translations: Record<Locale, Translation> = {
       labels: 'labels',
       posts: 'posts',
       terms: 'terms',
+      privacy: 'privacy',
+      cookiePolicy: 'cookie-policy',
     },
     navigation: [
       { id: 'home', label: 'Home', path: '' },
@@ -716,6 +718,7 @@ export const translations: Record<Locale, Translation> = {
       rss: 'RSS',
       terms: 'Site terms',
       follow: 'Social',
+      manageCookies: 'Manage cookies',
     },
     home: {
       metaTitle: 'Plocos · Art, ideas, and narratives',
@@ -861,47 +864,254 @@ export const translations: Record<Locale, Translation> = {
         'By accessing Plocos you agree to the guidelines that protect this archive and ensure responsible use.',
       sections: [
         {
-          heading: 'Editorial use of the content',
+          heading: 'Nature and editorial purpose',
           body:
-            'Works published on Plocos—texts, images, and every form of artistic expression—remain the exclusive property of the author unless otherwise noted. The archive is provided for personal, educational, and cultural reference; any reuse requires written permission requested through our official contact channels.',
+            'Plocos is a digital archive of an editorial, philosophical, and artistic nature, maintained by its editor with the purpose of preserving, organising, and disseminating critical thought, visual poetry, and living memory. The space is not a commercial platform, a social network, or a mass hosting service; each piece is selected, curated, and published under the editor’s own criteria, without direct profit motive over the material on display. Browsing, reading, and consulting the archive are free of charge. The editor reserves the possibility of offering, in the future, complementary services—on-demand prints, workshops, residencies, or physical publications—governed by their own terms. This agreement regulates exclusively the editorial use of the archive and the relationship between the editor and each visitor. [EN: TODO legal review by Colombian attorney]',
         },
         {
-          heading: 'Explicitly prohibited uses',
+          heading: 'Sensitive content notice',
           body:
-            'The material may not be distributed or hosted in contexts that compromise the ethics of this archive. In particular, it cannot be reused in projects that:',
+            'Certain pieces in the archive address philosophical, existential, political, or aesthetic themes that some people may experience as intense, unsettling, or confrontational. This includes, among others, reflections on death, historical violence, institutional critique, sexuality, human suffering, and crises of meaning. Such treatments respond to the editorial line of the archive and to the conviction that critical thinking does not evade complexity. The editor invites each visitor to decide autonomously whether to continue reading. If the content of a piece becomes emotionally difficult, we recommend stopping the navigation and, if necessary, seeking professional or personal support. We do not assume that exposure to these materials produces well-being or comfort; their value lies in the reflection they enable. [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Minimum age and capacity',
+          body:
+            'The archive is intended for persons aged fifteen (15) or over. Those accessing the site from jurisdictions that set a different minimum age for consuming editorial content without accompaniment—for example, fourteen in some legislations or sixteen in others—declare, by continuing to browse, that they meet the threshold applicable in their place of residence. The editor does not perform active age verification nor collects data for that purpose. The adults responsible who allow minors in their care to access the site accept supervising the reading and assume the responsibility arising from that decision. If at any point the editor identifies that a piece requires a higher age restriction, this will be signalled visibly at the beginning of the corresponding content. [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Subscriptions, payments, and refunds',
+          body:
+            'As of the publication date of these terms, access to the archive is free of charge and does not require registration. If in the future the editor enables paid services—premium newsletters, physical publications, workshops, residencies, or on-demand printed pieces—the specific terms of each offer will be disclosed before any charge and will be governed by Colombian consumer protection law, in particular the Estatuto del Consumidor (Ley 1480/2011). The visitor will have a right of retracto within five (5) business days following payment, save for the legal exceptions applicable (personalised goods, services already executed with consent, among others). Refund requests will be processed through the same channel used for payment and resolved within a maximum of fifteen (15) calendar days. [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Anti-AI and anti-scraping protection',
+          body:
+            'The content of the archive—texts, images, illustrations, and combinations thereof—is published for human consultation and forms part of the editorial work of Plocos. Its collection, copying, extraction, re-training, fine-tuning, evaluation, or any form of reuse aimed at developing, improving, or training artificial intelligence models is prohibited, whether directly or through intermediaries, agents, datasets, or third-party services. This prohibition includes automated web scraping, selective harvesting, and the construction of parallel corpora without prior written authorisation. The archive implements reasonable technical measures—including directives in robots.txt, meta tags, and blocking patterns—to discourage such practices. Violation of this clause may give rise to civil liability and, where applicable, to the legal actions contemplated by Colombian law. [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Expressly prohibited uses',
+          body:
+            'The material of Plocos may not be distributed, hosted, or reused in contexts that undermine the ethics of this archive, the rights of third parties, or the Colombian legal order. In particular, it is prohibited to reuse it in projects that:',
           bullets: [
-            'Infringe or undermine human dignity and its principles.',
+            'Infringe or contravene human dignity and its principles.',
             'Violate the rights of children and adolescents.',
-            'Are unconstitutional or unlawful.',
-            'Restrict freedom of expression in any of its forms.',
+            'Are unconstitutional, contrary to law, or disregard current regulations.',
+            'Limit, censor, or distort freedom of expression in any of its forms.',
             'Promote violence, sexual exploitation, terrorism, racism, obscenity, or pornographic material.',
-            'Distribute P2P links, torrents, direct downloads, or other schemes intended to profit from copyrighted works.',
+            'Distribute P2P links, torrents, direct downloads, or other schemes intended to profit from copyrighted material.',
           ],
         },
         {
-          heading: 'Copyright',
+          heading: 'Access revocation',
           body:
-            'Every work retains its copyright. Any approved reproduction must credit the source, preserve the integrity of the piece, and respect the original context.',
+            'The editor may revoke, restrict, or suspend the access of any visitor to the archive when there are reasonable indications of breach of these terms, of unauthorised automated use, of mass extraction for AI training purposes, of attempts to circumvent the technical protection measures, or of any conduct that disturbs the operation of the site. The decision will be communicated, when possible, through the known contact channels. This measure does not preclude other available legal actions. The visitor, for their part, may withdraw at any time the consents granted through the “Manage cookies” mechanism in the footer, by deleting the “astro-consent” key from their browser’s local storage, or by writing to the editor directly. Revocation has no retroactive effect on processing already carried out within the applicable legal framework. [EN: TODO legal review by Colombian attorney]',
         },
         {
-          heading: 'Contributions and feedback',
+          heading: 'Intellectual property',
           body:
-            'When you share materials or notes with the archive, we may adjust style and formatting to maintain editorial coherence. Submitting content assumes you hold the necessary permissions.',
+            'The works published on Plocos are authored by the editor or by the contributors credited in each piece. Unless otherwise stated, all moral and economic rights belong to their respective holders and are reserved. Any total or partial reproduction—including translation, adaptation, compilation, or inclusion in other media—requires source citation, preservation of the integrity of the piece, and prior written authorisation, save for the uses of honest citation, educational illustration, and critical reference recognised by Colombian copyright law (Decisión Andina 486 and Ley 23 de 1982, among others). Use of the works in commercial activities, their inclusion in paid publications, or their economic exploitation without an express licence constitutes an actionable infringement. Licensing requests are processed through the official contact channels. [EN: TODO legal review by Colombian attorney]',
         },
         {
-          heading: 'Editorial responsibility',
+          heading: 'Contributions, comments, and moderation',
           body:
-            'The way third parties use this content—whether or not we granted permission—does not imply that Plocos endorses their opinions, messages, or agendas. We reject any interpretation that attempts to link the archive to unrelated initiatives.',
+            'Submissions sent to the archive—comments, editorial collaborations, suggestions, or graphic materials—go through editorial moderation before being published. The editor may adjust the style, length, or format to preserve the coherence of the archive, withdraw content that breaches these terms or falls outside the editorial line, and respond or not to submissions at their discretion. Submitting content implies that the commenter holds the necessary permissions over the material sent and accepts its publication under the same terms as the archive. Personal attacks, hate speech, spam, and material protected by third-party rights without the corresponding authorisation are not accepted. Paid contributions will be governed by specific agreements signed with each collaborator. [EN: TODO legal review by Colombian attorney]',
         },
         {
-          heading: 'Privacy and data',
+          heading: 'Privacy and personal data',
           body:
-            'We do not collect personal data beyond what is essential to reply to your messages. Anonymous metrics are reviewed periodically to improve the experience.',
+            'The processing of personal data associated with visiting the archive—including cookies, anonymised analytics, and optional communications—is governed by the Privacy Policy published at the /privacy route of this same site, which forms an integral part of these terms. There you will find the purposes, the legal bases under Ley 1581/2012 and Decreto 1377/2013, the rights of Access, Rectification, Cancellation, and Opposition (ARCO rights (Access, Rectification, Cancellation, Opposition)), and the channels available to exercise them. The Privacy Policy prevails over this summary in case of divergence. By continuing to browse, the visitor confirms having read the Privacy Policy or, at the very least, having been informed of its existence and of the place where it may be consulted.',
+        },
+        {
+          heading: 'Applicable law and jurisdiction',
+          body:
+            'These terms are interpreted and enforced in accordance with the laws of the Republic of Colombia, in particular Ley 1581/2012 on personal data protection, Decreto 1377/2013 partially regulating it, Decisión Andina 486 on Industrial Property, Ley 23 de 1982 on copyright, and the Colombian Civil Code where applicable. Any controversy, claim, or dispute arising from the navigation, use, or interpretation of these terms is submitted to the competent judges and courts of the city of Cartagena de Indias, Distrito Turístico y Cultural, without prejudice to the unwaivable rights that Colombian law or consumer protection regulations grant to the visitor. The eventual declaration of nullity of any clause does not affect the validity of the remaining ones. [EN: TODO legal review by Colombian attorney]',
         },
       ],
       contactNotice:
         'If you need further clarification or want to process specific permissions, get in touch and we will review your request.',
       contactLinkLabel: 'Contact us',
+    },
+    consent: {
+      headline: 'Your privacy, your choice',
+      description:
+        'We use cookies to keep the archive running, measure traffic anonymously, and remember your preferences. You can accept everything, decline the optional ones, or fine-tune each category.',
+      acceptLabel: 'Accept all',
+      rejectLabel: 'Decline optional',
+      manageLabel: 'Manage preferences',
+      preferencesTitle: 'Manage cookie categories',
+      saveLabel: 'Save preferences',
+      cookiePolicyLink: 'View cookie policy',
+      privacyPolicyLink: 'View privacy policy',
+      categories: {
+        essential: 'Essential (always active)',
+        analytics: 'Anonymised analytics',
+      },
+    },
+    splash: {
+      title: 'Sensitive content notice',
+      body:
+        'This archive contains philosophical, artistic, and critical reflections that some readers may experience as intense. Some pieces address death, historical violence, human suffering, and other demanding themes. Decide for yourself whether you want to continue reading.',
+      acknowledge: 'I understand, continue',
+      reject: 'Leave the site',
+    },
+    privacy: {
+      metaTitle: 'Privacy Policy · Plocos',
+      metaDescription:
+        'How Plocos handles personal data under Ley 1581/2012 and Decreto 1377/2013.',
+      title: 'Privacy Policy',
+      sections: [
+        {
+          heading: 'Data controller',
+          body:
+            'The data controller for the personal data collected through this archive is the editor of Plocos, domiciled in Cartagena de Indias (Colombia), with the contact channel enabled at the address shown at the end of this policy. Any request, complaint, or claim may be submitted through that same channel and will be addressed within the timeframes provided by the Superintendencia de Industria y Comercio (SIC). [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Data we process',
+          body:
+            'We process only the data indispensable to respond to communications that the visitor initiates voluntarily (name, email address, and message content) and the technical data generated by browsing—IP address, user agent, pages consulted—when the visitor has accepted analytics cookies. We do not sell, transfer, or enrich data with third parties. Nor do we perform automated profiling for advertising purposes, nor do we make automated decisions that produce legal effects on the visitor. [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Purposes and legal bases',
+          body:
+            'Data is used to: (a) reply to messages and coordinate editorial projects (legal basis: consent and execution of the visitor’s requests); (b) maintain the security and integrity of the archive and prevent abusive uses (legal basis: legitimate interest of the editor); (c) measure traffic in aggregate form and improve the experience (legal basis: consent through the cookie banner); (d) comply with legal obligations and attend to the requirements of competent authorities (legal basis: compliance with a legal duty). [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Data retention',
+          body:
+            'Retention periods apply according to the category and purpose of the data: [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Visitor rights',
+          body:
+            'Under Ley 1581/2012, every visitor may exercise at any time the rights of Access, Rectification, Cancellation, and Opposition (ARCO rights (Access, Rectification, Cancellation, Opposition)). To do so, simply send a request to the enabled contact channel; the procedure is as follows: [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'International transfers',
+          body:
+            'Some technology providers we use may store data on servers outside Colombia. In all cases we require guarantees equivalent to or stronger than those provided by Colombian law (standard contractual clauses, adequacy decisions, or recognised certifications). The updated list of providers and countries of processing is published in the Cookie Policy.',
+        },
+        {
+          heading: 'Changes to this policy',
+          body:
+            'The editor may modify this policy to reflect regulatory, technical, or editorial changes. Previous versions are preserved and remain available for consultation. The last update date appears at the foot of this page.',
+        },
+      ],
+      contactEmail: 'expresatura@plocos.com',
+      responseTimelines: {
+        consultas: 'general inquiries within ten (10) business days',
+        reclamos: 'formal complaints within fifteen (15) business days',
+      },
+      retention: [
+        {
+          category: 'Contact messages',
+          period: 'For the duration of the conversation and up to three (3) years afterwards for editorial traceability purposes.',
+        },
+        {
+          category: 'Analytics cookies',
+          period: 'Thirteen (13) months from the last visit or until the visitor withdraws consent.',
+        },
+        {
+          category: 'Server security logs',
+          period: 'Twelve (12) months to handle incidents and requests from authorities.',
+        },
+        {
+          category: 'Published comments',
+          period: 'While the comment is visible in the archive and up to two (2) years after its withdrawal.',
+        },
+      ],
+      arcoProcedure: [
+        'Write to expresatura@plocos.com indicating full name and a contact channel for reply.',
+        'Clearly describe the request and, where applicable, the data subject to Access, Rectification, Cancellation, or Opposition.',
+        'Attach a copy of the identity document or instrument evidencing representation, if acting on behalf of a third party.',
+        'Receive a response within the timeframes provided by the Superintendencia de Industria y Comercio (SIC).',
+      ],
+    },
+    cookiePolicy: {
+      metaTitle: 'Cookie Policy · Plocos',
+      metaDescription:
+        'Inventory of cookies used by Plocos: essential, anonymised analytics, search, and AI protection.',
+      title: 'Cookie Policy',
+      intro:
+        'A cookie is a small text file that a website stores on the visitor’s device to remember preferences or measure usage. This policy describes the cookies Plocos uses, with what purposes, and how to manage them. Strictly necessary cookies are always loaded because they make the archive work; all others require your consent.',
+      updatedLabel: 'Last updated',
+      updatedValue: 'August 20, 2026',
+      categories: [
+        {
+          heading: 'Strictly necessary',
+          description:
+            'Enable basic functions such as remembering your cookie preferences, keeping the session across pages, and protecting the site against improper uses. They do not require consent because without them the archive could not operate.',
+          cookies: [
+            {
+              name: 'astro-consent',
+              provider: 'Plocos (astro-consent integration)',
+              purpose: 'Store the visitor’s consent preferences.',
+              duration: '30 days from the last update.',
+              party: 'first',
+            },
+            {
+              name: 'plocos-sensitive-content-acknowledged',
+              provider: 'Plocos',
+              purpose: 'Remember that the visitor acknowledged the sensitive content notice.',
+              duration: 'Persistent until the visitor clears the browser storage.',
+              party: 'first',
+            },
+          ],
+        },
+        {
+          heading: 'Anonymised analytics',
+          description:
+            'Allow us to measure site traffic in aggregate form, without individually identifying visitors, so we understand which pieces are read and how to improve the archive. If you decline this category, the site keeps working normally.',
+          cookies: [
+            {
+              name: '_ga',
+              provider: 'Google Analytics 4',
+              purpose: 'Generate an anonymous identifier to distinguish unique visitors.',
+              duration: '13 months from the last visit.',
+              party: 'third',
+            },
+            {
+              name: '_ga_<container-id>',
+              provider: 'Google Analytics 4',
+              purpose: 'Store the session state of the anonymous identifier.',
+              duration: '13 months from the last visit.',
+              party: 'third',
+            },
+          ],
+        },
+        {
+          heading: 'Archive search',
+          description:
+            'The integrated search uses Algolia to return fast, relevant results. These cookies help remember recent queries and improve the experience without personally identifying the visitor.',
+          cookies: [
+            {
+              name: 'aind',
+              provider: 'Algolia Search',
+              purpose: 'Anonymous identifier of the visitor for Algolia internal metrics.',
+              duration: 'Persistent for up to 1 year on the visitor’s device.',
+              party: 'third',
+            },
+            {
+              name: '_algolia_*',
+              provider: 'Algolia Search',
+              purpose: 'Technical auxiliary cookies necessary for the search operation.',
+              duration: 'Variable according to use, persistent for up to 1 year.',
+              party: 'third',
+            },
+          ],
+        },
+        {
+          heading: 'AI protection (informational)',
+          description:
+            'This category does not install cookies. Its purpose is to document the technical measures adopted to prevent the use of the content in AI training. See the “Anti-AI and anti-scraping protection” section of the agreement.',
+          cookies: [],
+        },
+      ],
+      revocation: [
+        'Open the “Manage cookies” link in the footer and modify your preferences.',
+        'Manually delete the “astro-consent” key from the browser’s local storage through the developer tools.',
+        'Configure your browser to block or limit third-party cookies; bear in mind that some archive functions may become unavailable.',
+        'Write to expresatura@plocos.com to request personalised assistance.',
+      ],
     },
   },
 };
