@@ -1,0 +1,38 @@
+# Plocos robots.txt — anti-IA hardening
+# Bloquea rastreadores conocidos de entrenamiento de IA.
+# Política completa: https://plocos.netlify.app/terminos
+
+# Hostname MUST match astro.config.mjs site (https://plocos.netlify.app).
+# If the deployment host changes, update both this Sitemap directive and
+# astro.config.mjs site value to keep them aligned.
+
+# Search engines legítimos: se permite indexación.
+User-agent: *
+Allow: /
+
+# Bloqueos individuales por operador.
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://plocos.netlify.app/sitemap-index.xml
