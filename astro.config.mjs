@@ -19,14 +19,9 @@ export default defineConfig({
   adapter: netlify(),
 
   integrations: [
-    // astro-consent:start
+// astro-consent:start
     astroConsent({
-      siteName: "My Website",
-      headline: "Manage cookie preferences for My Website",
-      description: "We use cookies to improve site performance, measure traffic, and support marketing.",
-      acceptLabel: "Accept all",
-      rejectLabel: "Reject all",
-      manageLabel: "Manage preferences",
+      siteName: "Plocos",
       cookiePolicyUrl: "/cookie-policy",
       privacyPolicyUrl: "/privacy",
       displayUntilIdle: true,

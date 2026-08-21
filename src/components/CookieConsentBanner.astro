@@ -1,0 +1,181 @@
+---
+import { defaultLocale, getTranslations, type Locale } from "../lib/i18n";
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const consent = getTranslations(locale).consent;
+---
+<cookie-consent-banner data-storage-key="astro-consent">
+  <div
+    id="plocos-cookie-banner"
+    role="dialog"
+    aria-labelledby="plocos-cb-headline"
+    aria-describedby="plocos-cb-desc"
+    class="plocos-cb-banner"
+    hidden
+  >
+    <div class="plocos-cb-banner-body">
+      <h2 id="plocos-cb-headline" class="plocos-cb-headline">{consent.headline}</h2>
+      <p id="plocos-cb-desc" class="plocos-cb-desc">{consent.description}</p>
+      <p class="plocos-cb-links">
+        <a href="/cookie-policy">{consent.cookiePolicyLink}</a>
+        <span aria-hidden="true">·</span>
+        <a href="/privacy">{consent.privacyPolicyLink}</a>
+      </p>
+    </div>
+    <div class="plocos-cb-actions">
+      <button type="button" data-action="reject" class="plocos-cb-btn-secondary">
+        {consent.rejectLabel}
+      </button>
+      <button type="button" data-action="manage" class="plocos-cb-btn-link">
+        {consent.manageLabel}
+      </button>
+      <button type="button" data-action="accept" class="plocos-cb-btn-primary">
+        {consent.acceptLabel}
+      </button>
+    </div>
+  </div>
+
+  <div
+    id="plocos-cookie-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="plocos-cb-modal-title"
+    class="plocos-cb-modal"
+    hidden
+  >
+    <div class="plocos-cb-modal-panel">
+      <h2 id="plocos-cb-modal-title" class="plocos-cb-headline">{consent.preferencesTitle}</h2>
+      <fieldset class="plocos-cb-fieldset">
+        <legend>{consent.categories.essential}</legend>
+        <label class="plocos-cb-row">
+          <input type="checkbox" checked disabled aria-readonly="true" />
+          <span>{consent.categories.essential}</span>
+        </label>
+      </fieldset>
+      <fieldset class="plocos-cb-fieldset">
+        <legend>{consent.categories.analytics}</legend>
+        <label class="plocos-cb-row">
+          <input type="checkbox" data-consent-category="analytics" />
+          <span>{consent.categories.analytics}</span>
+        </label>
+      </fieldset>
+      <div class="plocos-cb-actions plocos-cb-actions-modal">
+        <button type="button" data-action="save" class="plocos-cb-btn-primary">
+          {consent.saveLabel}
+        </button>
+      </div>
+    </div>
+  </div>
+</cookie-consent-banner>
+
+<script is:inline>
+  (function () {
+    var KEY = "astro-consent";
+    var banner = document.getElementById("plocos-cookie-banner");
+    var modal = document.getElementById("plocos-cookie-modal");
+    if (!banner || !modal) return;
+    function read() {
+      try { var r = localStorage.getItem(KEY); return r ? JSON.parse(r) : null; }
+      catch (e) { return null; }
+    }
+    function write(analytics) {
+      var payload = JSON.stringify({
+        categories: { essential: true, analytics: !!analytics },
+        updatedAt: Date.now(),
+        expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+      });
+      try { localStorage.setItem(KEY, payload); } catch (e) {}
+    }
+    function hide() { banner.hidden = true; modal.hidden = true; }
+    if (!read()) {
+      var show = function () { banner.hidden = false; };
+      if (window.requestIdleCallback) window.requestIdleCallback(show, { timeout: 1000 });
+      else window.setTimeout(show, 1000);
+    }
+    document.addEventListener("click", function (e) {
+      var t = e.target;
+      if (!(t instanceof HTMLElement)) return;
+      if (t.dataset.action === "accept") { write(true); hide(); }
+      else if (t.dataset.action === "reject") { write(false); hide(); }
+      else if (t.dataset.action === "manage") {
+        var current = read();
+        var at = modal.querySelector('input[data-consent-category="analytics"]');
+        if (at instanceof HTMLInputElement) at.checked = !!(current && current.categories && current.categories.analytics);
+        banner.hidden = true; modal.hidden = false;
+      }
+      else if (t.dataset.action === "save") {
+        var at = modal.querySelector('input[data-consent-category="analytics"]');
+        write(at instanceof HTMLInputElement && at.checked);
+        hide();
+      }
+    });
+  })();
+</script>
+
+<style>
+  .plocos-cb-banner {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    margin: 1rem;
+    padding: 1.25rem 1.4rem;
+    border-radius: 1.4rem;
+    border: 1px solid var(--color-border-subtle, rgba(120, 120, 120, 0.25));
+    background: var(--color-surface-elevated, #f5f1e6);
+    color: var(--color-text-primary, #1f2937);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 24px 80px rgba(2, 6, 23, 0.34);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .plocos-cb-banner[hidden] { display: none; }
+  .plocos-cb-banner-body { min-width: 0; flex: 1 1 16rem; }
+  .plocos-cb-headline { margin: 0 0 0.4rem 0; font-size: 1.05rem; font-weight: 700; line-height: 1.25; }
+  .plocos-cb-desc { margin: 0; color: var(--color-text-secondary, #475569); line-height: 1.5; }
+  .plocos-cb-links { margin-top: 0.5rem; font-size: 0.85rem; }
+  .plocos-cb-links a { color: var(--color-accent, #0284c7); text-decoration: underline; text-underline-offset: 0.2em; }
+  .plocos-cb-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; justify-content: flex-end; flex-shrink: 0; }
+  .plocos-cb-btn-primary,
+  .plocos-cb-btn-secondary,
+  .plocos-cb-btn-link {
+    appearance: none;
+    border-radius: 999px;
+    font: inherit;
+    font-weight: 650;
+    padding: 0.8rem 1.1rem;
+    cursor: pointer;
+    transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+  }
+  .plocos-cb-btn-primary { background: linear-gradient(135deg, #38bdf8, #34d399); color: #00111a; border: 1px solid transparent; }
+  .plocos-cb-btn-secondary { background: rgba(0, 0, 0, 0.04); color: inherit; border: 1px solid rgba(0, 0, 0, 0.18); }
+  .plocos-cb-btn-link { background: transparent; color: var(--color-text-primary, #1f2937); border: 1px solid transparent; text-decoration: underline; }
+  .plocos-cb-btn-primary:hover,
+  .plocos-cb-btn-secondary:hover,
+  .plocos-cb-btn-link:hover { transform: translateY(-1px); }
+  .plocos-cb-modal { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 1rem; background: rgba(2, 6, 23, 0.72); }
+  .plocos-cb-modal[hidden] { display: none; }
+  .plocos-cb-modal-panel {
+    width: min(100%, 32rem);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: rgba(7, 11, 20, 0.92);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    box-shadow: 0 24px 80px rgba(2, 6, 23, 0.34);
+  }
+  .plocos-cb-fieldset {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+    color: #f8fafc;
+  }
+  .plocos-cb-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0; font-weight: 600; }
+  .plocos-cb-actions-modal { margin-top: 1rem; justify-content: flex-end; }
+</style>

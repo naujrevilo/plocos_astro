@@ -46,6 +46,16 @@
   --cb-toggle-knob
 */
 
+/*
+ * Custom re-render: hide the astro-consent default banner so our i18n-aware
+ * CookieConsentBanner.astro is the only banner the visitor sees. The runtime
+ * API (window.astroConsent.get/set/reset) remains exposed. Verified against
+ * astro-consent v2.0.0 dist/index.js:108 (BANNER_ID = "astro-consent-banner").
+ */
+#astro-consent-banner {
+  display: none !important;
+}
+
 :root {
   --cb-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --cb-z-index: 9999;
