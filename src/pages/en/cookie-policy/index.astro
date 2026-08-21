@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
+import { createLocaleHref } from '../../../lib/routes';
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const translations = getTranslations(locale);
+const cookiePolicy = translations.cookiePolicy;
+const privacyHref = createLocaleHref(locale, translations.paths.privacy);
+---
+<BaseLayout title={cookiePolicy.metaTitle} description={cookiePolicy.metaDescription}>
+  <article class="mx-auto max-w-3xl space-y-10 px-4 py-16 text-text-secondary">
+    <header class="space-y-4">
+      <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">{cookiePolicy.title}</h1>
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-text-secondary opacity-80">
+        {cookiePolicy.updatedLabel}: {cookiePolicy.updatedValue}
+      </p>
+      <p class="text-base leading-relaxed">{cookiePolicy.intro}</p>
+    </header>
+
+    <div class="space-y-8">
+      {cookiePolicy.categories.map((category) => (
+        <section class="space-y-3" aria-labelledby={`cookies-${category.heading.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}>
+          <h2 id={`cookies-${category.heading.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} class="text-xl font-semibold text-text-primary">
+            {category.heading}
+          </h2>
+          <p class="leading-relaxed">{category.description}</p>
+          {category.cookies.length > 0 && (
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse text-left text-sm sm:text-base">
+                <thead>
+                  <tr class="border-b border-border-subtle">
+                    <th class="py-2 pr-4 font-semibold text-text-primary">Name</th>
+                    <th class="py-2 pr-4 font-semibold text-text-primary">Provider</th>
+                    <th class="py-2 pr-4 font-semibold text-text-primary">Purpose</th>
+                    <th class="py-2 pr-4 font-semibold text-text-primary">Duration</th>
+                    <th class="py-2 pr-4 font-semibold text-text-primary">Party</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {category.cookies.map((cookie) => (
+                    <tr class="border-b border-border-subtle/60 align-top">
+                      <td class="py-3 pr-4 font-mono text-xs text-text-primary">{cookie.name}</td>
+                      <td class="py-3 pr-4 leading-relaxed">{cookie.provider}</td>
+                      <td class="py-3 pr-4 leading-relaxed">{cookie.purpose}</td>
+                      <td class="py-3 pr-4 leading-relaxed">{cookie.duration}</td>
+                      <td class="py-3 pr-4 leading-relaxed">{cookie.party === 'first' ? 'First' : 'Third'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      ))}
+    </div>
+
+    <section class="space-y-3 rounded-3xl border border-border-subtle bg-surface-elevated px-6 py-6 shadow-contemplation">
+      <h2 class="text-xl font-semibold text-text-primary">How to revoke or modify your consent</h2>
+      <ol class="list-decimal space-y-2 pl-6 text-sm leading-relaxed text-text-secondary/90 sm:text-base">
+        {cookiePolicy.revocation.map((step) => (
+          <li>{step}</li>
+        ))}
+      </ol>
+      <div class="mt-4 flex flex-wrap gap-3">
+        <a
+          href={privacyHref}
+          class="inline-flex items-center justify-center rounded-full border border-border-subtle bg-surface-muted px-5 py-2 text-sm font-semibold uppercase tracking-widest text-text-secondary transition hover:border-accent hover:text-text-primary"
+        >
+          View privacy policy
+        </a>
+      </div>
+    </section>
+  </article>
+</BaseLayout>
