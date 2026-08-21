@@ -1,0 +1,25 @@
+# pnpm-workspace.yaml
+# Migrated from package.json `pnpm` field (deprecated in pnpm 11+).
+# blockExoticSubdeps is disabled because volar-service-emmet@0.0.66
+# resolves @emmetio/css-parser from a git repository, which pnpm 11+
+# blocks by default. Re-evaluate when @astrojs/check upgrades past 0.9.5.
+
+overrides:
+  typescript: 5.6.3
+  yup: 0.32.11
+  fs-extra: 9.1.0
+  zod: 3.23.8
+  zod-to-json-schema: 3.23.5
+  "@libsql/client": 0.15.15
+
+onlyBuiltDependencies:
+  - "@parcel/watcher"
+  - better-sqlite3
+  - esbuild
+  - sharp
+
+blockExoticSubdeps: false
+
+allowBuilds:
+  esbuild: true
+  sharp: true
