@@ -24,7 +24,7 @@
 ### 📚 Documentación
 - Nuevo `docs/arquitectura.md` — Overview del stack + decisiones arquitectónicas.
 - Nuevo `docs/diagramas/dev/` — 5 diagramas técnicos (estructura, build, env vars, comment moderation, SDD lifecycle).
-- Nuevo `docs/diagramas/user/` — 3 diagramas para el cliente (arquitectura de información, primera visita, cómo comentar).
+- Nuevo `docs/diagramas/user/como-comentar.md` — flujo de moderación para el cliente (los diagramas `arquitectura-informacion.md` y `primera-visita.md` se crearon inicialmente pero el cliente los encontró demasiado técnicos y fueron eliminados en una iteración posterior).
 - Actualizados: `docs/README-usuario.md`, `docs/guia-desarrollo-local.md`, `docs/guia-cliente-moderacion.md`.
 
 ### 🚫 Scoped out (punteado a change futuro)

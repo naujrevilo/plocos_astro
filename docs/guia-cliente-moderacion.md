@@ -1,7 +1,7 @@
 
 # Guía para cliente
 
-> **Tu guía de moderación de comentarios.** Para una vista completa del flujo con diagramas, consulta [`diagramas/user/como-comentar.md`](diagramas/user/como-comentar.md). Para entender qué páginas existen en el sitio, consulta [`diagramas/user/arquitectura-informacion.md`](diagramas/user/arquitectura-informacion.md).
+> **Tu guía de moderación de comentarios.** Para una vista completa del flujo con diagramas, consulta [`diagramas/user/como-comentar.md`](diagramas/user/como-comentar.md).
 
 ## Cambios recientes (v0.1.45)
 
@@ -37,5 +37,3 @@ Versión: 1.4.0
 ## Ver también
 
 - [`diagramas/user/como-comentar.md`](diagramas/user/como-comentar.md) — Tu flujo diario con diagrama
-- [`diagramas/user/arquitectura-informacion.md`](diagramas/user/arquitectura-informacion.md) — Mapa del sitio
-- [`diagramas/user/primera-visita.md`](diagramas/user/primera-visita.md) — Qué pasa cuando alguien visita el sitio por primera vez

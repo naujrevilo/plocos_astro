@@ -1,6 +1,6 @@
 # Guía de usuario PLOCOS
 
-> **Documento vivo.** Para una vista completa de qué páginas existen y cómo se conectan, consulta [`docs/diagramas/user/arquitectura-informacion.md`](diagramas/user/arquitectura-informacion.md).
+> **Documento vivo.** Si quieres ver cómo funciona el panel de moderación, consulta [`docs/diagramas/user/como-comentar.md`](diagramas/user/como-comentar.md).
 
 ## Cambios recientes (v0.1.45)
 
@@ -46,7 +46,4 @@ Versión: 0.1.45
 ## Ver también
 
 - [`arquitectura.md`](arquitectura.md) — Vista técnica del proyecto
-- [`diagramas/user/`](diagramas/user/) — Diagramas para usuarios y clientes
-  - [`arquitectura-informacion.md`](diagramas/user/arquitectura-informacion.md) — Mapa del sitio
-  - [`primera-visita.md`](diagramas/user/primera-visita.md) — Splash, cookies, consentimiento
-  - [`como-comentar.md`](diagramas/user/como-comentar.md) — Flujo de moderación para ti
+- [`diagramas/user/como-comentar.md`](diagramas/user/como-comentar.md) — Flujo de moderación para ti
