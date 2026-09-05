@@ -1,6 +1,29 @@
 import pactoEsData from '../content/_data/pacto.es.json';
 import pactoEnData from '../content/_data/pacto.en.json';
 
+/**
+ * Pre-existing legal-review markers preserved per REQ-pacto-15. These 9
+ * markers were inline in the legacy 11-section en.terms which was replaced
+ * by the 8-section pacto.en.json at WU1 T1.2. The literal marker text is
+ * preserved here as a production-gate artefact; the legacy bodies themselves
+ * have been retired in favour of the new 8-section pacto client text
+ * (Engram observation #99).
+ *
+ * The 5 markers in en.privacy remain inline. Total preserved = 14.
+ * PR2 adds 8 new markers (one per translated pacto section) -> 22.
+ */
+export const PRESERVED_LEGACY_EN_PACTO_MARKERS: readonly string[] = [
+  '[EN: TODO legal review by Colombian attorney]', // 1. Nature and editorial purpose
+  '[EN: TODO legal review by Colombian attorney]', // 2. Sensitive content notice
+  '[EN: TODO legal review by Colombian attorney]', // 3. Minimum age and capacity
+  '[EN: TODO legal review by Colombian attorney]', // 4. Subscriptions, payments, and refunds
+  '[EN: TODO legal review by Colombian attorney]', // 5. Anti-AI and anti-scraping protection
+  '[EN: TODO legal review by Colombian attorney]', // 7. Access revocation
+  '[EN: TODO legal review by Colombian attorney]', // 8. Intellectual property
+  '[EN: TODO legal review by Colombian attorney]', // 9. Contributions, comments, and moderation
+  '[EN: TODO legal review by Colombian attorney]', // 11. Applicable law and jurisdiction
+];
+
 export const locales = ['es', 'en'] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = 'es';
