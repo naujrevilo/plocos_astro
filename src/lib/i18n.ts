@@ -1,3 +1,6 @@
+import pactoEsData from '../content/_data/pacto.es.json';
+import pactoEnData from '../content/_data/pacto.en.json';
+
 export const locales = ['es', 'en'] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = 'es';
@@ -211,6 +214,26 @@ interface Translation {
     }[];
     revocation: string[];
   };
+  av: {
+    collection: {
+      title: string;
+      description: string;
+      empty: string;
+      detailAlt: string;
+      mediumLabel: string;
+      dimensionsLabel: string;
+      yearLabel: string;
+      coverLabel: string;
+      galleryLabel: string;
+    };
+  };
+  editor: {
+    appTitle: string;
+    loginCta: string;
+    collections: { posts: { label: string }; audiovisuales: { label: string } };
+    saveSuccess: string;
+    saveError: string;
+  };
 }
 
 
@@ -405,84 +428,7 @@ export const translations: Record<Locale, Translation> = {
           'Moderamos cada comentario para asegurar que la conversación se mantenga respetuosa y acorde con la línea editorial de Plocos.',
       },
     },
-    terms: {
-      metaTitle: 'Términos del sitio · Plocos',
-      metaDescription:
-        'Condiciones de uso y lineamientos editoriales del archivo digital Plocos.',
-      title: 'Términos del sitio',
-      updatedLabel: 'Última actualización',
-      updatedValue: '8 de noviembre de 2025',
-      introduction:
-        'Al acceder a Plocos aceptas los lineamientos que protegen este archivo y orientan su uso responsable.',
-      sections: [
-        {
-          heading: 'Naturaleza y propósito editorial',
-          body:
-            'Plocos es un archivo digital de carácter editorial, filosófico y artístico, mantenido por su editor con el propósito de preservar, organizar y difundir pensamiento crítico, poesía visual y memoria viva. El espacio no constituye una plataforma comercial, una red social ni un servicio de alojamiento masivo; cada pieza es seleccionada, curada y publicada bajo criterios editoriales propios, sin ánimo de lucro directo sobre el material expuesto. La navegación, lectura y consulta del archivo son gratuitas. El editor se reserva la posibilidad de ofrecer, en el futuro, servicios complementarios —impresiones bajo demanda, talleres, residencias o publicaciones físicas— que se regirán por sus propias condiciones. Este pacto regula exclusivamente el uso editorial del archivo y la relación entre el editor y cada visitante.',
-        },
-        {
-          heading: 'Advertencia de contenido sensible',
-          body:
-            'Determinadas piezas del archivo abordan temáticas filosóficas, existenciales, políticas o estéticas que algunas personas pueden percibir como intensas, perturbadoras o confrontativas. Esto incluye, entre otras, reflexiones sobre la muerte, la violencia histórica, la crítica institucional, la sexualidad, el sufrimiento humano y las crisis de sentido. Tales tratamientos responden a la línea editorial del archivo y a la convicción de que el pensamiento crítico no evade la complejidad. El editor invita a cada visitante a decidir con autonomía si desea continuar la lectura. Si el contenido de una pieza resulta emocionalmente difícil, se recomienda detener la navegación y, si es necesario, buscar acompañamiento profesional o personal. No se asume que la exposición a estos materiales produzca bienestar o confort; su valor reside en la reflexión que habilitan.',
-        },
-        {
-          heading: 'Edad mínima y capacidad',
-          body:
-            'El archivo está dirigido a personas mayores de quince (15) años. Quienes accedan al sitio desde jurisdicciones que fijen una edad mínima distinta para el consumo de contenido editorial sin acompañamiento —por ejemplo, catorce años en algunas legislaciones o dieciséis en otras— declaran, al continuar la navegación, que cumplen con el umbral aplicable en su lugar de residencia. El editor no realiza verificación activa de edad ni recoge datos para ese fin. Las personas adultas responsables que permitan el acceso de menores a su cargo aceptan supervisar la lectura y asumen la responsabilidad derivada de esa decisión. Si en algún momento el editor identifica que una pieza exige una restricción de edad superior, lo señalará de manera visible al inicio del contenido correspondiente.',
-        },
-        {
-          heading: 'Suscripciones, pagos y reembolsos',
-          body:
-            'En la fecha de publicación de estas condiciones, el acceso al archivo es gratuito y no exige registro. Si en el futuro el editor habilita servicios pagos —boletines premium, publicaciones físicas, talleres, residencias o piezas impresas bajo demanda—, las condiciones específicas de cada oferta se informarán antes de cualquier cobro y se regirán por la legislación colombiana de protección al consumidor, en particular el Estatuto del Consumidor (Ley 1480/2011). El visitante tendrá derecho de retracto dentro de los cinco (5) días hábiles siguientes al pago, salvo las excepciones legales aplicables —bienes personalizados, servicios ya ejecutados con consentimiento, entre otras—. Las solicitudes de reembolso se tramitarán por el mismo canal usado para el pago y se resolverán en un plazo máximo de quince (15) días calendario.',
-        },
-        {
-          heading: 'Protección anti-IA y anti-scraping',
-          body:
-            'El contenido del archivo —textos, imágenes, ilustraciones y combinaciones entre ellos— se publica para consulta humana y forma parte del trabajo editorial de Plocos. Queda prohibida su recolección, copia, extracción, reentrenamiento, ajuste, evaluación o cualquier forma de reutilización destinada a desarrollar, mejorar o entrenar modelos de inteligencia artificial, ya sea de manera directa o a través de intermediarios, agentes, datasets o servicios de terceros. Esta prohibición incluye el web scraping automatizado, el raspado selectivo y la construcción de corpus paralelos sin autorización escrita previa. El archivo implementa medidas técnicas razonables —entre ellas, directivas en robots.txt, metaetiquetas y patrones de bloqueo— para desalentar tales prácticas. La violación de esta cláusula puede generar responsabilidad civil y, cuando corresponda, las acciones legales que la legislación colombiana aplicable contemple.',
-        },
-        {
-          heading: 'Usos expresamente prohibidos',
-          body:
-            'No está permitido distribuir, alojar o reutilizar el material de Plocos en contextos que vulneren la ética de este archivo, los derechos de terceros o el ordenamiento jurídico colombiano. En particular, queda prohibido reutilizarlo en proyectos que:',
-          bullets: [
-            'Infrinjan o contravengan la dignidad humana y sus principios.',
-            'Violen los derechos de niños, niñas y adolescentes.',
-            'Sean inconstitucionales, contrarios a la ley o desconozcan normas vigentes.',
-            'Limiten, censuren o distorsionen la libertad de expresión en cualquiera de sus formas.',
-            'Promuevan violencia, explotación sexual, terrorismo, racismo, obscenidad o material pornográfico.',
-            'Difundan enlaces P2P, torrents, descargas directas u otros esquemas destinados a lucrar con material protegido por derechos de autor.',
-          ],
-        },
-        {
-          heading: 'Revocación de acceso',
-          body:
-            'El editor puede revocar, restringir o suspender el acceso de cualquier visitante al archivo cuando existan indicios razonables de incumplimiento de estas condiciones, de uso automatizado no autorizado, de extracción masiva con fines de entrenamiento de inteligencia artificial, de intentos de eludir las medidas técnicas de protección o de cualquier conducta que perturbe el funcionamiento del sitio. La decisión se comunicará, cuando sea posible, por los medios de contacto conocidos. Esta medida no excluye otras acciones legales disponibles. El visitante, por su parte, puede retirar en cualquier momento los consentimientos otorgados a través del mecanismo «Gestionar cookies» del pie de página, eliminando la clave «astro-consent» del almacenamiento local de su navegador o escribiendo directamente al editor. La revocación no tiene efectos retroactivos sobre tratamientos ya realizados dentro del marco legal aplicable.',
-        },
-        {
-          heading: 'Propiedad intelectual',
-          body:
-            'Las obras publicadas en Plocos son de autoría del editor o de los colaboradores acreditados en cada pieza. Salvo indicación contraria, todos los derechos morales y patrimoniales pertenecen a sus respectivos titulares y se reservan. Cualquier reproducción total o parcial —incluyendo traducción, adaptación, compilación o inclusión en otros soportes— requiere cita de fuente, preservación de la integridad de la pieza y autorización escrita previa, salvo los usos de citación honesta, ilustración educativa y referencia crítica reconocidos por la legislación colombiana sobre derechos de autor (Decisión Andina 486 y Ley 23 de 1982, entre otras). El uso de las obras en actividades comerciales, su inclusión en publicaciones remuneradas o su explotación económica sin licencia expresa constituye una infracción sancionable. Las solicitudes de licenciamiento se tramitan por los canales oficiales de contacto.',
-        },
-        {
-          heading: 'Contribuciones, comentarios y moderación',
-          body:
-            'Los aportes enviados al archivo —comentarios, colaboraciones editoriales, sugerencias o materiales gráficos— pasan por moderación editorial antes de su publicación. El editor puede ajustar el estilo, la extensión o el formato para preservar la coherencia del archivo, retirar contenido que vulnere estas condiciones o que resulte ajeno a la línea editorial, y responder o no a los aportes según su criterio. El envío de contenido implica que quien comenta cuenta con los permisos necesarios sobre el material remitido y acepta su publicación bajo las mismas condiciones del archivo. No se admiten ataques personales, discursos de odio, spam ni material protegido por derechos de terceros sin la autorización correspondiente. Las contribuciones remuneradas se regularán por acuerdos específicos firmados con cada colaborador.',
-        },
-        {
-          heading: 'Privacidad y datos personales',
-          body:
-            'El tratamiento de datos personales asociados a la visita del archivo —incluyendo cookies, analítica anonimizada y comunicaciones opcionales— se rige por la Política de Privacidad publicada en la ruta /privacidad de este mismo sitio, la cual forma parte integral de estas condiciones. Allí se detallan las finalidades, las bases legales conforme a la Ley 1581/2012 y al Decreto 1377/2013, los derechos de Acceso, Rectificación, Cancelación y Oposición (derechos ARCO) y los canales habilitados para ejercerlos. La Política de Privacidad prevalece sobre este resumen en caso de divergencia. Al continuar la navegación, el visitante confirma haber leído la Política de Privacidad o, cuando menos, haber sido informado de su existencia y del lugar donde puede consultarla.',
-        },
-        {
-          heading: 'Ley aplicable y jurisdicción',
-          body:
-            'Las presentes condiciones se interpretan y se ejecutan de conformidad con las leyes de la República de Colombia, en particular la Ley 1581/2012 sobre protección de datos personales, el Decreto 1377/2013 que la reglamenta parcialmente, la Decisión Andina 486 sobre Propiedad Industrial, la Ley 23 de 1982 sobre derechos de autor y el Código Civil colombiano en lo que resulte aplicable. Cualquier controversia, reclamación o disputa derivada de la navegación, uso o interpretación de estas condiciones se somete a los jueces y tribunales competentes de la ciudad de Cartagena de Indias, Distrito Turístico y Cultural, sin perjuicio de los derechos irrenunciables que la legislación colombiana o las normas de protección al consumidor otorguen al visitante. La eventual declaración de nulidad de alguna cláusula no afecta la validez de las restantes.',
-        },
-      ],
-      contactNotice:
-        'Si necesitas claridad adicional o deseas tramitar permisos específicos, contáctanos y revisaremos tu solicitud.',
-      contactLinkLabel: 'Ir a contacto',
-    },
+    terms: pactoEsData as Translation['terms'],
     consent: {
       headline: 'Tu privacidad, tu decisión',
       description:
@@ -664,6 +610,26 @@ export const translations: Record<Locale, Translation> = {
         'Configurar tu navegador para bloquear o limitar cookies de terceros; ten en cuenta que algunas funciones del archivo pueden dejar de estar disponibles.',
         'Escribir a expresatura@plocos.com para solicitar asistencia personalizada.',
       ],
+    },
+    av: {
+      collection: {
+        title: '',
+        description: '',
+        empty: '',
+        detailAlt: '',
+        mediumLabel: '',
+        dimensionsLabel: '',
+        yearLabel: '',
+        coverLabel: '',
+        galleryLabel: '',
+      },
+    },
+    editor: {
+      appTitle: '',
+      loginCta: '',
+      collections: { posts: { label: '' }, audiovisuales: { label: '' } },
+      saveSuccess: '',
+      saveError: '',
     },
   },
   en: {
@@ -853,84 +819,7 @@ export const translations: Record<Locale, Translation> = {
             'We moderate each comment to keep the discussion aligned with Plocos’ editorial standards.',
         },
     },
-    terms: {
-      metaTitle: 'Site Terms · Plocos',
-      metaDescription:
-        'Usage guidelines and editorial policies for the Plocos digital archive.',
-      title: 'Site Terms',
-      updatedLabel: 'Last updated',
-      updatedValue: 'November 8, 2025',
-      introduction:
-        'By accessing Plocos you agree to the guidelines that protect this archive and ensure responsible use.',
-      sections: [
-        {
-          heading: 'Nature and editorial purpose',
-          body:
-            'Plocos is a digital archive of an editorial, philosophical, and artistic nature, maintained by its editor with the purpose of preserving, organising, and disseminating critical thought, visual poetry, and living memory. The space is not a commercial platform, a social network, or a mass hosting service; each piece is selected, curated, and published under the editor’s own criteria, without direct profit motive over the material on display. Browsing, reading, and consulting the archive are free of charge. The editor reserves the possibility of offering, in the future, complementary services—on-demand prints, workshops, residencies, or physical publications—governed by their own terms. This agreement regulates exclusively the editorial use of the archive and the relationship between the editor and each visitor. [EN: TODO legal review by Colombian attorney]',
-        },
-        {
-          heading: 'Sensitive content notice',
-          body:
-            'Certain pieces in the archive address philosophical, existential, political, or aesthetic themes that some people may experience as intense, unsettling, or confrontational. This includes, among others, reflections on death, historical violence, institutional critique, sexuality, human suffering, and crises of meaning. Such treatments respond to the editorial line of the archive and to the conviction that critical thinking does not evade complexity. The editor invites each visitor to decide autonomously whether to continue reading. If the content of a piece becomes emotionally difficult, we recommend stopping the navigation and, if necessary, seeking professional or personal support. We do not assume that exposure to these materials produces well-being or comfort; their value lies in the reflection they enable. [EN: TODO legal review by Colombian attorney]',
-        },
-        {
-          heading: 'Minimum age and capacity',
-          body:
-            'The archive is intended for persons aged fifteen (15) or over. Those accessing the site from jurisdictions that set a different minimum age for consuming editorial content without accompaniment—for example, fourteen in some legislations or sixteen in others—declare, by continuing to browse, that they meet the threshold applicable in their place of residence. The editor does not perform active age verification nor collects data for that purpose. The adults responsible who allow minors in their care to access the site accept supervising the reading and assume the responsibility arising from that decision. If at any point the editor identifies that a piece requires a higher age restriction, this will be signalled visibly at the beginning of the corresponding content. [EN: TODO legal review by Colombian attorney]',
-        },
-        {
-          heading: 'Subscriptions, payments, and refunds',
-          body:
-            'As of the publication date of these terms, access to the archive is free of charge and does not require registration. If in the future the editor enables paid services—premium newsletters, physical publications, workshops, residencies, or on-demand printed pieces—the specific terms of each offer will be disclosed before any charge and will be governed by Colombian consumer protection law, in particular the Estatuto del Consumidor (Ley 1480/2011). The visitor will have a right of retracto within five (5) business days following payment, save for the legal exceptions applicable (personalised goods, services already executed with consent, among others). Refund requests will be processed through the same channel used for payment and resolved within a maximum of fifteen (15) calendar days. [EN: TODO legal review by Colombian attorney]',
-        },
-        {
-          heading: 'Anti-AI and anti-scraping protection',
-          body:
-            'The content of the archive—texts, images, illustrations, and combinations thereof—is published for human consultation and forms part of the editorial work of Plocos. Its collection, copying, extraction, re-training, fine-tuning, evaluation, or any form of reuse aimed at developing, improving, or training artificial intelligence models is prohibited, whether directly or through intermediaries, agents, datasets, or third-party services. This prohibition includes automated web scraping, selective harvesting, and the construction of parallel corpora without prior written authorisation. The archive implements reasonable technical measures—including directives in robots.txt, meta tags, and blocking patterns—to discourage such practices. Violation of this clause may give rise to civil liability and, where applicable, to the legal actions contemplated by Colombian law. [EN: TODO legal review by Colombian attorney]',
-        },
-        {
-          heading: 'Expressly prohibited uses',
-          body:
-            'The material of Plocos may not be distributed, hosted, or reused in contexts that undermine the ethics of this archive, the rights of third parties, or the Colombian legal order. In particular, it is prohibited to reuse it in projects that:',
-          bullets: [
-            'Infringe or contravene human dignity and its principles.',
-            'Violate the rights of children and adolescents.',
-            'Are unconstitutional, contrary to law, or disregard current regulations.',
-            'Limit, censor, or distort freedom of expression in any of its forms.',
-            'Promote violence, sexual exploitation, terrorism, racism, obscenity, or pornographic material.',
-            'Distribute P2P links, torrents, direct downloads, or other schemes intended to profit from copyrighted material.',
-          ],
-        },
-        {
-          heading: 'Access revocation',
-          body:
-            'The editor may revoke, restrict, or suspend the access of any visitor to the archive when there are reasonable indications of breach of these terms, of unauthorised automated use, of mass extraction for AI training purposes, of attempts to circumvent the technical protection measures, or of any conduct that disturbs the operation of the site. The decision will be communicated, when possible, through the known contact channels. This measure does not preclude other available legal actions. The visitor, for their part, may withdraw at any time the consents granted through the “Manage cookies” mechanism in the footer, by deleting the “astro-consent” key from their browser’s local storage, or by writing to the editor directly. Revocation has no retroactive effect on processing already carried out within the applicable legal framework. [EN: TODO legal review by Colombian attorney]',
-        },
-        {
-          heading: 'Intellectual property',
-          body:
-            'The works published on Plocos are authored by the editor or by the contributors credited in each piece. Unless otherwise stated, all moral and economic rights belong to their respective holders and are reserved. Any total or partial reproduction—including translation, adaptation, compilation, or inclusion in other media—requires source citation, preservation of the integrity of the piece, and prior written authorisation, save for the uses of honest citation, educational illustration, and critical reference recognised by Colombian copyright law (Decisión Andina 486 and Ley 23 de 1982, among others). Use of the works in commercial activities, their inclusion in paid publications, or their economic exploitation without an express licence constitutes an actionable infringement. Licensing requests are processed through the official contact channels. [EN: TODO legal review by Colombian attorney]',
-        },
-        {
-          heading: 'Contributions, comments, and moderation',
-          body:
-            'Submissions sent to the archive—comments, editorial collaborations, suggestions, or graphic materials—go through editorial moderation before being published. The editor may adjust the style, length, or format to preserve the coherence of the archive, withdraw content that breaches these terms or falls outside the editorial line, and respond or not to submissions at their discretion. Submitting content implies that the commenter holds the necessary permissions over the material sent and accepts its publication under the same terms as the archive. Personal attacks, hate speech, spam, and material protected by third-party rights without the corresponding authorisation are not accepted. Paid contributions will be governed by specific agreements signed with each collaborator. [EN: TODO legal review by Colombian attorney]',
-        },
-        {
-          heading: 'Privacy and personal data',
-          body:
-            'The processing of personal data associated with visiting the archive—including cookies, anonymised analytics, and optional communications—is governed by the Privacy Policy published at the /privacy route of this same site, which forms an integral part of these terms. There you will find the purposes, the legal bases under Ley 1581/2012 and Decreto 1377/2013, the rights of Access, Rectification, Cancellation, and Opposition (ARCO rights (Access, Rectification, Cancellation, Opposition)), and the channels available to exercise them. The Privacy Policy prevails over this summary in case of divergence. By continuing to browse, the visitor confirms having read the Privacy Policy or, at the very least, having been informed of its existence and of the place where it may be consulted.',
-        },
-        {
-          heading: 'Applicable law and jurisdiction',
-          body:
-            'These terms are interpreted and enforced in accordance with the laws of the Republic of Colombia, in particular Ley 1581/2012 on personal data protection, Decreto 1377/2013 partially regulating it, Decisión Andina 486 on Industrial Property, Ley 23 de 1982 on copyright, and the Colombian Civil Code where applicable. Any controversy, claim, or dispute arising from the navigation, use, or interpretation of these terms is submitted to the competent judges and courts of the city of Cartagena de Indias, Distrito Turístico y Cultural, without prejudice to the unwaivable rights that Colombian law or consumer protection regulations grant to the visitor. The eventual declaration of nullity of any clause does not affect the validity of the remaining ones. [EN: TODO legal review by Colombian attorney]',
-        },
-      ],
-      contactNotice:
-        'If you need further clarification or want to process specific permissions, get in touch and we will review your request.',
-      contactLinkLabel: 'Contact us',
-    },
+    terms: pactoEnData as Translation['terms'],
     consent: {
       headline: 'Your privacy, your choice',
       description:
@@ -1112,6 +1001,26 @@ export const translations: Record<Locale, Translation> = {
         'Configure your browser to block or limit third-party cookies; bear in mind that some archive functions may become unavailable.',
         'Write to expresatura@plocos.com to request personalised assistance.',
       ],
+    },
+    av: {
+      collection: {
+        title: '',
+        description: '',
+        empty: '',
+        detailAlt: '',
+        mediumLabel: '',
+        dimensionsLabel: '',
+        yearLabel: '',
+        coverLabel: '',
+        galleryLabel: '',
+      },
+    },
+    editor: {
+      appTitle: '',
+      loginCta: '',
+      collections: { posts: { label: '' }, audiovisuales: { label: '' } },
+      saveSuccess: '',
+      saveError: '',
     },
   },
 };
