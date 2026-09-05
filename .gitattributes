@@ -1,0 +1,5 @@
+# Force LF line endings for data JSON and markdown content files.
+# Required because core.autocrlf=true converts LF -> CRLF on checkout,
+# which breaks the byte-level SHA-256 pacto verifier.
+*.json text eol=lf
+*.md   text eol=lf

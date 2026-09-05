@@ -12,7 +12,10 @@
     "import:plocos": "node scripts/import-plocos.js",
     "flatten:posts": "node scripts/flatten-posts.mjs",
     "flatten:posts:write": "node scripts/flatten-posts.mjs --write",
-    "check:pages": "astro check --path src/pages"
+    "check:pages": "astro check --path src/pages",
+    "verify:pacto": "node scripts/verify-pacto-body.mjs",
+    "verify:pacto:self-check": "node scripts/verify-pacto-body.mjs --self-check",
+    "prebuild": "pnpm verify:pacto"
   },
   "dependencies": {
     "@algolia/autocomplete-js": "1.19.4",

@@ -1,0 +1,60 @@
+{
+  "$schema": "./pacto-canonical.schema.json",
+  "source": "Engram observation #99 (sdd/pacto-cliente-y-autonomia-contenido/text)",
+  "revision": 2,
+  "generatedBy": "scripts/__fixtures__/generate-pacto-data.mjs (one-shot, deleted after run)",
+  "encoding": "UTF-8",
+  "lineEndings": "LF",
+  "expected": {
+    "sha256": "46fa23bf049dc7e55205adf8e638ebd530fc12f0afe4c12fe26b8a32bc0774b7",
+    "byteLength": 6473,
+    "sections": 8,
+    "updatedValue": "2 de septiembre de 2026",
+    "updatedHeaderEs": "Última actualización: 2 de septiembre de 2026",
+    "joinDelimiter": ""
+  },
+  "sections": [
+    {
+      "index": 1,
+      "heading": "I. EL PACTO COGNITIVO (MANIFIESTO Y NATURALEZA EDITORIAL)"
+    },
+    {
+      "index": 2,
+      "heading": "II. NATURALEZA TRANSACCIONAL Y CAPACIDAD JURÍDICA"
+    },
+    {
+      "index": 3,
+      "heading": "III. ARQUITECTURA DE LA PROPIEDAD INTELECTUAL Y LICENCIAMIENTO"
+    },
+    {
+      "index": 4,
+      "heading": "IV. PROTECCIÓN ANTI-IA Y PROHIBICIÓN DE MINERÍA DE DATOS"
+    },
+    {
+      "index": 5,
+      "heading": "V. POLÍTICA DE PAGOS, RETRACTO Y REEMBOLSOS"
+    },
+    {
+      "index": 6,
+      "heading": "VI. LIMITACIONES ÉTICAS, INTERACCIÓN Y EXPULSIÓN"
+    },
+    {
+      "index": 7,
+      "heading": "VII. SOBERANÍA DIGITAL Y PRIVACIDAD"
+    },
+    {
+      "index": 8,
+      "heading": "VIII. LEY APLICABLE Y JURISDICCIÓN"
+    }
+  ],
+  "bodies": [
+    "Plocos es un ecosistema independiente dedicado a la disección de la realidad, el arte plástico, la literatura interactiva y el análisis filosófico. El objetivo de este dominio no es complacer, anestesiar ni resguardar las sensibilidades del visitante, sino fomentar la reflexión profunda y la exposición de la condición humana en todas sus dimensiones.\nEl acceso y consumo de la obra aquí publicada es un acto voluntario. Al ingresar, el visitante acepta que:\n1. Asume la carga psicológica y emocional de su propia interpretación.\n2. Reconoce la taxonomía del contenido: El portal incluye análisis sin filtros de la psique humana, representaciones anatómicas (bajo el estricto contexto de la apreciación estética), cuestionamiento directo de dogmas estructurales y lenguaje explícito utilizado como herramienta de precisión narrativa.\n3. Comprende la frontera analítica: La exposición de una temática compleja, violenta o disruptiva para su análisis no constituye su promoción ni apología.\nNo se asume que la exposición a estos materiales produzca confort. Quien encuentre el contenido emocionalmente inasumible debe detener la navegación.",
+    "A diferencia de un archivo pasivo, Plocos sostiene su rigor curatorial e intelectual a través de un modelo comercial. Este dominio opera con ánimo de lucro directo como plataforma de soporte para la venta de literatura virtual interactiva, suscripciones, membresías exclusivas y otros servicios editoriales.\nCapacidad legal: La creación de cuentas, la adquisición de suscripciones y la compra de obras exigen que el usuario cuente con la mayoría de edad legal (18 años) y plena capacidad jurídica.\nAcceso de menores: El acceso a los textos o esquemas de libre consulta por parte de menores de edad queda bajo la estricta e indelegable responsabilidad de sus tutores legales, quienes asumen las implicaciones de la exposición al contenido sensible descrito en el Pacto Cognitivo. No se realiza recolección de datos para verificación de edad en áreas no transaccionales.",
+    "Toda obra alojada en este dominio —incluyendo el libro virtual interactivo, ensayos, aforismos, manifiestos, fotografías de obras plásticas (como acrílicos sobre lienzo), esquemas y borradores— es propiedad intelectual exclusiva de su autor y está protegida por la legislación colombiana (Ley 23 de 1982, Decisión Andina 486) y el Convenio de Berna.\nLicencia de consumo, no de titularidad: El pago de una suscripción o la compra de literatura virtual otorga única y exclusivamente una licencia temporal (en el caso de suscripciones) o perpetua (en compras definitivas), personal, revocable e intransferible para acceder al contenido. En ningún caso constituye una cesión de derechos patrimoniales o morales.\nCláusula de obras en desarrollo: El acceso a proyectos literarios inacabados, borradores o fragmentos exclusivos convierte al suscriptor en un lector anticipado. La filtración, captura de pantalla, copia o difusión no autorizada de estos textos vulnera el secreto profesional y los derechos de explotación futura, habilitando el cobro de perjuicios.\nProhibición de obras derivadas: Queda terminantemente prohibido utilizar el texto o el arte visual alojado como base para obras derivadas, traducciones, adaptaciones o descontextualizaciones sin un contrato de licenciamiento escrito.",
+    "En respuesta a las lógicas extractivistas contemporáneas, se establece un cerco técnico y legal estricto. El contenido de Plocos se publica exclusivamente para el consumo cognitivo humano.\nQueda absolutamente prohibido el uso, extracción, raspado (web scraping automatizado o selectivo) y recolección masiva de cualquier texto, imagen, estructura o metadato de este portal para el desarrollo, entrenamiento, ajuste fino (fine-tuning) o evaluación de modelos de Inteligencia Artificial (LLMs), generadores de imágenes o sistemas de aprendizaje automático. Esta prohibición aplica a entidades públicas, corporaciones privadas, intermediarios y constructores de datasets. El portal implementa contramedidas técnicas y perseguirá civilmente cualquier elusión de las mismas.",
+    "Toda transacción comercial dentro de Plocos se rige por el Estatuto del Consumidor de Colombia (Ley 1480/2011).\nDerecho de retracto: El usuario podrá ejercer su derecho de retracto dentro de los cinco (5) días hábiles siguientes a la compra de una suscripción, solicitando la reversión del pago.\nExcepciones: El derecho de retracto no aplicará para la compra de bienes digitales (como el acceso completo e inmediato al libro virtual interactivo o descargas de contenido) cuando la ejecución del servicio haya comenzado con el consentimiento previo y expreso del consumidor, imposibilitando su devolución técnica.",
+    "La libertad intelectual de este espacio no ampara la anarquía perjudicial.\nEl usuario se compromete a no utilizar ninguna sección interactiva (comentarios, foros de suscriptores) para alojar material ilegal, promover daño físico, terrorismo, explotación infantil o difamación jurídica sin fundamento.\nLa administración se reserva el derecho inalienable de moderar o eliminar intervenciones que fracturen la línea editorial, sin que ello constituya censura.\nRevocación: Se revocará el acceso, suspendiendo cuentas y cancelando suscripciones de forma inmediata y sin derecho a reembolso, a quien vulnere la propiedad intelectual, eluda las protecciones anti-IA, distribuya credenciales de acceso de forma fraudulenta o viole los límites éticos expuestos.",
+    "Plocos opera bajo el principio de recolección mínima. El tratamiento de datos personales, necesarios estrictamente para el procesamiento de pagos, administración de suscripciones y envío de obras, se realiza conforme a la Ley 1581/2012 y sus decretos reglamentarios. No se perfila ideológicamente a los visitantes ni se comercializan bases de datos. Los derechos de Acceso, Rectificación, Cancelación y Oposición (ARCO) pueden ejercerse a través de los canales de contacto oficiales detallados en la Política de Privacidad.",
+    "Las presentes condiciones se interpretan y ejecutan bajo las leyes de la República de Colombia. Cualquier controversia, disputa o reclamación que supere los mecanismos de conciliación directa será sometida a la jurisdicción de los jueces y tribunales competentes de la ciudad de Cartagena de Indias, Distrito Turístico y Cultural. La nulidad de una cláusula no invalidará el andamiaje del resto del documento."
+  ]
+}
