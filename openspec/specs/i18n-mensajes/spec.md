@@ -1,14 +1,14 @@
 ---
 status: active
-archived_from: consentimiento-y-marco-legal
-date_archived: 2026-08-20
+archived_from: pacto-cliente-y-autonomia-contenido
+date_archived: 2026-09-05
 ---
 
 # Spec: i18n-mensajes
 
 ## Purpose
 
-Define the externally observable contract of the i18n module (`src/lib/i18n.ts`) for the new legal-and-consent content. This is the single source of truth that the pacto, privacy, cookie policy, splash, and consent banner consume. The spec covers the shape of new translation sections and the parity rules that guarantee the `en` and `es` bundles stay in sync.
+Define the externally observable contract of the i18n module (`src/lib/i18n.ts`) for the legal-and-consent content. This is the single source of truth that the pacto, privacy, cookie policy, splash, and consent banner consume. The spec covers the shape of new translation sections and the parity rules that guarantee the `en` and `es` bundles stay in sync.
 
 ## Requirements
 
@@ -23,10 +23,12 @@ The `Translation` interface SHALL add the following top-level sections, each pop
 | `splash` | sensitive-content modal in `BaseLayout` |
 | `consent` | cookie banner labels |
 | `footer.manageCookies` | footer link to re-open consent |
+| `av.collection` | `/galeria/`, `/galeria/[...id]/`, lightbox UI (interface declared, UI deferred to follow-up change) |
+| `editor` | Decap CMS UI strings (interface declared, CMS integration deferred to follow-up change) |
 
 **Given** the i18n module is imported
 **When** TypeScript checks the `Translation` type
-**Then** the new sections SHALL be declared and both `es` and `en` SHALL provide matching keys.
+**Then** the seven sections SHALL be declared and both `es` and `en` SHALL provide matching keys.
 
 ### REQ-i18n-2: Parity enforced at compile time
 
@@ -66,19 +68,29 @@ The translation keys for legal documents (`privacy`, `cookiePolicy`, `pacto`, `s
 
 ### REQ-i18n-6: Section-array shape for pacto and cookie policy
 
-The `terms.sections`, `privacy.sections`, and `cookiePolicy.categories[].cookies` arrays SHALL follow a documented shape so the corresponding `.astro` pages can render uniformly:
+The `terms.sections[]` and `privacy.sections[]` arrays SHALL follow a documented shape so the corresponding `.astro` pages can render uniformly:
 
 - `terms.sections[]` and `privacy.sections[]`: `{ heading: string; body: string; bullets?: string[] }`.
 - `cookiePolicy.categories[]`: `{ heading: string; description: string; cookies: { name: string; provider: string; purpose: string; duration: string; party: "first" | "third" }[] }[]`.
 
-**Given** a translation bundle conforms to the shape above
-**When** the legal pages render
-**Then** the templates SHALL render headings, bodies, bullets, and cookie rows without runtime guards for missing fields.
+**Pacto-specific (added in `pacto-cliente-y-autonomia-contenido`):** `terms.sections[]` for BOTH locales SHALL hold exactly 8 entries. Inner sub-items in the Spanish body (1/2/3 in Section I; the three named sub-paragraphs in Section III) MUST be preserved inside the `body` string as literal text — they are NOT a separate array.
+
+**Given** the Spanish `terms.sections[]` after PR1
+**When** `terms.sections.length === 8` is asserted
+**Then** it SHALL be true AND every entry's `body` SHALL be a single string (no inner bullets array for sections I–VIII).
 
 ### REQ-i18n-7: No new top-level keys without design review
 
-Adding a new top-level section to the `Translation` interface (beyond the five listed in REQ-i18n-1) SHALL require a design-phase decision documented in `openspec/changes/<change>/design.md`. This prevents silent drift of the i18n contract.
+Adding a new top-level section to the `Translation` interface (beyond the seven listed in REQ-i18n-1) SHALL require a design-phase decision documented in `openspec/changes/<change>/design.md`. This prevents silent drift of the i18n contract.
 
 **Given** a developer adds a new section (e.g., `newsletter`)
 **When** they commit
 **Then** the PR SHALL reference a design doc that justifies the addition.
+
+### REQ-i18n-8: Pacto body sourced from JSON files (added in `pacto-cliente-y-autonomia-contenido`)
+
+`getTranslations('es').terms.sections` and `getTranslations('en').terms.sections` SHALL be sourced from JSON imports of `src/content/_data/pacto.es.json` and `pacto.en.json`, NOT inline string literals in `src/lib/i18n.ts`. Rationale: future CMS integrations (Decap, Interstellar Writer Next, custom editor) edit JSON files; keeping the body inline would block that path. The JSON files are committed to git and have `*.json text eol=lf` enforced via `.gitattributes` to guarantee LF line endings (which the SHA-256 verifier requires).
+
+**Given** `src/content/_data/pacto.es.json` is replaced with a different 8-section array
+**When** the build runs
+**Then** `getTranslations('es').terms.sections` SHALL reflect the new array AND `pnpm verify:pacto` SHALL fail with a SHA-256 mismatch.
