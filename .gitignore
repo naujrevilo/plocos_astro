@@ -43,3 +43,12 @@ local.db-journal
 
 # Agentic tool layer (skills, registry, workspace state)
 .atl/
+
+# SDD change artifacts (proposal, design, tasks, specs, archive-report)
+# Source of truth for change documentation lives in Engram + local
+# machine, not in the repo. Active capabilities are tracked in
+# openspec/specs/ instead.
+openspec/
+
+# Debug HTML files from local dev sessions
+src/test.html
