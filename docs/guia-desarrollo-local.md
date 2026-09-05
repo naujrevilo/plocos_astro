@@ -1,4 +1,6 @@
-# Guía de desarrollo local (NO subir a GitHub)
+# Guía de desarrollo local
+
+> **Documento de desarrollo.** Para entender la arquitectura completa, ver [`arquitectura.md`](arquitectura.md). Para diagramas técnicos detallados, ver [`diagramas/dev/`](diagramas/dev/).
 
 ## Requisitos
 
@@ -9,10 +11,48 @@
 ## Pasos para desarrollo
 
 1. Instala dependencias: `pnpm install`
-2. Inicia Astro en modo remoto (Turso): `pnpm dev --remote`
-3. Accede al panel TinaCMS: `http://localhost:4321/admin/index.html`
-4. Para moderar comentarios, visita `/admin/login` para iniciar sesión.
-5. Una vez que hayas iniciado sesión, serás redirigido al panel de moderación en `/admin/comments`.
+2. Inicia Astro en modo dev (Turso lee de `.env.local`): `pnpm dev`
+3. Para moderar comentarios, visita `/admin/login` e ingresa el `COMMENTS_MODERATION_TOKEN` de tu `.env.local`.
+4. Una vez que hayas iniciado sesión, serás redirigido al panel de moderación en `/admin/comments`.
+
+> **Nota histórica**: Esta guía mencionaba TinaCMS en versiones anteriores. TinaCMS fue eliminado del proyecto (obs #26, 2026-08-15) y reemplazado por un plan de Decap CMS que también fue descartado por decisión del cliente. Hoy el contenido se edita directamente en los archivos de `src/content/` y los JSONs de `src/content/_data/`.
+
+## Variables de entorno — Lección crítica
+
+**En Astro 5 + Vite 6, las vars de `.env.local` SOLO están en `import.meta.env`, NO en `process.env`.**
+
+```typescript
+// ❌ NO funciona (devuelve undefined)
+const token = process.env.COMMENTS_MODERATION_TOKEN;
+
+// ✅ SÍ funciona
+const token = import.meta.env.COMMENTS_MODERATION_TOKEN;
+```
+
+Si una var no se está leyendo, **siempre usa `import.meta.env`**. Ver diagrama completo en [`diagramas/dev/env-vars-vite6.md`](diagramas/dev/env-vars-vite6.md).
+
+## Pipeline de build
+
+```bash
+# Verificación previa al build (corre automáticamente antes de `pnpm build`)
+pnpm verify:pacto
+
+# Build de producción
+pnpm build --remote
+
+# Preview local del build
+pnpm preview
+```
+
+El prebuild hook `pnpm verify:pacto` valida que el texto literal del pacto no haya mutado (SHA-256 byte-level). Si el hash no coincide, el build falla.
+
+Ver diagrama completo en [`diagramas/dev/build-deploy.md`](diagramas/dev/build-deploy.md).
+
+## SDD (Spec-Driven Development)
+
+Los cambios siguen un ciclo de 6 fases: propose → spec → design → tasks → apply → verify → archive. Ver [`diagramas/dev/sdd-lifecycle.md`](diagramas/dev/sdd-lifecycle.md).
+
+Cambios archivados en `openspec/changes/archived/`. Capacidades activas en `openspec/specs/`.
 
 ## Cambios recientes (v0.1.8)
 - **Envío de comentarios como JSON**: El formulario de comentarios ahora envía los datos como `application/json` en lugar de `multipart/form-data`. Esto soluciona el error 415 Unsupported Media Type.
@@ -22,11 +62,21 @@
 ## Troubleshooting
 
 - Si el panel de moderación no muestra comentarios:
-  - Verifica que las credenciales en `.env.local` son correctas.
+  - Verifica que `COMMENTS_MODERATION_TOKEN` en `.env.local` matchea el que estás usando para login.
+  - Verifica que `ASTRO_DB_REMOTE_URL` y `ASTRO_DB_APP_TOKEN` están en `.env.local` con valores correctos de Turso.
   - Asegúrate de que la cookie se guarda (prueba en ventana privada).
   - El archivo `src/pages/admin/comments.astro` debe tener `export const prerender = false;`.
-- Si no ves datos en Turso, asegúrate de usar `--remote` y que las credenciales sean válidas.
-- Si los comentarios no se envían, verifica que la solicitud a `/api/comments` se esté realizando con el `Content-Type` correcto (`application/json`).
+- Si el error es `ASTRO_DB_REMOTE_URL is not set`:
+  - **El archivo `.env.local` está correcto pero `process.env` no lo carga en Astro 5.** Cambiar a `import.meta.env`. Ver [`diagramas/dev/env-vars-vite6.md`](diagramas/dev/env-vars-vite6.md).
+- Si no ves datos en Turso, asegúrate de que las credenciales son válidas (el endpoint Turso responde con 401 si el token está mal).
+- Si los comments no se envían, verifica que la solicitud a `/api/comments` se esté realizando con el `Content-Type` correcto (`application/json`).
+
+## Ver también
+
+- [`diagramas/dev/`](diagramas/dev/) — Diagramas técnicos detallados
+  - [`estructura-proyecto.md`](diagramas/dev/estructura-proyecto.md) — Mapa del código
+  - [`comment-moderation.md`](diagramas/dev/comment-moderation.md) — Cómo funciona la moderación internamente
+- [`arquitectura.md`](arquitectura.md) — Vista general de la arquitectura
 
 ## Buenas prácticas
 

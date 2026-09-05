@@ -1,7 +1,9 @@
 
-# Guía para cliente (NO subir a GitHub)
+# Guía para cliente
 
-## Cambios recientes (v0.1.5)
+> **Tu guía de moderación de comentarios.** Para una vista completa del flujo con diagramas, consulta [`diagramas/user/como-comentar.md`](diagramas/user/como-comentar.md). Para entender qué páginas existen en el sitio, consulta [`diagramas/user/arquitectura-informacion.md`](diagramas/user/arquitectura-informacion.md).
+
+## Cambios recientes (v0.1.45)
 
 - **Mejora en la seguridad de la moderación**: Se ha eliminado el uso de tokens en la URL para la autenticación. Ahora se utiliza un sistema de cookies seguras, lo que hace que el proceso sea más seguro y transparente.
 - **Redirección automática**: Al enviar un comentario, el usuario es redirigido a la página de inicio.
@@ -9,10 +11,12 @@
 
 ## Acceso y uso del panel de moderación
 1. Ingresa a `/admin/login` para iniciar sesión.
-2. Una vez que hayas iniciado sesión, serás redirigido al panel de moderación en `/admin/comments`.
-3. Verás los comentarios pendientes y recientes.
-4. Usa los botones para aprobar o eliminar comentarios.
-5. Navega a la publicación para revisar el contexto antes de aprobar.
+2. Pega tu `COMMENTS_MODERATION_TOKEN` (lo tienes en tu `.env.local` o te lo pasó el equipo técnico).
+3. Una vez que hayas iniciado sesión, serás redirigido al panel de moderación en `/admin/comments`.
+4. Verás dos secciones: **Pendientes** (amarillo) y **Aprobados** (verde).
+5. Para cada comment pendiente, click en el link del post para ver contexto, luego "Aprobar" o "Eliminar".
+
+Ver el flujo completo con diagrama en [`diagramas/user/como-comentar.md`](diagramas/user/como-comentar.md).
 
 ## Buenas prácticas de moderación
 - Nunca compartas el token por correo, chat o medios inseguros
@@ -27,5 +31,11 @@
 - Ante cualquier duda, contacta al equipo técnico
 
 ---
-Actualizado: 2025-11-16
-Versión: 1.3.0
+Actualizado: 2026-09-05
+Versión: 1.4.0
+
+## Ver también
+
+- [`diagramas/user/como-comentar.md`](diagramas/user/como-comentar.md) — Tu flujo diario con diagrama
+- [`diagramas/user/arquitectura-informacion.md`](diagramas/user/arquitectura-informacion.md) — Mapa del sitio
+- [`diagramas/user/primera-visita.md`](diagramas/user/primera-visita.md) — Qué pasa cuando alguien visita el sitio por primera vez
