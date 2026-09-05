@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 const COOKIE_NAME = 'plocos-comments-token';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-  const moderationToken = process.env.COMMENTS_MODERATION_TOKEN;
+  const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN;
   const providedToken = cookies.get(COOKIE_NAME)?.value ?? null;
 
   if (!moderationToken || providedToken !== moderationToken) {

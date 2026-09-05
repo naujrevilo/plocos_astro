@@ -6,7 +6,7 @@ import { desc } from 'drizzle-orm';
 import Layout from '../../layouts/BaseLayout.astro';
 
 const COOKIE_NAME = 'plocos-comments-token';
-const moderationToken = process.env.COMMENTS_MODERATION_TOKEN ?? '';
+const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN ?? '';
 const cookieToken = Astro.cookies.get(COOKIE_NAME)?.value;
 const urlToken = Astro.url.searchParams.get('token');
 
