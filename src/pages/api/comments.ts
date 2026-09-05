@@ -70,8 +70,6 @@ function respond(
     }
     const referer = request.headers.get('referer');
     if (referer) {
-      console.log(`Fetching comments for slug: ${slug}, locale: ${locale}`);
-
   try {
         const redirect = new URL(referer);
         if (fallback?.status) {

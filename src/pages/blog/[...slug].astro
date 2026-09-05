@@ -1,5 +1,5 @@
 ---
-import { getCollection, getEntryBySlug, type CollectionEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
@@ -18,7 +18,7 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-const post = await getEntryBySlug('posts', slug as string);
+const post = await getEntry('posts', slug as string);
 
 if (!post) {
   return new Response(null, { status: 404 });
