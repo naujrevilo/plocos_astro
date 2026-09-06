@@ -9,7 +9,8 @@ import path from 'path';
 import matter from 'gray-matter';
 
 // Inicializa el cliente de Algolia con las credenciales de entorno.
-const client = algoliasearch(process.env.ALGOLIA_APP_ID, process.env.ALGOLIA_ADMIN_KEY);
+// Usamos la clave de escritura (admin) del lado del servidor para reindexar.
+const client = algoliasearch(process.env.ALGOLIA_APP_ID, process.env.ALGOLIA_WRITE_API_KEY);
 
 // Define el directorio donde se encuentran los posts.
 const postsDirectory = path.join(process.cwd(), 'src/content/posts');
