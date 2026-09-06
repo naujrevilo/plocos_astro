@@ -1,0 +1,126 @@
+---
+/**
+ * Bulk-delete reason modal. Vanilla <dialog> element; the inline script in
+ * src/pages/admin/comments.astro wires it open/close + submission.
+ */
+const REASONS: Array<{ value: string; label: string }> = [
+  { value: 'general', label: 'General' },
+  { value: 'spam', label: 'Spam' },
+  { value: 'harmful', label: 'Contenido dañino' },
+  { value: 'personal-info', label: 'Información personal' },
+  { value: 'wrong-language', label: 'Idioma incorrecto' },
+  { value: 'nonsense', label: 'Sin sentido' },
+  { value: 'off-topic', label: 'Fuera de tema' },
+  { value: 'low-effort', label: 'Bajo esfuerzo' },
+];
+---
+
+<dialog
+  class="moderation-delete-modal w-full max-w-2xl rounded-2xl bg-surface p-0 shadow-2xl backdrop:bg-slate-900/60"
+  data-moderation-delete-modal
+>
+  <form method="dialog" class="flex flex-col" data-moderation-delete-form>
+    <header class="flex items-center justify-between border-b border-border-subtle px-6 py-4">
+      <h2 class="text-lg font-semibold text-text-primary">Razón de borrado</h2>
+      <button
+        type="button"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition hover:bg-surface-muted hover:text-text-primary"
+        aria-label="Cerrar"
+        data-moderation-modal-close
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <div class="grid gap-6 px-6 py-5 md:grid-cols-2">
+      <fieldset>
+        <legend class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-text-secondary">
+          Motivo
+        </legend>
+        <div class="space-y-2" role="radiogroup">
+          {REASONS.map((reason, index) => (
+            <label
+              class="flex cursor-pointer items-center gap-3 rounded-lg border border-border-subtle px-3 py-2 text-sm transition hover:border-border has-[:checked]:border-accent has-[:checked]:bg-accent-soft"
+            >
+              <input
+                type="radio"
+                name="rejectionReason"
+                value={reason.value}
+                class="h-4 w-4 cursor-pointer accent-accent"
+                checked={index === 0}
+                data-reason-radio={reason.value}
+              />
+              <span class="text-text-primary">{reason.label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-text-secondary">
+          Acciones adicionales
+        </legend>
+        <div class="space-y-2">
+          <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-border-subtle px-3 py-2 text-sm transition hover:border-border has-[:checked]:border-accent has-[:checked]:bg-accent-soft">
+            <input
+              type="checkbox"
+              name="notifyAuthor"
+              class="h-4 w-4 cursor-pointer accent-accent"
+              checked
+              data-notify-author
+            />
+            <span class="text-text-primary">Avisar al autor</span>
+          </label>
+        </div>
+      </fieldset>
+    </div>
+
+    <footer class="flex items-center justify-end gap-3 border-t border-border-subtle bg-surface-muted px-6 py-4">
+      <button
+        type="button"
+        class="rounded-full px-5 py-2 text-sm font-medium text-text-secondary transition hover:text-text-primary"
+        data-moderation-modal-close
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+        data-moderation-delete-confirm
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path
+            d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+          ></path>
+        </svg>
+        Eliminar
+      </button>
+    </footer>
+  </form>
+</dialog>

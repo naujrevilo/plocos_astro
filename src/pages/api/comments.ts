@@ -116,7 +116,7 @@ export const GET: APIRoute = async ({ url }) => {
         and(
           eq(Comments.postSlug, slug),
           eq(Comments.locale, locale),
-          eq(Comments.approved, 1)
+          eq(Comments.status, 'approved')
         )
       )
       .orderBy(desc(Comments.createdAt));
@@ -127,7 +127,9 @@ export const GET: APIRoute = async ({ url }) => {
       comments: rows.map(({ name, message, createdAt }) => ({
         name,
         message,
-        createdAt: createdAt.toISOString(),
+        // Drizzle returns the stored ISO 8601 string as-is now that we removed
+        // `mode: 'timestamp'` (see Engram #128). Pass through unchanged.
+        createdAt: typeof createdAt === 'string' ? createdAt : new Date(createdAt).toISOString(),
       })),
       count: rows.length,
     });
@@ -239,8 +241,9 @@ export const POST: APIRoute = async ({ request }) => {
       name: sanitize(name, MAX_NAME_LENGTH),
       email: email ? email.trim().slice(0, MAX_EMAIL_LENGTH) : null,
       message: normalizedMessage,
-      approved: 0,
-      createdAt: new Date(),
+      status: 'pending',
+      // Store as ISO 8601 string so SQLite ORDER BY createdAt is chronologically correct.
+      createdAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error creating comment', error);

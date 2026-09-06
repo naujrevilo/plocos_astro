@@ -4,114 +4,691 @@ import { db } from '../../lib/db';
 import { Comments as CommentsTable } from '../../lib/db/schema';
 import { desc } from 'drizzle-orm';
 import Layout from '../../layouts/BaseLayout.astro';
+import ModerationSidebar from '../../components/admin/ModerationSidebar.astro';
+import ModerationFilterBar from '../../components/admin/ModerationFilterBar.astro';
+import ModerationCard from '../../components/admin/ModerationCard.astro';
+import ModerationBulkBar from '../../components/admin/ModerationBulkBar.astro';
+import ModerationDeleteModal from '../../components/admin/ModerationDeleteModal.astro';
 
 const COOKIE_NAME = 'plocos-comments-token';
 const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN ?? '';
 const cookieToken = Astro.cookies.get(COOKIE_NAME)?.value;
 const urlToken = Astro.url.searchParams.get('token');
 
-// Priority 1: Handle token from URL
 if (urlToken) {
   if (urlToken === moderationToken) {
     Astro.cookies.set(COOKIE_NAME, urlToken, {
       path: '/',
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
+      secure: import.meta.env.PROD,
+      maxAge: 60 * 60 * 24 * 30,
     });
     return Astro.redirect('/admin/comments');
   }
 }
 
-// Priority 2: Check for a valid cookie
 if (!moderationToken || cookieToken !== moderationToken) {
   return Astro.redirect(`/admin/login?redirect=/admin/comments`);
 }
 
-const allComments = await db.select().from(CommentsTable).orderBy(desc(CommentsTable.createdAt));
+const rows = await db
+  .select()
+  .from(CommentsTable)
+  .orderBy(desc(CommentsTable.createdAt));
 
-const pendingComments = allComments.filter(comment => comment.approved === 0);
-const approvedComments = allComments.filter(comment => comment.approved === 1);
+const comments = rows.map((row) => {
+  const raw = row.createdAt;
+  let date: Date;
+  if (raw instanceof Date) {
+    date = raw;
+  } else if (typeof raw === 'number' || typeof raw === 'string') {
+    date = new Date(raw);
+  } else {
+    date = new Date();
+  }
+  if (Number.isNaN(date.getTime())) {
+    console.warn('[admin/comments] Invalid createdAt for comment', row.id, raw);
+    date = new Date();
+  }
+  return {
+    id: row.id,
+    postSlug: row.postSlug,
+    locale: row.locale,
+    name: row.name,
+    message: row.message,
+    createdAt: date.toISOString(),
+    status: row.status,
+  };
+});
+
+const uniquePosts = Array.from(new Set(comments.map((c) => c.postSlug))).sort();
+const uniqueLocales = Array.from(new Set(comments.map((c) => c.locale))).sort();
+const counts = comments.reduce<Record<string, number>>((acc, c) => {
+  acc[c.status] = (acc[c.status] ?? 0) + 1;
+  return acc;
+}, {});
+const localeCounts = comments.reduce<Record<string, number>>((acc, c) => {
+  acc[c.locale] = (acc[c.locale] ?? 0) + 1;
+  return acc;
+}, {});
 ---
 
-<Layout title="Moderación de Comentarios">
-  <main class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6">Moderación de Comentarios</h1>
+<Layout title="Moderación de Comentarios" hideChrome>
+  <ModerationSidebar
+    totalCount={comments.length}
+    statusCounts={counts}
+    localeCounts={localeCounts}
+  />
 
-    <section>
-      <h2 class="text-xl font-semibold mb-4">Pendientes ({pendingComments.length})</h2>
-      <div class="space-y-4">
-        {pendingComments.map(comment => (
-          <div class="border p-4 rounded-lg" data-comment-id={comment.id} data-post-slug={comment.postSlug}>
-            <p><strong>{comment.name}</strong></p>
-            <p class="text-sm text-gray-500 mb-2">{new Date(comment.createdAt).toLocaleString()}</p>
-            <p>{comment.message}</p>
-            <div class="mt-4 flex gap-2">
-              <button class="approve-btn bg-green-500 text-white px-3 py-1 rounded">Aprobar</button>
-              <button class="delete-btn bg-red-500 text-white px-3 py-1 rounded">Eliminar</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
+  <div class="ml-60">
+      <header
+        class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border-subtle bg-surface-base/95 px-4 py-4 backdrop-blur md:px-8"
+      >
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-bold tracking-tight text-text-primary md:text-2xl">
+            Cola de moderación
+          </h1>
+          <button
+            type="button"
+            class="inline-flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition hover:bg-surface-muted hover:text-text-primary"
+            aria-label="Más opciones"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
 
-    <section class="mt-12">
-      <h2 class="text-xl font-semibold mb-4">Aprobados ({approvedComments.length})</h2>
-      <div class="space-y-4">
-        {approvedComments.map(comment => (
-          <div class="border p-4 rounded-lg" data-comment-id={comment.id}>
-            <p><strong>{comment.name}</strong></p>
-            <p class="text-sm text-gray-500 mb-2">{new Date(comment.createdAt).toLocaleString()}</p>
-            <p>{comment.message}</p>
-             <div class="mt-4 flex gap-2">
-              <button class="delete-btn bg-red-500 text-white px-3 py-1 rounded">Eliminar</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  </main>
+        <div class="flex items-center gap-2">
+          <span class="hidden text-xs text-text-secondary sm:inline">
+            <span data-total-count>{comments.length}</span> en cola ·
+            <span class="text-amber-700" data-status-count="pending">{counts.pending ?? 0}</span> pendientes
+          </span>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-surface px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-border hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/30"
+            data-select-all
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+              <polyline points="9 12 12 15 17 9"></polyline>
+            </svg>
+            <span data-select-all-label>Seleccionar todos</span>
+          </button>
+        </div>
+      </header>
 
-  <script>
-    document.addEventListener('click', async (event) => {
-      const target = event.target as HTMLElement;
-      const commentElement = target.closest('[data-comment-id]');
-      if (!commentElement) return;
+      <section class="mx-auto max-w-7xl space-y-4 px-4 py-5 md:px-8">
+        <ModerationFilterBar posts={uniquePosts} locales={uniqueLocales} />
 
-      const id = commentElement.getAttribute('data-comment-id');
-      let action = '';
+        <p
+          class="hidden rounded-xl border border-border-subtle bg-surface-muted px-4 py-6 text-center text-sm text-text-secondary"
+          data-moderation-empty
+          hidden
+        >
+          No hay comentarios que coincidan con los filtros seleccionados.
+        </p>
 
-      if (target.classList.contains('approve-btn')) {
-        action = 'approve';
-      } else if (target.classList.contains('delete-btn')) {
-        action = 'delete';
-      }
+        <div
+          class="flex flex-wrap gap-4"
+          data-moderation-grid
+        >
+          {comments.map((comment) => (
+            <ModerationCard
+              id={comment.id}
+              postSlug={comment.postSlug}
+              status={comment.status}
+              locale={comment.locale}
+              name={comment.name}
+              message={comment.message}
+              createdAt={comment.createdAt}
+            />
+          ))}
+        </div>
+      </section>
+  </div>
 
-      if (!action) return;
+    <ModerationBulkBar />
+    <ModerationDeleteModal />
 
-      try {
-        const response = await fetch('/api/comments/moderate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ id, action }),
+    <script is:inline>
+      // @ts-nocheck
+      (function () {
+        var root = document.body;
+        if (!root) return;
+
+        var grid = document.querySelector('[data-moderation-grid]');
+        var filterBar = document.querySelector('[data-moderation-filter-bar]');
+        var bulkBar = document.querySelector('[data-moderation-bulk-bar]');
+        var bulkCountEl = document.querySelector('[data-bulk-count]');
+        var bulkApproveBtn = document.querySelector('[data-bulk-action="approve"]');
+        var bulkDeleteBtn = document.querySelector('[data-bulk-action="delete"]');
+        var emptyEl = document.querySelector('[data-moderation-empty]');
+        var modal = document.querySelector('[data-moderation-delete-modal]');
+        var modalForm = document.querySelector('[data-moderation-delete-form]');
+        var modalCloseBtns = document.querySelectorAll('[data-moderation-modal-close]');
+        var totalCountEl = document.querySelector('[data-total-count]');
+        var statusCountEls = document.querySelectorAll('[data-status-count]');
+        var selectAllBtn = document.querySelector('[data-select-all]');
+        var selectAllLabel = document.querySelector('[data-select-all-label]');
+
+        /** @type {Set<number>} */
+        var selected = new Set();
+
+        // ----- URL <-> filter sync -----
+
+        function syncFromUrl() {
+          if (!filterBar) return;
+          var params = new URLSearchParams(window.location.search);
+          var s = filterBar.querySelector('[data-filter="status"]');
+          var l = filterBar.querySelector('[data-filter="locale"]');
+          var p = filterBar.querySelector('[data-filter="postSlug"]');
+          var statusVal = params.get('status');
+          var localeVal = params.get('locale');
+          var postVal = params.get('postSlug');
+          if (s && statusVal) s.value = statusVal;
+          if (l && localeVal) l.value = localeVal;
+          if (p && postVal) p.value = postVal;
+        }
+
+        function syncToUrl() {
+          if (!filterBar) return;
+          var s = filterBar.querySelector('[data-filter="status"]').value;
+          var l = filterBar.querySelector('[data-filter="locale"]').value;
+          var p = filterBar.querySelector('[data-filter="postSlug"]').value;
+          var params = new URLSearchParams();
+          if (s) params.set('status', s);
+          if (l) params.set('locale', l);
+          if (p) params.set('postSlug', p);
+          var query = params.toString();
+          var newUrl = window.location.pathname + (query ? '?' + query : '');
+          var currentUrl = window.location.pathname + window.location.search;
+          if (newUrl !== currentUrl) {
+            window.history.replaceState(null, '', newUrl);
+          }
+        }
+
+        // ----- Helpers -----
+
+        function getCards() {
+          return Array.from(document.querySelectorAll('[data-moderation-card]'));
+        }
+
+        function colorFromName(name) {
+          var palette = [
+            '#0ea5e9', '#8b5cf6', '#ec4899', '#f97316',
+            '#22c55e', '#14b8a6', '#eab308', '#ef4444',
+            '#6366f1', '#06b6d4', '#a855f7', '#84cc16',
+          ];
+          var hash = 0;
+          for (var i = 0; i < name.length; i++) {
+            hash = ((hash << 5) - hash) + name.charCodeAt(i);
+            hash |= 0;
+          }
+          return palette[Math.abs(hash) % palette.length];
+        }
+
+        function formatRelativeTime(iso) {
+          var date = new Date(iso);
+          var diff = (date.getTime() - Date.now()) / 1000;
+          var abs = Math.abs(diff);
+          var rtf = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+          if (abs < 60) return rtf.format(Math.round(diff), 'second');
+          if (abs < 3600) return rtf.format(Math.round(diff / 60), 'minute');
+          if (abs < 86400) return rtf.format(Math.round(diff / 3600), 'hour');
+          if (abs < 86400 * 7) return rtf.format(Math.round(diff / 86400), 'day');
+          if (abs < 86400 * 30) return rtf.format(Math.round(diff / (86400 * 7)), 'week');
+          if (abs < 86400 * 365) return rtf.format(Math.round(diff / (86400 * 30)), 'month');
+          return rtf.format(Math.round(diff / (86400 * 365)), 'year');
+        }
+
+        function hydrateAvatars() {
+          var avatars = document.querySelectorAll('[data-avatar-for]');
+          for (var i = 0; i < avatars.length; i++) {
+            var el = avatars[i];
+            var name = el.getAttribute('data-avatar-for') || '';
+            el.style.backgroundColor = colorFromName(name);
+          }
+        }
+
+        function hydrateTimes() {
+          var times = document.querySelectorAll('[data-relative-time]');
+          for (var i = 0; i < times.length; i++) {
+            var el = times[i];
+            var iso = el.getAttribute('datetime') || el.textContent || '';
+            el.textContent = formatRelativeTime(iso);
+          }
+        }
+
+        function applyFilters() {
+          if (!filterBar) return;
+          var status = filterBar.querySelector('[data-filter="status"]').value;
+          var locale = filterBar.querySelector('[data-filter="locale"]').value;
+          var postSlug = filterBar.querySelector('[data-filter="postSlug"]').value;
+          var visibleCount = 0;
+          var statusCounts = { pending: 0, approved: 0, rejected: 0, spam: 0 };
+
+          var cards = getCards();
+          for (var i = 0; i < cards.length; i++) {
+            var card = cards[i];
+            var cardStatus = card.getAttribute('data-status') || '';
+            var cardLocale = card.getAttribute('data-locale') || '';
+            var cardSlug = card.getAttribute('data-post-slug') || '';
+            var match =
+              (!status || cardStatus === status) &&
+              (!locale || cardLocale === locale) &&
+              (!postSlug || cardSlug === postSlug);
+
+            if (match) {
+              card.style.display = '';
+              visibleCount += 1;
+              if (statusCounts[cardStatus] !== undefined) {
+                statusCounts[cardStatus] += 1;
+              }
+            } else {
+              card.style.display = 'none';
+            }
+          }
+
+          if (emptyEl) {
+            if (visibleCount === 0) {
+              emptyEl.removeAttribute('hidden');
+            } else {
+              emptyEl.setAttribute('hidden', '');
+            }
+          }
+
+          if (totalCountEl) {
+            totalCountEl.textContent = String(visibleCount);
+          }
+          for (var j = 0; j < statusCountEls.length; j++) {
+            var sc = statusCountEls[j];
+            var key = sc.getAttribute('data-status-count') || '';
+            sc.textContent = String(statusCounts[key] || 0);
+          }
+          refreshSelectAllLabel();
+          refreshSidebarActiveState();
+          syncToUrl();
+        }
+
+        function updateBulkBar() {
+          if (!bulkBar || !bulkCountEl) return;
+          var count = selected.size;
+          bulkCountEl.textContent = String(count);
+          if (count > 0) {
+            bulkBar.classList.remove('pointer-events-none', 'translate-y-full', 'opacity-0');
+            bulkBar.classList.add('pointer-events-auto');
+            bulkBar.setAttribute('aria-hidden', 'false');
+            if (bulkApproveBtn) bulkApproveBtn.disabled = false;
+            if (bulkDeleteBtn) bulkDeleteBtn.disabled = false;
+          } else {
+            bulkBar.classList.add('pointer-events-none', 'translate-y-full', 'opacity-0');
+            bulkBar.classList.remove('pointer-events-auto');
+            bulkBar.setAttribute('aria-hidden', 'true');
+            if (bulkApproveBtn) bulkApproveBtn.disabled = true;
+            if (bulkDeleteBtn) bulkDeleteBtn.disabled = true;
+          }
+          refreshSelectAllLabel();
+        }
+
+        function refreshSelectAllLabel() {
+          if (!selectAllLabel) return;
+          var visibleCount = 0;
+          var selectedVisible = 0;
+          var cards = getCards();
+          for (var i = 0; i < cards.length; i++) {
+            var card = cards[i];
+            if (card.style.display === 'none') continue;
+            visibleCount += 1;
+            var id = Number(card.getAttribute('data-comment-id'));
+            if (selected.has(id)) selectedVisible += 1;
+          }
+          if (visibleCount === 0) {
+            selectAllLabel.textContent = 'Seleccionar todos';
+          } else if (selectedVisible === visibleCount) {
+            selectAllLabel.textContent = 'Deseleccionar (' + visibleCount + ')';
+          } else {
+            selectAllLabel.textContent = 'Seleccionar todos (' + visibleCount + ')';
+          }
+        }
+
+        function syncCardSelection(card) {
+          if (!card) return;
+          var id = Number(card.getAttribute('data-comment-id'));
+          var checkbox = card.querySelector('[data-moderation-select]');
+          if (selected.has(id)) {
+            card.setAttribute('data-selected', 'true');
+            if (checkbox) checkbox.checked = true;
+          } else {
+            card.removeAttribute('data-selected');
+            if (checkbox) checkbox.checked = false;
+          }
+        }
+
+        function toggleCardSelection(card) {
+          if (!card) return;
+          var id = Number(card.getAttribute('data-comment-id'));
+          if (selected.has(id)) {
+            selected.delete(id);
+          } else {
+            selected.add(id);
+          }
+          syncCardSelection(card);
+          updateBulkBar();
+        }
+
+        function clearSelection() {
+          selected.clear();
+          var cards = getCards();
+          for (var i = 0; i < cards.length; i++) {
+            syncCardSelection(cards[i]);
+          }
+          updateBulkBar();
+        }
+
+        function removeCards(ids) {
+          var idsSet = new Set(ids);
+          var cards = getCards();
+          for (var i = 0; i < cards.length; i++) {
+            var card = cards[i];
+            var id = Number(card.getAttribute('data-comment-id'));
+            if (idsSet.has(id)) {
+              card.remove();
+              selected.delete(id);
+            }
+          }
+          applyFilters();
+          updateBulkBar();
+        }
+
+        function broadcastApproved(postSlugs) {
+          var unique = Array.from(new Set(postSlugs));
+          for (var i = 0; i < unique.length; i++) {
+            try {
+              var channel = new BroadcastChannel('comments-' + unique[i]);
+              channel.postMessage({ type: 'comment-approved' });
+              channel.close();
+            } catch (e) {
+              /* BroadcastChannel not available */
+            }
+          }
+        }
+
+        async function callModerate(payload) {
+          var response = await fetch('/api/comments/moderate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (!response.ok) {
+            var data = await response.json().catch(function () { return {}; });
+            throw new Error(data.error || ('HTTP ' + response.status));
+          }
+          return response.json();
+        }
+
+        function selectedIds() {
+          return Array.from(selected);
+        }
+
+        function openModal() {
+          if (!modal || typeof modal.showModal !== 'function') return;
+          if (selected.size === 0) return;
+          modal.showModal();
+        }
+
+        function closeModal() {
+          if (!modal || typeof modal.close !== 'function') return;
+          if (modal.open) modal.close();
+        }
+
+        // ----- Wiring -----
+
+        hydrateAvatars();
+        hydrateTimes();
+
+        // Checkbox + delete per card
+        document.addEventListener('change', function (event) {
+          var target = event.target;
+          if (!(target instanceof HTMLInputElement)) return;
+          if (target.matches('[data-moderation-select]')) {
+            var card = target.closest('[data-moderation-card]');
+            toggleCardSelection(card);
+          }
         });
 
-        if (response.ok) {
-          const postSlug = commentElement.getAttribute('data-post-slug');
-          const channel = new BroadcastChannel(`comments-${postSlug}`);
-          channel.postMessage({ type: 'comment-approved' });
-          commentElement.remove();
-          location.reload();
-        } else {
-          const data = await response.json();
-          alert(`Error: ${data.error || 'Failed to moderate comment'}`);
+        document.addEventListener('click', function (event) {
+          var target = event.target;
+          if (!(target instanceof Element)) return;
+          var card = target.closest('[data-moderation-card]');
+          if (card && target.closest('[data-moderation-card__checkbox-wrap]')) {
+            // change event handles it
+            return;
+          }
+          if (card && target.closest('[data-moderation-delete]')) {
+            event.preventDefault();
+            var id = Number(card.getAttribute('data-comment-id'));
+            if (!Number.isFinite(id)) return;
+            callModerate({ ids: [id], action: 'delete' })
+              .then(function () {
+                removeCards([id]);
+              })
+              .catch(function (error) {
+                alert('No se pudo eliminar: ' + error.message);
+              });
+          }
+        });
+
+        // Filters
+        if (filterBar) {
+          filterBar.addEventListener('change', function (event) {
+            var target = event.target;
+            if (target instanceof HTMLSelectElement) {
+              applyFilters();
+            }
+          });
+          var clearBtn = filterBar.querySelector('[data-filter-clear]');
+          if (clearBtn) {
+            clearBtn.addEventListener('click', function () {
+              var selects = filterBar.querySelectorAll('select[data-filter]');
+              for (var i = 0; i < selects.length; i++) {
+                selects[i].value = '';
+              }
+              applyFilters();
+            });
+          }
         }
-      } catch (error) {
-        console.error('Moderation error:', error);
-        alert('An unexpected error occurred.');
-      }
-    });
-  </script>
+
+        // ----- Sidebar filter shortcuts -----
+        var sidebar = document.querySelector('[data-moderation-sidebar]');
+        var sidebarItems = sidebar
+          ? Array.from(sidebar.querySelectorAll('[data-sidebar-filter]'))
+          : [];
+
+        function refreshSidebarActiveState() {
+          if (!sidebar || sidebarItems.length === 0) return;
+          var statusVal = filterBar ? filterBar.querySelector('[data-filter="status"]').value : '';
+          var localeVal = filterBar ? filterBar.querySelector('[data-filter="locale"]').value : '';
+          for (var i = 0; i < sidebarItems.length; i++) {
+            var item = sidebarItems[i];
+            var key = item.getAttribute('data-sidebar-filter') || '';
+            var isActive = false;
+            if (key === 'all') {
+              isActive = !statusVal && !localeVal;
+            } else {
+              var parts = key.split(':');
+              var dim = parts[0];
+              var val = parts[1] || '';
+              if (dim === 'status' && statusVal === val) isActive = true;
+              if (dim === 'locale' && localeVal === val) isActive = true;
+            }
+            if (isActive) {
+              item.setAttribute('data-active', 'true');
+              item.classList.add('bg-slate-800', 'text-white');
+              item.classList.remove('text-slate-300');
+            } else {
+              item.removeAttribute('data-active');
+              item.classList.remove('bg-slate-800', 'text-white');
+              item.classList.add('text-slate-300');
+            }
+          }
+        }
+
+        for (var i = 0; i < sidebarItems.length; i++) {
+          (function (item) {
+            item.addEventListener('click', function (event) {
+              // Anchor tags would navigate by default; we apply the filter via JS instead.
+              event.preventDefault();
+              if (!filterBar) return;
+              var key = item.getAttribute('data-sidebar-filter') || '';
+              var selects = filterBar.querySelectorAll('select[data-filter]');
+              if (key === 'all') {
+                for (var j = 0; j < selects.length; j++) selects[j].value = '';
+              } else {
+                var parts = key.split(':');
+                var dim = parts[0];
+                var val = parts[1] || '';
+                var target = filterBar.querySelector('[data-filter="' + dim + '"]');
+                if (target) {
+                  // Toggle: clicking the active item again clears it
+                  target.value = target.value === val ? '' : val;
+                }
+              }
+              applyFilters();
+            });
+          })(sidebarItems[i]);
+        }
+
+        // Bulk actions
+        if (bulkApproveBtn) {
+          bulkApproveBtn.addEventListener('click', function () {
+            var ids = selectedIds();
+            if (ids.length === 0) return;
+            callModerate({ ids: ids, action: 'approve' })
+              .then(function () {
+                var cards = getCards();
+                var slugs = [];
+                for (var i = 0; i < cards.length; i++) {
+                  var card = cards[i];
+                  var id = Number(card.getAttribute('data-comment-id'));
+                  if (selected.has(id)) {
+                    slugs.push(card.getAttribute('data-post-slug') || '');
+                    var statusEl = card.querySelector('header span:last-child');
+                    if (statusEl) {
+                      statusEl.className =
+                        'ml-auto inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200';
+                      statusEl.textContent = 'Aprobado';
+                    }
+                    card.setAttribute('data-status', 'approved');
+                    selected.delete(id);
+                    syncCardSelection(card);
+                  }
+                }
+                applyFilters();
+                updateBulkBar();
+                broadcastApproved(slugs);
+              })
+              .catch(function (error) {
+                alert('No se pudo aprobar: ' + error.message);
+              });
+          });
+        }
+
+        if (bulkDeleteBtn) {
+          bulkDeleteBtn.addEventListener('click', function () {
+            openModal();
+          });
+        }
+
+        // Select all / deselect all visible
+        if (selectAllBtn) {
+          selectAllBtn.addEventListener('click', function () {
+            var visibleIds = [];
+            var cards = getCards();
+            for (var i = 0; i < cards.length; i++) {
+              var card = cards[i];
+              if (card.style.display === 'none') continue;
+              var id = Number(card.getAttribute('data-comment-id'));
+              if (Number.isFinite(id)) visibleIds.push(id);
+            }
+            var allSelected = visibleIds.length > 0 &&
+              visibleIds.every(function (id) { return selected.has(id); });
+            if (allSelected) {
+              for (var i = 0; i < visibleIds.length; i++) selected.delete(visibleIds[i]);
+            } else {
+              for (var i = 0; i < visibleIds.length; i++) selected.add(visibleIds[i]);
+            }
+            var allCards = getCards();
+            for (var i = 0; i < allCards.length; i++) syncCardSelection(allCards[i]);
+            updateBulkBar();
+          });
+        }
+
+        // Modal
+        if (modal) {
+          for (var i = 0; i < modalCloseBtns.length; i++) {
+            modalCloseBtns[i].addEventListener('click', function () {
+              closeModal();
+            });
+          }
+          modal.addEventListener('cancel', function () {
+            /* allow default close */
+          });
+          if (modalForm) {
+            modalForm.addEventListener('submit', function (event) {
+              event.preventDefault();
+              var ids = selectedIds();
+              if (ids.length === 0) {
+                closeModal();
+                return;
+              }
+              var reasonInput = modalForm.querySelector('input[name="rejectionReason"]:checked');
+              var reason = reasonInput ? String(reasonInput.value || '') : '';
+              var notifyAuthor = Boolean(
+                modalForm.querySelector('input[name="notifyAuthor"]') &&
+                  modalForm.querySelector('input[name="notifyAuthor"]').checked
+              );
+              callModerate({ ids: ids, action: 'reject', reason: reason, notifyAuthor: notifyAuthor })
+                .then(function () {
+                  removeCards(ids);
+                  closeModal();
+                })
+                .catch(function (error) {
+                  alert('No se pudo eliminar: ' + error.message);
+                });
+            });
+          }
+        }
+
+        // Refresh relative times every minute
+        setInterval(hydrateTimes, 60 * 1000);
+        // Pick up ?status=&locale=&postSlug= from the URL on initial load,
+        // so navigating from the dashboard sidebar lands on the right filter.
+        syncFromUrl();
+        updateBulkBar();
+        applyFilters();
+      })();
+    </script>
 </Layout>

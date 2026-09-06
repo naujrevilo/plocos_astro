@@ -1,0 +1,200 @@
+---
+/**
+ * Wide sidebar with text labels for the moderation admin app.
+ * Provides quick-access filter shortcuts that mirror the chip-row FilterBar.
+ *
+ * Items in ESTADO and IDIOMA are buttons with `data-sidebar-filter` keys
+ * ("status:pending", "locale:es", etc.) that the inline script in
+ * src/pages/admin/comments.astro wires to the corresponding <select> in
+ * the FilterBar.
+ *
+ * Props:
+ *  - totalCount: total number of comments in the queue
+ *  - statusCounts: { pending, approved, rejected, spam } -> number
+ *  - localeCounts: { [locale: string]: number }
+ */
+interface Props {
+  totalCount: number;
+  statusCounts: Record<string, number>;
+  localeCounts: Record<string, number>;
+}
+
+const { totalCount, statusCounts, localeCounts } = Astro.props as Props;
+
+const localeLabel: Record<string, string> = {
+  es: 'Español',
+  en: 'Inglés',
+};
+
+const knownLocales = Object.keys(localeCounts).sort();
+
+const pathname = Astro.url.pathname;
+const isDashboard = pathname === '/admin' || pathname === '/admin/';
+const isQueue = pathname === '/admin/comments';
+---
+
+<aside
+  class="fixed left-0 top-0 z-30 flex h-screen w-60 flex-col bg-slate-900 text-slate-300"
+  aria-label="Navegación y filtros de moderación"
+  data-moderation-sidebar
+>
+  <!-- Header: brand -->
+  <div class="flex items-center gap-3 border-b border-slate-800 px-4 py-5">
+    <div
+      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-lime-400 text-sm font-bold text-slate-900"
+      title="Moderación de comentarios"
+      aria-hidden="true"
+    >
+      P
+    </div>
+    <div class="leading-tight">
+      <div class="text-sm font-semibold text-white">Plocos</div>
+      <div class="text-xs text-slate-400">Moderación</div>
+    </div>
+  </div>
+
+  <!-- Sections -->
+  <nav class="flex-1 overflow-y-auto px-2 py-4">
+    <!-- NAVEGACIÓN -->
+    <div class="mb-5">
+      <div class="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+        Navegación
+      </div>
+      <a
+        href="/admin"
+        class:list={[
+          'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition hover:bg-slate-800',
+          isDashboard ? 'bg-slate-800 text-white' : 'text-slate-300',
+        ]}
+        data-nav="dashboard"
+        data-active={isDashboard ? 'true' : null}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        <span class="flex-1">Resumen</span>
+      </a>
+      <a
+        href="/admin/comments"
+        class:list={[
+          'group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition hover:bg-slate-800',
+          isQueue ? 'text-white' : 'text-slate-300',
+        ]}
+        data-sidebar-filter="all"
+        data-active={isQueue ? 'true' : null}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 6h18"></path>
+          <path d="M3 12h18"></path>
+          <path d="M3 18h12"></path>
+        </svg>
+        <span class="flex-1 text-left">Todos</span>
+        <span class="text-xs tabular-nums text-slate-500" data-sidebar-count>{totalCount}</span>
+      </a>
+    </div>
+
+    <!-- ESTADO -->
+    <div class="mb-5">
+      <div class="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+        Estado
+      </div>
+      <a
+        href="/admin/comments?status=pending"
+        class="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+        data-sidebar-filter="status:pending"
+      >
+        <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-400/20 text-amber-300">
+          <span class="h-1.5 w-1.5 rounded-full bg-amber-300"></span>
+        </span>
+        <span class="flex-1 text-left">Pendientes</span>
+        <span class="text-xs tabular-nums text-slate-500">{statusCounts.pending ?? 0}</span>
+      </a>
+      <a
+        href="/admin/comments?status=approved"
+        class="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+        data-sidebar-filter="status:approved"
+      >
+        <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-400/20 text-emerald-300">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <span class="flex-1 text-left">Aprobados</span>
+        <span class="text-xs tabular-nums text-slate-500">{statusCounts.approved ?? 0}</span>
+      </a>
+      <a
+        href="/admin/comments?status=rejected"
+        class="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+        data-sidebar-filter="status:rejected"
+      >
+        <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-rose-400/20 text-rose-300">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </span>
+        <span class="flex-1 text-left">Rechazados</span>
+        <span class="text-xs tabular-nums text-slate-500">{statusCounts.rejected ?? 0}</span>
+      </a>
+      <a
+        href="/admin/comments?status=spam"
+        class="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+        data-sidebar-filter="status:spam"
+      >
+        <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-300">
+          <span class="text-[10px] font-bold leading-none">!</span>
+        </span>
+        <span class="flex-1 text-left">Spam</span>
+        <span class="text-xs tabular-nums text-slate-500">{statusCounts.spam ?? 0}</span>
+      </a>
+    </div>
+
+    <!-- IDIOMA -->
+    <div class="mb-5">
+      <div class="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+        Idioma
+      </div>
+      {knownLocales.length === 0 ? (
+        <div class="px-3 py-2 text-xs italic text-slate-500">Sin datos</div>
+      ) : (
+        knownLocales.map((loc) => (
+          <a
+            href={`/admin/comments?locale=${loc}`}
+            class="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+            data-sidebar-filter={`locale:${loc}`}
+          >
+            <span class="flex h-5 w-7 shrink-0 items-center justify-center rounded bg-slate-800 text-[10px] font-semibold uppercase text-slate-300">
+              {loc}
+            </span>
+            <span class="flex-1 text-left">{localeLabel[loc] ?? loc}</span>
+            <span class="text-xs tabular-nums text-slate-500">{localeCounts[loc] ?? 0}</span>
+          </a>
+        ))
+      )}
+    </div>
+  </nav>
+
+  <!-- Footer: escape hatch -->
+  <div class="border-t border-slate-800 px-2 py-3">
+    <a
+      href="/"
+      target="_blank"
+      rel="noopener"
+      class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition hover:bg-slate-800 hover:text-white"
+      aria-label="Ver sitio público (abre en nueva pestaña)"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+        <polyline points="15 3 21 3 21 9"></polyline>
+        <line x1="10" y1="14" x2="21" y2="3"></line>
+      </svg>
+      <span class="flex-1">Ver sitio público</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500" aria-hidden="true">
+        <path d="M7 17L17 7"></path>
+        <path d="M7 7h10v10"></path>
+      </svg>
+    </a>
+  </div>
+</aside>

@@ -13,9 +13,14 @@ interface Props {
   description?: string;
   image?: string;
   canonicalUrl?: string;
+  /**
+   * Hide the public chrome (site header, footer, cookie banner, sensitive content warning).
+   * Use for embedded app shells like the moderation admin where the sidebar + slot fill the viewport.
+   */
+  hideChrome?: boolean;
 }
 
-const { title, description, image, canonicalUrl } = Astro.props as Props;
+const { title, description, image, canonicalUrl, hideChrome = false } = Astro.props as Props;
 const currentPath = Astro.url.pathname;
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
@@ -111,12 +116,12 @@ const analyticsId = import.meta.env.ANALYTICS_ID;
   <body
     class="flex min-h-screen flex-col bg-surface-base text-text-primary transition-colors duration-200"
   >
-    <SensitiveContentWarning />
-    <CookieConsentBanner />
-    <SiteHeader currentPath={currentPath} locale={locale} />
+    {!hideChrome && <SensitiveContentWarning />}
+    {!hideChrome && <CookieConsentBanner />}
+    {!hideChrome && <SiteHeader currentPath={currentPath} locale={locale} />}
     <main class="flex-1">
       <slot />
     </main>
-    <SiteFooter locale={locale} />
+    {!hideChrome && <SiteFooter locale={locale} />}
   </body>
 </html>
