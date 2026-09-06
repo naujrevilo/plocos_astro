@@ -670,7 +670,10 @@ const localeCounts = comments.reduce<Record<string, number>>((acc, c) => {
                 modalForm.querySelector('input[name="notifyAuthor"]') &&
                   modalForm.querySelector('input[name="notifyAuthor"]').checked
               );
-              callModerate({ ids: ids, action: 'reject', reason: reason, notifyAuthor: notifyAuthor })
+              // Map "Spam" reason to status 'spam' so the spam count updates correctly;
+              // any other reason keeps the comment in status 'rejected'.
+              var action = reason === 'spam' ? 'spam' : 'reject';
+              callModerate({ ids: ids, action: action, reason: reason, notifyAuthor: notifyAuthor })
                 .then(function () {
                   removeCards(ids);
                   closeModal();
