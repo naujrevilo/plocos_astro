@@ -1,0 +1,367 @@
+---
+export const prerender = false;
+import { db } from '../../lib/db';
+import { Comments as CommentsTable } from '../../lib/db/schema';
+import { desc } from 'drizzle-orm';
+import Layout from '../../layouts/BaseLayout.astro';
+import ModerationSidebar from '../../components/admin/ModerationSidebar.astro';
+
+const COOKIE_NAME = 'plocos-comments-token';
+const moderationToken = import.meta.env.COMMENTS_MODERATION_TOKEN ?? '';
+const cookieToken = Astro.cookies.get(COOKIE_NAME)?.value;
+const urlToken = Astro.url.searchParams.get('token');
+
+if (urlToken) {
+  if (urlToken === moderationToken) {
+    Astro.cookies.set(COOKIE_NAME, urlToken, {
+      path: '/',
+      httpOnly: true,
+      secure: import.meta.env.PROD,
+      maxAge: 60 * 60 * 24 * 30,
+    });
+    return Astro.redirect('/admin');
+  }
+}
+
+if (!moderationToken || cookieToken !== moderationToken) {
+  return Astro.redirect(`/admin/login?redirect=/admin`);
+}
+
+// Period filter
+const periodRaw = Astro.url.searchParams.get('period') ?? 'all';
+const periodMap: Record<string, number | null> = { '7d': 7, '30d': 30, all: null };
+const days = periodMap[periodRaw] ?? null;
+const periodLabel: Record<string, string> = {
+  '7d': 'Últimos 7 días',
+  '30d': 'Últimos 30 días',
+  all: 'Todos los tiempos',
+};
+const cutoff = days !== null ? new Date(Date.now() - days * 86400000) : null;
+
+const rows = await db.select().from(CommentsTable).orderBy(desc(CommentsTable.createdAt));
+
+const comments = rows.map((row) => {
+  const raw = row.createdAt;
+  let date: Date;
+  if (raw instanceof Date) {
+    date = raw;
+  } else if (typeof raw === 'number' || typeof raw === 'string') {
+    date = new Date(raw);
+  } else {
+    date = new Date();
+  }
+  if (Number.isNaN(date.getTime())) date = new Date();
+  return {
+    id: row.id,
+    postSlug: row.postSlug,
+    locale: row.locale,
+    name: row.name,
+    status: row.status,
+    rejectionReason: row.rejectionReason,
+    createdAt: date,
+  };
+});
+
+const filtered = cutoff ? comments.filter((c) => c.createdAt >= cutoff) : comments;
+const localeCountsAll = comments.reduce<Record<string, number>>((acc, c) => {
+  acc[c.locale] = (acc[c.locale] ?? 0) + 1;
+  return acc;
+}, {});
+
+// Status counts (4)
+const statusMeta: Array<{ key: string; label: string; tint: string; ring: string; text: string; bar: string }> = [
+  { key: 'approved', label: 'Aprobados', tint: 'bg-emerald-50', ring: 'ring-emerald-200/60', text: 'text-emerald-700', bar: 'bg-emerald-500' },
+  { key: 'pending',  label: 'Pendientes', tint: 'bg-amber-50',   ring: 'ring-amber-200/60',   text: 'text-amber-700',   bar: 'bg-amber-500' },
+  { key: 'rejected', label: 'Rechazados', tint: 'bg-rose-50',    ring: 'ring-rose-200/60',    text: 'text-rose-700',    bar: 'bg-rose-500' },
+  { key: 'spam',     label: 'Spam',        tint: 'bg-red-50',     ring: 'ring-red-200/60',     text: 'text-red-700',     bar: 'bg-red-500' },
+];
+const statusCounts: Record<string, number> = { approved: 0, pending: 0, rejected: 0, spam: 0 };
+for (const c of filtered) {
+  if (statusCounts[c.status] !== undefined) statusCounts[c.status]++;
+}
+
+// Reason counts (8)
+const reasonMeta: Array<{ value: string; label: string }> = [
+  { value: 'general',         label: 'General' },
+  { value: 'spam',            label: 'Spam' },
+  { value: 'harmful',         label: 'Contenido dañino' },
+  { value: 'personal-info',   label: 'Información personal' },
+  { value: 'wrong-language',  label: 'Idioma incorrecto' },
+  { value: 'nonsense',        label: 'Sin sentido' },
+  { value: 'off-topic',       label: 'Fuera de tema' },
+  { value: 'low-effort',      label: 'Bajo esfuerzo' },
+];
+const reasonCounts: Record<string, number> = {};
+for (const r of reasonMeta) reasonCounts[r.value] = 0;
+for (const c of filtered) {
+  if (c.rejectionReason && reasonCounts[c.rejectionReason] !== undefined) {
+    reasonCounts[c.rejectionReason]++;
+  }
+}
+const totalReasonComments = filtered.filter((c) => c.rejectionReason).length;
+const maxReasonCount = Math.max(1, ...Object.values(reasonCounts));
+
+// Top 5 posts
+const postCounts = new Map<string, number>();
+for (const c of filtered) {
+  postCounts.set(c.postSlug, (postCounts.get(c.postSlug) ?? 0) + 1);
+}
+const topPosts = [...postCounts.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 5);
+const maxPostCount = Math.max(1, ...topPosts.map(([, n]) => n));
+
+// Total
+const totalComments = filtered.length;
+const statusOrder = statusMeta.map((m) => m.key);
+---
+
+<Layout title="Resumen de moderación" hideChrome>
+  <ModerationSidebar
+    totalCount={comments.length}
+    statusCounts={statusCounts}
+    localeCounts={localeCountsAll}
+  />
+
+  <div class="ml-60">
+    <header
+      class="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle bg-surface-base/95 px-6 py-4 backdrop-blur md:px-8"
+    >
+      <div>
+        <h1 class="font-heading text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">
+          Resumen de moderación
+        </h1>
+        <p class="mt-1 text-sm text-text-secondary">
+          {periodLabel[periodRaw] ?? periodLabel.all} ·
+          <span class="font-medium text-text-primary">{totalComments}</span> comentarios en total
+        </p>
+      </div>
+
+      <form method="get" class="flex items-center gap-2">
+        <label for="period" class="text-xs uppercase tracking-wider text-text-secondary">Período</label>
+        <div class="relative">
+          <select
+            id="period"
+            name="period"
+            class="appearance-none rounded-full border border-border-subtle bg-surface px-4 py-1.5 pr-9 text-sm font-medium text-text-primary shadow-sm transition hover:border-border focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+            onchange="this.form.requestSubmit()"
+          >
+            <option value="7d"  selected={periodRaw === '7d'}>Últimos 7 días</option>
+            <option value="30d" selected={periodRaw === '30d'}>Últimos 30 días</option>
+            <option value="all" selected={periodRaw === 'all'}>Todos los tiempos</option>
+          </select>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </form>
+    </header>
+
+    <div class="mx-auto max-w-7xl space-y-8 px-6 py-6 md:px-8">
+      <!-- ESTADO -->
+      <section>
+        <div class="mb-3 flex items-baseline justify-between">
+          <h2 class="text-xs font-semibold uppercase tracking-[0.2em] text-text-secondary">
+            Estado
+          </h2>
+        </div>
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {statusMeta.map((meta) => {
+            const count = statusCounts[meta.key] ?? 0;
+            const pct = totalComments > 0 ? Math.round((count / totalComments) * 100) : 0;
+            return (
+              <article
+                class:list={[
+                  'rounded-2xl border border-border-subtle p-5 shadow-contemplation ring-1 transition hover:-translate-y-0.5 hover:shadow-lg',
+                  meta.tint,
+                  meta.ring,
+                ]}
+                data-status-card={meta.key}
+              >
+                <div class="flex items-start justify-between">
+                  <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-secondary/80">
+                    {meta.label}
+                  </div>
+                  <div class:list={['text-xs tabular-nums', meta.text]}>
+                    {pct}%
+                  </div>
+                </div>
+                <div class:list={['mt-2 font-heading text-4xl font-semibold leading-none tabular-nums', meta.text]}>
+                  <span data-count={count} data-duration="700">0</span>
+                </div>
+                <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/60">
+                  <div
+                    class:list={['h-full rounded-full transition-all duration-700 ease-out', meta.bar]}
+                    style={`width: 0%`}
+                    data-bar-width={`${pct}%`}
+                  ></div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <!-- DISTRIBUCIÓN (visualización horizontal apilada) -->
+      <section>
+        <div class="mb-3 flex items-baseline justify-between">
+          <h2 class="text-xs font-semibold uppercase tracking-[0.2em] text-text-secondary">
+            Distribución
+          </h2>
+          <div class="text-xs text-text-secondary">
+            {totalComments} comentarios
+          </div>
+        </div>
+        <div class="rounded-2xl border border-border-subtle bg-surface p-5 shadow-contemplation">
+          <div class="flex h-3 overflow-hidden rounded-full bg-surface-muted">
+            {statusMeta.map((meta) => {
+              const count = statusCounts[meta.key] ?? 0;
+              const pct = totalComments > 0 ? (count / totalComments) * 100 : 0;
+              if (pct === 0) return null;
+              return (
+                <div
+                  class:list={[meta.bar, 'h-full transition-all duration-700 ease-out']}
+                  style={`width: 0%`}
+                  data-bar-width={`${pct}%`}
+                  title={`${meta.label}: ${count} (${pct.toFixed(1)}%)`}
+                  aria-label={`${meta.label}: ${count} (${pct.toFixed(1)}%)`}
+                ></div>
+              );
+            })}
+          </div>
+          <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs">
+            {statusMeta.map((meta) => {
+              const count = statusCounts[meta.key] ?? 0;
+              return (
+                <div class="flex items-center gap-2">
+                  <span class:list={['inline-block h-2.5 w-2.5 rounded-sm', meta.bar]}></span>
+                  <span class="text-text-primary">{meta.label}</span>
+                  <span class="tabular-nums text-text-secondary">{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <!-- TOP POSTS -->
+      {topPosts.length > 0 && (
+        <section>
+          <div class="mb-3 flex items-baseline justify-between">
+            <h2 class="text-xs font-semibold uppercase tracking-[0.2em] text-text-secondary">
+              Posts con más comentarios
+            </h2>
+            <div class="text-xs text-text-secondary">
+              Top {topPosts.length}
+            </div>
+          </div>
+          <div class="rounded-2xl border border-border-subtle bg-surface p-5 shadow-contemplation">
+            <ul class="space-y-3">
+              {topPosts.map(([slug, count]) => {
+                const pct = (count / maxPostCount) * 100;
+                return (
+                  <li>
+                    <div class="mb-1 flex items-baseline justify-between gap-3 text-sm">
+                      <span class="truncate font-medium text-text-primary" title={slug}>{slug}</span>
+                      <span class="shrink-0 tabular-nums text-text-secondary">{count}</span>
+                    </div>
+                    <div class="h-2 overflow-hidden rounded-full bg-surface-muted">
+                      <div
+                        class="h-full rounded-full bg-indigo-500 transition-all duration-700 ease-out"
+                        style={`width: 0%`}
+                        data-bar-width={`${pct}%`}
+                      ></div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <!-- MOTIVOS DE RECHAZO -->
+      <section>
+        <div class="mb-3 flex items-baseline justify-between">
+          <h2 class="text-xs font-semibold uppercase tracking-[0.2em] text-text-secondary">
+            Motivos de rechazo / spam
+          </h2>
+          <div class="text-xs text-text-secondary">
+            {totalReasonComments} con motivo registrado
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {reasonMeta.map((r) => {
+            const count = reasonCounts[r.value] ?? 0;
+            const pct = (count / maxReasonCount) * 100;
+            const sharePct = totalReasonComments > 0 ? Math.round((count / totalReasonComments) * 100) : 0;
+            return (
+              <article
+                class="rounded-2xl border border-border-subtle bg-surface p-4 shadow-contemplation transition hover:-translate-y-0.5 hover:shadow-md"
+                data-reason-card={r.value}
+              >
+                <div class="flex items-baseline justify-between gap-2">
+                  <span class="truncate text-xs font-medium text-text-primary" title={r.label}>
+                    {r.label}
+                  </span>
+                  <span class="shrink-0 text-[10px] tabular-nums text-text-secondary">
+                    {sharePct}%
+                  </span>
+                </div>
+                <div class="mt-1 font-heading text-3xl font-semibold leading-none tabular-nums text-text-primary">
+                  <span data-count={count} data-duration="600">0</span>
+                </div>
+                <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-muted">
+                  <div
+                    class="h-full rounded-full bg-slate-700 transition-all duration-700 ease-out"
+                    style={`width: 0%`}
+                    data-bar-width={`${pct}%`}
+                  ></div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script is:inline>
+    // @ts-nocheck
+    (function () {
+      function animateCount(el) {
+        var target = Number(el.getAttribute('data-count') || '0');
+        if (!isFinite(target) || target === 0) {
+          el.textContent = String(target);
+          return;
+        }
+        var duration = Number(el.getAttribute('data-duration') || '600');
+        var start = performance.now();
+        function step(now) {
+          var t = Math.min((now - start) / duration, 1);
+          var eased = 1 - Math.pow(1 - t, 3);
+          el.textContent = String(Math.round(target * eased));
+          if (t < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      function animateBars() {
+        var bars = document.querySelectorAll('[data-bar-width]');
+        for (var i = 0; i < bars.length; i++) {
+          (function (bar) {
+            // Force layout reset before animating
+            bar.offsetWidth;
+            requestAnimationFrame(function () {
+              bar.style.width = bar.getAttribute('data-bar-width');
+            });
+          })(bars[i]);
+        }
+      }
+
+      var counters = document.querySelectorAll('[data-count]');
+      for (var i = 0; i < counters.length; i++) animateCount(counters[i]);
+      animateBars();
+    })();
+  </script>
+</Layout>
