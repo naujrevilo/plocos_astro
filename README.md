@@ -26,11 +26,12 @@ Sitio estático moderno que preserva el archivo histórico de [plocos.com](https
 ### Comentarios moderados con Astro DB
 
 - Cada publicación renderiza un formulario accesible (`CommentSection.astro`) que envía los comentarios a `/api/comments`.
-- Los envíos se almacenan en la tabla `Comments` de Astro DB con `approved = false` por defecto. Solo los registros aprobados se muestran públicamente.
+- Los envíos se almacenan en la tabla `Comments` de Astro DB con `status = 'pending'` por defecto. El filtro público (`/api/comments`) solo devuelve comentarios con `status = 'approved'`. Los registros con `status` `rejected` o `spam` nunca se muestran al público.
 - En local puedes desarrollar con la base embebida de Astro DB; para producción necesitas un host libSQL (p. ej. Turso) y definir `ASTRO_DB_REMOTE_URL` + `ASTRO_DB_APP_TOKEN`.
-Para moderar sin CLI visita `/admin/comments?token=TU_TOKEN` (solo la primera vez). Al ingresar el token, este se guarda en una cookie httpOnly y se elimina inmediatamente de la URL para máxima privacidad. Nunca se muestra el token en el HTML ni se expone en la interfaz. Solo los usuarios autenticados pueden aprobar o eliminar comentarios pendientes y consultar actividad reciente. Si tienes problemas de autenticación en local, asegúrate de que la cookie se guarda correctamente y que la página no está prerenderizada (debe tener `export const prerender = false;`).
-- Para aprobar un comentario, ejecuta un update contra la tabla: `pnpm astro db shell -- --query "UPDATE Comments SET approved = 1 WHERE id = ?" --remote` o crea un script en `db/` y lánzalo con `pnpm astro db execute ./path/to/script.ts -- --remote`.
-- Ejecuta `pnpm astro db push -- --remote` cada vez que modifiques `db/config.ts` para sincronizar el esquema con tu instancia remota.
+- Para moderar visita `/admin/comments?token=TU_TOKEN` (solo la primera vez). Al ingresar el token, este se guarda en una cookie httpOnly y se elimina inmediatamente de la URL para máxima privacidad. Nunca se muestra el token en el HTML ni se expone en la interfaz. La página debe tener `export const prerender = false;` para que la cookie funcione en local.
+- **Panel de moderación (`/admin/comments`)**: interfaz tipo "Mass Moderation" con sidebar oscuro, grid masonry de tarjetas, multi-select con checkbox, barra inferior con acciones masivas y modal de "Razón de borrado" (8 motivos: General, Spam, Contenido dañino, Información personal, Idioma incorrecto, Sin sentido, Fuera de tema, Bajo esfuerzo). Soporta acciones masivas vía `/api/comments/moderate` con `{ ids: number[], action, reason?, notifyAuthor? }`.
+- **Dashboard de moderación (`/admin`)**: vista resumen con conteos por estado, distribución visual, top 5 posts con más comentarios y motivos de rechazo más frecuentes. Selector de período (7d / 30d / Todos).
+- **Migraciones de schema**: los archivos SQL viven en `drizzle/`. La config `drizzle.config.ts` actual usa `driver: 'turso'` (obsoleto en drizzle-kit 0.31); pendiente migrar a `dialect: 'turso'`. Mientras tanto, las migraciones se aplican manualmente con scripts en `scripts/` o vía libsql client.
 
 ### GitHub Actions
 
