@@ -57,8 +57,9 @@ const INDEX_NAME = import.meta.env.PUBLIC_ALGOLIA_INDEX_NAME;
  */
 onMounted(async () => {
   try {
-    const { default: algoliasearch } = await import('algoliasearch/lite');
-    const client = algoliasearch(APP_ID, API_KEY);
+    // Algolia v5: lit client is a named export, not default.
+    const { liteClient } = await import('algoliasearch/lite');
+    const client = liteClient(APP_ID, API_KEY);
     index = client.initIndex(INDEX_NAME);
   } catch (error) {
     console.error('Failed to load Algolia search client:', error);
