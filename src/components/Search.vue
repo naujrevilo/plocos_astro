@@ -42,8 +42,8 @@ const query = ref('');
 const results = ref([]);
 // Estado de carga para la operación de búsqueda
 const isLoading = ref(false);
-// Instancia del índice de Algolia
-let index = null;
+// Cliente de Algolia (en v5 ya no hay initIndex, se usa el client directo)
+let client = null;
 
 // Credenciales de Algolia desde las variables de entorno
 const APP_ID = import.meta.env.PUBLIC_ALGOLIA_APP_ID;
@@ -57,10 +57,9 @@ const INDEX_NAME = import.meta.env.PUBLIC_ALGOLIA_INDEX_NAME;
  */
 onMounted(async () => {
   try {
-    // Algolia v5: lit client is a named export, not default.
+    // Algolia v5: liteClient es named export; initIndex ya no existe.
     const { liteClient } = await import('algoliasearch/lite');
-    const client = liteClient(APP_ID, API_KEY);
-    index = client.initIndex(INDEX_NAME);
+    client = liteClient(APP_ID, API_KEY);
   } catch (error) {
     console.error('Failed to load Algolia search client:', error);
   }
@@ -85,14 +84,17 @@ let searchTimeout = null;
 const search = () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(async () => {
-    if (!index || query.value.trim() === '') {
+    if (!client || query.value.trim() === '') {
       results.value = [];
       return;
     }
     isLoading.value = true;
     try {
-      const { hits } = await index.search(query.value);
-      results.value = hits;
+      // Algolia v5: client.search acepta un objeto con `requests: [...]`.
+      const response = await client.search({
+        requests: [{ indexName: INDEX_NAME, query: query.value }],
+      });
+      results.value = response.results[0]?.hits ?? [];
     } catch (error) {
       console.error("Error searching Algolia:", error);
     } finally {
