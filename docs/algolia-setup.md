@@ -144,3 +144,114 @@ Si no aparece nada, abrir DevTools → Console y buscar:
 - **Plan Free**: 10,000 records + 50,000 search operations/mes. Más que suficiente para Plocos (~200 posts, <10k search/mes esperados)
 - Si crece: **Plan Standard** $0.50/1000 records extra + $0.50/1000 searches
 - **Plan Pro** desde $500/mes solo si querés SLA enterprise (raro para editorial sites)
+
+---
+
+## Errores específicos encontrados en este proyecto (lecciones)
+
+Issues reales que aparecieron durante el setup inicial de Plocos con Algolia v5. Documentados para que no se repitan.
+
+### 1. `dotenv.config()` no lee `.env.local` por default
+
+**Síntoma**: `Error: appId is missing` al ejecutar `node src/lib/algoliasearch.js`, aunque las vars estuvieran en `.env.local`.
+
+**Causa**: El script llamaba `dotenv.config()` sin argumentos. Por default, dotenv busca `.env`, no `.env.local`. La convención de Plocos es poner los secrets en `.env.local` (gitignored), no en `.env`.
+
+**Fix** (`src/lib/algoliasearch.js`):
+```js
+import * as dotenv from 'dotenv';
+if (process.env.NODE_ENV !== 'production') {
+  // Plocos convention: secrets live in .env.local, defaults in .env.
+  dotenv.config({ path: '.env.local' });
+  dotenv.config({ path: '.env' });
+}
+```
+
+Carga `.env.local` primero (sobrescribe) y `.env` después (defaults no-secret).
+
+### 2. Vars duplicadas server vs client son obligatorias
+
+**Síntoma**: El botón de búsqueda renderizaba pero no devolvía resultados. El sync server-side funcionaba bien.
+
+**Causa**: Astro no expone vars sin prefijo `PUBLIC_` al bundle JS del cliente. El código cliente (`Search.vue`) lee `import.meta.env.PUBLIC_ALGOLIA_APP_ID`, no `ALGOLIA_APP_ID`.
+
+**Fix**: configurar **ambas** copias de cada var en Netlify env vars:
+
+| Var server-side | Var client-side |
+|---|---|
+| `ALGOLIA_APP_ID` | `PUBLIC_ALGOLIA_APP_ID` (mismo valor) |
+| `ALGOLIA_INDEX_NAME` | `PUBLIC_ALGOLIA_INDEX_NAME` (mismo valor) |
+| `ALGOLIA_WRITE_API_KEY` | (NO exponer NUNCA al cliente) |
+| (no existe) | `PUBLIC_ALGOLIA_SEARCH_API_KEY` |
+
+Si una de las `PUBLIC_*` falta, `import.meta.env.PUBLIC_ALGOLIA_*` es `undefined` en runtime del browser y la búsqueda falla silenciosamente.
+
+### 3. Algolia v4 → v5: API breaking changes
+
+**Síntoma**: `TypeError: algoliasearch is not a function` (después del fix de vars).
+
+**Causa**: el proyecto tiene `algoliasearch@5.x` instalado pero el código cliente usaba la API de v4.
+
+**Cambios de v4 → v5**:
+```diff
+- import algoliasearch from 'algoliasearch/lite'              // v4 default export
+- const client = algoliasearch(APP_ID, API_KEY)
+- const index = client.initIndex(INDEX_NAME)
+- const { hits } = await index.search(query)                  // v4 path
++ import { liteClient } from 'algoliasearch/lite'             // v5 named export
++ const client = liteClient(APP_ID, API_KEY)
++ // v5 no tiene initIndex — el cliente se usa directo
++ const response = await client.search({
++   requests: [{ indexName: INDEX_NAME, query }],
++ })
++ const hits = response.results[0]?.hits ?? []
+```
+
+Versiones breaking relevantes de la v5:
+- `algoliasearch` (full) y `liteClient` son **named exports**, no default
+- `client.initIndex()` ya no existe — usar `client.search({ requests: [...] })` directo
+- La respuesta tiene estructura `{ results: [{ hits, ... }] }`, no `{ hits }` directo
+- Para usar solo la búsqueda, NO hay que inicializar un "index" — el cliente sabe el indexName por request
+
+### 4. Vite cache puede servir bundle viejo con vars undefined
+
+**Síntoma**: después de actualizar `.env.local` y reiniciar `pnpm dev`, las vars siguen apareciendo como `undefined` en el browser.
+
+**Causa**: Vite cachea imports y a veces sirve el bundle viejo.
+
+**Fix**:
+```bash
+Ctrl+C  # parar dev
+Remove-Item -Recurse -Force node_modules/.vite, .astro
+pnpm dev
+```
+
+### 5. El overlay rojo de Astro "Unhandled rejection" (Edge Functions / Deno)
+
+**Síntoma**: cada vez que arranca `pnpm dev`, aparece un overlay rojo que dice "Could not establish a connection to the Netlify Edge Functions local development server".
+
+**Causa**: el adapter `@astrojs/netlify` intenta conectar con Deno local para emular edge functions. Deno no está corriendo (y no hace falta para Plocos).
+
+**Estado**: pre-existente, no relacionado con la búsqueda. Aparece en cada `astro dev` pero no afecta funcionalidad (las páginas siguen sirviéndose con `[200]`). Se puede ignorar hasta que se decida agregar Edge Functions reales.
+
+### Debug flow usado (referencia futura)
+
+Si la búsqueda no devuelve resultados en el futuro:
+
+1. **Confirmar que el sync corrió verde**: `node src/lib/algoliasearch.js` debe loguear `Successfully indexed N posts to Algolia.`
+2. **Verificar env vars del bundle del cliente** (DevTools console):
+   ```js
+   console.log(import.meta.env.PUBLIC_ALGOLIA_APP_ID)
+   console.log(import.meta.env.PUBLIC_ALGOLIA_INDEX_NAME)
+   console.log(import.meta.env.PUBLIC_ALGOLIA_SEARCH_API_KEY?.slice(0,8))
+   ```
+   Si alguno es `undefined` → problema de vars (volver a paso 2 de la sección principal).
+3. **Verificar que el SDK se inicializa** (DevTools console → buscar errores):
+   - `algoliasearch is not a function` → named export incorrecto (paso 3)
+   - `initIndex is not a function` → usando v4 API en v5 (paso 3)
+   - `Cannot read properties of undefined (reading 'appId')` → APP_ID undefined (paso 2)
+4. **Verificar requests al backend** (DevTools Network → filtrar por `algolianet`):
+   - Status 200 con `hits: [...]` → búsqueda funciona, problema es del lado del cliente (result rendering)
+   - Status 200 con `hits: []` → el query no matchea con nada del índice (verificar contenido en dashboard)
+   - Status 4xx → key o permisos mal
+   - No request → cliente no se inicializó
