@@ -1,6 +1,9 @@
 import * as dotenv from 'dotenv';
 if (process.env.NODE_ENV !== 'production') {
-  dotenv.config();
+  // Plocos convention: secrets live in .env.local (gitignored), defaults in .env.
+  // Try .env.local first so secrets override defaults; fall back to .env.
+  dotenv.config({ path: '.env.local' });
+  dotenv.config({ path: '.env' });
 }
 
 import { algoliasearch } from 'algoliasearch';
