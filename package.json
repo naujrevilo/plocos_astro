@@ -15,41 +15,30 @@
     "check:pages": "astro check --path src/pages",
     "verify:pacto": "node scripts/verify-pacto-body.mjs",
     "verify:pacto:self-check": "node scripts/verify-pacto-body.mjs --self-check",
-    "prebuild": "pnpm verify:pacto"
+    "prebuild": "pnpm verify:pacto",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@algolia/autocomplete-js": "1.19.9",
-    "@algolia/autocomplete-plugin-recent-searches": "1.19.9",
-    "@algolia/autocomplete-theme-classic": "1.19.9",
-    "@algolia/client-analytics": "5.57.0",
-    "@algolia/client-search": "5.57.0",
     "@astrojs/check": "0.9.10",
     "@astrojs/netlify": "8.2.5",
-    "@astrojs/react": "6.0.5",
     "@astrojs/sitemap": "3.7.4",
     "@astrojs/starlight-docsearch": "0.8.0",
     "@astrojs/tailwind": "6.0.2",
-    "@astrojs/vue": "7.0.2",
     "@libsql/client": "^0.18.0",
-    "algoliasearch": "5.57.0",
     "all": "^0.0.0",
     "astro": "7.3.1",
     "astro-consent": "^2.1.1",
-    "astro-google-analytics": "1.0.3",
     "flowbite": "4.0.2",
     "preact": "10.29.8",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
     "remove-markdown": "0.7.0",
     "slugify": "1.6.9",
-    "typescript": "7.0.2",
-    "vue": "3.5.42",
-    "vue-instantsearch": "4.29.8"
+    "typescript": "7.0.2"
   },
   "devDependencies": {
     "@tailwindcss/typography": "0.5.20",
     "@types/node": "^26.4.1",
     "@types/react": "19.2.18",
+    "@vitest/expect": "^5.0.3",
     "autoprefixer": "10.5.5",
     "dotenv": "17.4.2",
     "drizzle-kit": "^0.31.10",
@@ -64,6 +53,7 @@
     "ts-node": "10.9.2",
     "tsx": "4.23.13",
     "turndown": "7.2.4",
+    "vitest": "^5.0.3",
     "yup": "1.7.1",
     "zod": "4.5.4"
   }

@@ -6,10 +6,6 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 
 
-import vue from '@astrojs/vue';
-import react from '@astrojs/react';
-
-
 
 
 // https://astro.build/config
@@ -36,13 +32,11 @@ export default defineConfig({
       tailwind({
           applyBaseStyles: false,
       }),
-      vue(),
-      react(),
       sitemap(),
-    
+
   ],
 
-  
+
 
   i18n: {
       locales: ['es', 'en'],
@@ -54,6 +48,6 @@ export default defineConfig({
           fallbackType: 'rewrite',
       },
   },
-  
+
 
 });
