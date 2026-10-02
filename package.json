@@ -15,6 +15,7 @@
     "check:pages": "astro check --path src/pages",
     "verify:pacto": "node scripts/verify-pacto-body.mjs",
     "verify:pacto:self-check": "node scripts/verify-pacto-body.mjs --self-check",
+    "verify:schema": "node --import tsx -e \"import('./src/lib/db/schema.ts').then(m => { const entityKind = Symbol.for('drizzle:entityKind'); const tables = Object.entries(m).filter(([, v]) => v && typeof v === 'object' && typeof v.constructor?.[entityKind] === 'string' && (v.constructor[entityKind] === 'Table' || v.constructor[entityKind] === 'SQLiteTable')).map(([k]) => k); if (!tables.length) { console.error('Schema FAILED: no tables found'); process.exit(1); } console.log('Schema OK, tables:', tables); }).catch(err => { console.error('Schema FAILED:', err.message); process.exit(1); })\"",
     "prebuild": "pnpm verify:pacto",
     "test": "vitest run"
   },
