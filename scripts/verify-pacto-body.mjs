@@ -35,7 +35,10 @@ const FIXTURE_PATH = resolve(__dirname, "__fixtures__/pacto-canonical.json");
 
 const SELF_CHECK = process.argv.includes("--self-check");
 
-const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+// Sections I–XI (T04 added IX Habeas Scriptum, X Términos de Auditoría,
+// XI Declaración de Simbiosis Algorítmica; the 8 originals are unchanged).
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"];
+const EXPECTED_SECTIONS = ROMAN.length;
 
 function lf(s) {
   return s.replace(/\r\n/g, "\n");
@@ -102,7 +105,7 @@ if (SELF_CHECK) {
     first_diff_offset: selfDiff ? firstDiffOffset(fixtureJoined, fixtureBodies.map(lf).join("")) : 0,
   };
   console.log("Pacto body verification (self-check)");
-  console.log(`  sections: ${fixtureBodies.length} (I–VIII)`);
+  console.log(`  sections: ${fixtureBodies.length} (I–XI)`);
   console.log(`  encoding: UTF-8`);
   console.log(`  source:   canonical fixture`);
   console.log(JSON.stringify(jsonBlock, null, 2));
@@ -127,8 +130,8 @@ if (!Array.isArray(sections)) {
     first_diff_offset: -1,
   });
 }
-if (sections.length !== 8) {
-  fatal(`Expected 8 sections, got ${sections.length}.`, {
+if (sections.length !== EXPECTED_SECTIONS) {
+  fatal(`Expected ${EXPECTED_SECTIONS} sections, got ${sections.length}.`, {
     expected: fixtureExpected,
     actual: null,
     drift_bytes: -1,
@@ -136,8 +139,8 @@ if (sections.length !== 8) {
   });
 }
 
-// Heading markers I–VIII must be present in order.
-for (let i = 0; i < 8; i++) {
+// Heading markers I–XI must be present in order.
+for (let i = 0; i < EXPECTED_SECTIONS; i++) {
   const h = sections[i]?.heading ?? "";
   if (!h.startsWith(`${ROMAN[i]}.`)) {
     fatal(`Section ${i + 1} heading missing marker ${ROMAN[i]}. (got: ${JSON.stringify(h.slice(0, 40))})`, {
@@ -182,7 +185,7 @@ const jsonBlock = {
 };
 
 console.log("Pacto body verification");
-console.log(`  sections: ${sections.length} (I–VIII)`);
+console.log(`  sections: ${sections.length} (I–XI)`);
 console.log(`  encoding: UTF-8`);
 console.log(JSON.stringify(jsonBlock, null, 2));
 

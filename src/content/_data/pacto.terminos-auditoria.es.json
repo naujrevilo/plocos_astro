@@ -1,0 +1,27 @@
+{
+  "metaTitle": "Términos y Condiciones de Auditoría · Plocos",
+  "metaDescription": "Reglas paramétricas de inyección de aportes, monopolio de la interpretación del Autor, y recompensas del rango honorífico de Auditor en la obra Nomás que la Vida.",
+  "title": "Términos y Condiciones de Auditoría",
+  "updatedLabel": "Última actualización",
+  "updatedValue": "2 de octubre de 2026",
+  "introduction": "La participación en el Repositorio de Nomás que la Vida está condicionada al cumplimiento del máximo rigor argumentativo. El autor delega en la comunidad la vigilancia estructural de su obra bajo las siguientes reglas irrenunciables:",
+  "sections": [
+    {
+      "heading": "Reglas de Inyección de Aportes",
+      "body": "Todo aporte será procesado por un Sistema Algorítmico (Plocos). Para evitar el rechazo automático, el aporte debe:",
+      "bullets": [
+        "Poseer estructura silogística demostrable (premisas conducentes a una conclusión). Las opiniones estéticas o morales carentes de formulación lógica serán descartadas.",
+        "Carecer de falacias primarias de razonamiento.",
+        "Vincularse de manera topográfica exacta al texto (especificando año, iteración, capítulo y párrafo)."
+      ]
+    },
+    {
+      "heading": "El Monopolio de la Interpretación",
+      "body": "Si bien la comunidad vigila el rigor, el Autor retiene de manera exclusiva e indelegable el monopolio de la interpretación final y la toma de decisiones sobre la obra. La aceptación de un argumento que logre vulnerar el canon (Nivel 3) queda a entero arbitrio, riesgo político y filosófico del Autor."
+    },
+    {
+      "heading": "Ascenso a Auditor y Recompensas",
+      "body": "El rango de Auditor no es comercializable; es una distinción honorífica de conquista intelectual. Se otorga exclusivamente a aquel Colaborador cuyas refutaciones obliguen técnicamente a la reescritura de un fragmento de la obra. La recompensa incluye: a) Inclusión del currículum y fotografía en la sección \"Auditores\". b) Reconocimiento moral explícito en las notas de la nueva versión del PDF iterado. c) Otorgamiento de una suscripción gratuita equivalente al periodo de un año y/o seis (6) ciclos de 60 días. Conforme al Habeas Scriptum, este rango no confiere titularidad, poder de veto ni derechos patrimoniales sobre la obra."
+    }
+  ]
+}

@@ -1,14 +1,14 @@
 {
   "$schema": "./pacto-canonical.schema.json",
   "source": "Engram observation #99 (sdd/pacto-cliente-y-autonomia-contenido/text)",
-  "revision": 2,
-  "generatedBy": "scripts/__fixtures__/generate-pacto-data.mjs (one-shot, deleted after run)",
+  "revision": 3,
+  "generatedBy": "T04 pacto rewrite: 11 sections (8 originals verbatim + 3 new). Hash recomputed by hand.",
   "encoding": "UTF-8",
   "lineEndings": "LF",
   "expected": {
-    "sha256": "46fa23bf049dc7e55205adf8e638ebd530fc12f0afe4c12fe26b8a32bc0774b7",
-    "byteLength": 6473,
-    "sections": 8,
+    "sha256": "012d887b62d7df00ea91e29d3ade533de60b731ec7f7f13cf7c4f2be32026fc5",
+    "byteLength": 11125,
+    "sections": 11,
     "updatedValue": "2 de septiembre de 2026",
     "updatedHeaderEs": "Última actualización: 2 de septiembre de 2026",
     "joinDelimiter": ""
@@ -45,6 +45,18 @@
     {
       "index": 8,
       "heading": "VIII. LEY APLICABLE Y JURISDICCIÓN"
+    },
+    {
+      "index": 9,
+      "heading": "IX. HABEAS SCRIPTUM: PACTO DE CESIÓN Y DELIMITACIÓN DE AUTORÍA"
+    },
+    {
+      "index": 10,
+      "heading": "X. TÉRMINOS Y CONDICIONES DE AUDITORÍA"
+    },
+    {
+      "index": 11,
+      "heading": "XI. DECLARACIÓN DE SIMBIOSIS ALGORÍTMICA (TRANSPARENCIA RADICAL)"
     }
   ],
   "bodies": [
@@ -55,6 +67,9 @@
     "Toda transacción comercial dentro de Plocos se rige por el Estatuto del Consumidor de Colombia (Ley 1480/2011).\nDerecho de retracto: El usuario podrá ejercer su derecho de retracto dentro de los cinco (5) días hábiles siguientes a la compra de una suscripción, solicitando la reversión del pago.\nExcepciones: El derecho de retracto no aplicará para la compra de bienes digitales (como el acceso completo e inmediato al libro virtual interactivo o descargas de contenido) cuando la ejecución del servicio haya comenzado con el consentimiento previo y expreso del consumidor, imposibilitando su devolución técnica.",
     "La libertad intelectual de este espacio no ampara la anarquía perjudicial.\nEl usuario se compromete a no utilizar ninguna sección interactiva (comentarios, foros de suscriptores) para alojar material ilegal, promover daño físico, terrorismo, explotación infantil o difamación jurídica sin fundamento.\nLa administración se reserva el derecho inalienable de moderar o eliminar intervenciones que fracturen la línea editorial, sin que ello constituya censura.\nRevocación: Se revocará el acceso, suspendiendo cuentas y cancelando suscripciones de forma inmediata y sin derecho a reembolso, a quien vulnere la propiedad intelectual, eluda las protecciones anti-IA, distribuya credenciales de acceso de forma fraudulenta o viole los límites éticos expuestos.",
     "Plocos opera bajo el principio de recolección mínima. El tratamiento de datos personales, necesarios estrictamente para el procesamiento de pagos, administración de suscripciones y envío de obras, se realiza conforme a la Ley 1581/2012 y sus decretos reglamentarios. No se perfila ideológicamente a los visitantes ni se comercializan bases de datos. Los derechos de Acceso, Rectificación, Cancelación y Oposición (ARCO) pueden ejercerse a través de los canales de contacto oficiales detallados en la Política de Privacidad.",
-    "Las presentes condiciones se interpretan y ejecutan bajo las leyes de la República de Colombia. Cualquier controversia, disputa o reclamación que supere los mecanismos de conciliación directa será sometida a la jurisdicción de los jueces y tribunales competentes de la ciudad de Cartagena de Indias, Distrito Turístico y Cultural. La nulidad de una cláusula no invalidará el andamiaje del resto del documento."
+    "Las presentes condiciones se interpretan y ejecutan bajo las leyes de la República de Colombia. Cualquier controversia, disputa o reclamación que supere los mecanismos de conciliación directa será sometida a la jurisdicción de los jueces y tribunales competentes de la ciudad de Cartagena de Indias, Distrito Turístico y Cultural. La nulidad de una cláusula no invalidará el andamiaje del resto del documento.",
+    "Este documento rige la relación jurídica entre el Suscriptor en categoría de Colaborador (en adelante, \"El Aportante\") y Michel Saer (en adelante, \"El Autor\"), titular exclusivo de los derechos patrimoniales y morales de la obra Nomás que la Vida. Al habilitar la interfaz para enviar aportes, observaciones o anotaciones al Repositorio, El Aportante manifiesta su consentimiento libre, previo y expreso sobre las siguientes disposiciones:\n\n1. Reconocimiento de Obra Originaria: El Aportante reconoce que Nomás que la Vida es una obra literaria originaria de creación exclusiva del Autor, protegida bajo el artículo 6 de la Ley 23 de 1982. Las interacciones, refutaciones o comentarios vertidos en el Repositorio no constituyen el desarrollo de una \"obra en colaboración\" ni de una \"obra colectiva\" conforme a la legislación vigente.\n\n2. Licencia de Adaptación Unilateral y Cesión: El Aportante retiene los derechos morales y patrimoniales originarios única y exclusivamente sobre el texto exacto de su comentario aislado depositado en el Repositorio. Sin embargo, mediante la aceptación de este acuerdo, El Aportante otorga al Autor y a sus causahabientes una licencia mundial, irrevocable, perpetua, transferible y libre de regalías para asimilar, parafrasear, modificar, transmutar y comercializar las ideas, estructuras lógicas, premisas y conclusiones subyacentes de su aporte para integrarlas en cualquier iteración pasada, presente o futura de Nomás que la Vida. Esta autorización incluye explícitamente el derecho patrimonial de transformación y reproducción.\n\n3. Renuncia de Coautoría Comercial y Dividendos: El Aportante acepta de manera explícita que la eventual alteración del canon motivada por su aporte no genera sociedad alguna con el Autor. Asimismo, renuncia formalmente a reclamar derechos morales sobre la obra matriz y a participar en cualquier tipo de ingresos, regalías, dividendos o compensación económica derivada de la venta, suscripción o licenciamiento de la obra, reconociendo que su recompensa se limita estrictamente al reconocimiento moral dentro del ecosistema en caso de ascender al rango de Auditor.\n\n4. Publicidad y Habeas Data: El Aportante autoriza expresamente (conforme al artículo 9 de la Ley 1581 de 2012) que sus aportes, comentarios y datos de identidad (nombre o seudónimo, y opcionalmente su correo electrónico) sean publicados, auditados, comentados y expuestos al escrutinio público dentro del Repositorio.",
+    "La participación en el Repositorio de Nomás que la Vida está condicionada al cumplimiento del máximo rigor argumentativo. El autor delega en la comunidad la vigilancia estructural de su obra bajo las siguientes reglas irrenunciables:\n\n1. Reglas de Inyección de Aportes: Todo aporte será procesado por un Sistema Algorítmico (Plocos). Para evitar el rechazo automático, el aporte debe:\n• Poseer estructura silogística demostrable (premisas conducentes a una conclusión). Las opiniones estéticas o morales carentes de formulación lógica serán descartadas.\n• Carecer de falacias primarias de razonamiento.\n• Vincularse de manera topográfica exacta al texto (especificando año, iteración, capítulo y párrafo).\n\n2. El Monopolio de la Interpretación: Si bien la comunidad vigila el rigor, el Autor retiene de manera exclusiva e indelegable el monopolio de la interpretación final y la toma de decisiones sobre la obra. La aceptación de un argumento que logre vulnerar el canon (Nivel 3) queda a entero arbitrio, riesgo político y filosófico del Autor.\n\n3. Ascenso a Auditor y Recompensas: El rango de Auditor no es comercializable; es una distinción honorífica de conquista intelectual. Se otorga exclusivamente a aquel Colaborador cuyas refutaciones obliguen técnicamente a la reescritura de un fragmento de la obra. La recompensa incluye: a) Inclusión del currículum y fotografía en la sección \"Auditores\". b) Reconocimiento moral explícito en las notas de la nueva versión del PDF iterado. c) Otorgamiento de una suscripción gratuita equivalente al periodo de un año y/o seis (6) ciclos de 60 días. Conforme al Habeas Scriptum, este rango no confiere titularidad, poder de veto ni derechos patrimoniales sobre la obra.",
+    "La primera línea de defensa de este canon es un motor de inteligencia artificial calibrado para detectar falacias lógicas y deficiencias argumentativas. Para que su argumento sea evaluado por el autor, primero debe demostrar perfección estructural ante la máquina. Esta simbiosis automatizada legitima el rigor intelectual del proyecto y evita el fraude sociológico derivado del volumen de interacciones."
   ]
 }
