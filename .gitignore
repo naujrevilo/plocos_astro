@@ -52,3 +52,9 @@ openspec/
 
 # Debug HTML files from local dev sessions
 src/test.html
+
+# Local IDE config
+.vscode/settings.json
+
+# Alternative runtime lockfile (project uses pnpm)
+bun.lock

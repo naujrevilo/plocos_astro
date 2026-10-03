@@ -1,26 +1,10 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PostCard from '../components/PostCard.astro';
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
-import { createLocaleHref } from '../lib/routes';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
-
-// Fetch all published posts for the current locale
-const posts = await getCollection('posts', ({ data }) => {
-  return data.draft === false;
-});
-
-// Sort posts by date in descending order
-const sortedPosts = posts.sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
-
-const latestPosts = sortedPosts.slice(0, 12);
 const translations = getTranslations(locale);
 const home = translations.home;
-const categoriesHref = createLocaleHref(locale, translations.paths.categories);
 ---
 <BaseLayout title={home.metaTitle} description={home.metaDescription}>
 	<section class="relative overflow-hidden">
@@ -48,20 +32,6 @@ const categoriesHref = createLocaleHref(locale, translations.paths.categories);
 					))}
 				</div>
 			</div>
-			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{latestPosts.map((post) => (
-					<PostCard post={post} />
-				))}
-			</div>
-					<div class="flex items-center justify-center pt-4">
-						<a
-							href={categoriesHref}
-							class="inline-flex items-center gap-2 rounded-full border border-accent-muted bg-accent-soft px-6 py-3 text-sm font-semibold text-text-accent transition hover:border-accent hover:text-text-primary"
-						>
-							{home.cta}
-							<span aria-hidden="true">→</span>
-						</a>
-					</div>
 		</div>
 	</section>
 </BaseLayout>
