@@ -12,7 +12,16 @@ import clerk from '@clerk/astro';
 export default defineConfig({
   site: 'https://plocos.netlify.app',
   output: 'server',
-  adapter: netlify(),
+  adapter: netlify({
+    // El proyecto no define edge functions propias: el middleware de Clerk
+    // corre dentro de la SSR function. La emulación local de edge functions
+    // (Deno) fallaba al iniciar y emitía un unhandled rejection en cada
+    // arranque del dev server. La desactivamos en dev; en producción Netlify
+    // sigue aplicando la política normal.
+    devFeatures: {
+      edgeFunctions: false,
+    },
+  }),
 
   integrations: [
 // astro-consent:start
