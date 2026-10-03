@@ -1,6 +1,6 @@
 ---
 /**
- * /en/repository — Sec Repositorio (EN mirror)
+ * /en/repository — EN mirror of /repositorio
  */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
@@ -33,7 +33,7 @@ const PLACEHOLDER_ANNOTATIONS: AnnotationEntry[] = isES
         cycleNum: 1,
         chapter: 'Capítulo de apertura',
         paragraphAnchor: '§1.1',
-        excerpt: 'El Repositorio empezará a poblarse cuando los primeros Colaboradores envían aportes al canon. Cada aporte pasa por un motor LLM de triaje de tres niveles antes de aparecer aquí.',
+        excerpt: 'El Repositorio empezará a poblarse cuando los primeros Colaboradores envían aportes al canon. Cada aporte pasa por el motor de triaje algorítmico de tres niveles antes de aparecer aquí.',
         status: 'pending',
       },
     ]
@@ -46,16 +46,40 @@ const PLACEHOLDER_ANNOTATIONS: AnnotationEntry[] = isES
         cycleNum: 1,
         chapter: 'Opening chapter',
         paragraphAnchor: '§1.1',
-        excerpt: 'The Repository will begin to fill when the first Collaborators submit contributions to the canon. Every contribution goes through a three-level LLM triage engine before appearing here.',
+        excerpt: 'The Repository will begin to fill when the first Collaborators submit contributions to the canon. Every contribution goes through the three-level algorithmic triage engine before appearing here.',
         status: 'pending',
       },
     ];
+
+const TRIAGE_LEVELS = [
+  {
+    level: 1,
+    name: isES ? 'Nivel 1 — Rechazo Automatizado (La Guillotina de Plocos)' : 'Level 1 — Automated Rejection (Plocos Guillotine)',
+    description: isES
+      ? 'El LLM recibe la entrada del usuario en milisegundos y realiza un análisis semántico en busca de marcadores de argumentación. El aporte no llega al repositorio si incurre en Falla Topográfica (ausencia de los metadatos de referenciación del libro), Ausencia de Silogismo (mera opinión, quejas emocionales o falacia de aserción sin base), o Falacia Lógica Primaria (Ad hominem, petición de principio, hombre de paja). Si se detectan, el usuario recibe un correo automatizado de refutación de la máquina y el aporte es destruido.'
+      : 'The LLM receives the user\'s input in milliseconds and performs a semantic analysis searching for argumentation markers. The contribution does not reach the repository if it incurs a Topographic Failure (absence of book referential metadata), Absence of Syllogism (mere opinion, emotional complaints, or baseless assertion fallacy), or Primary Logical Fallacy (Ad hominem, begging the question, straw man). If detected, the user receives an automated rebuttal email from the machine and the contribution is destroyed.',
+  },
+  {
+    level: 2,
+    name: isES ? 'Nivel 2 — Triaje y Publicación (Fricción Complementaria)' : 'Level 2 — Triage and Publication (Complementary Friction)',
+    description: isES
+      ? 'El aporte demuestra rigor lógico y evidencia verificable, superando el análisis del LLM. Sin embargo, el mapeo del argumento indica que su trayectoria no destruye la premisa central del autor, sino que actúa como una crítica secundaria o complemento. Acción: se publica automáticamente en el Repositorio. Los Colaboradores pueden interactuar con él. El sistema prepara un resumen pasivo para la revisión posterior del autor.'
+      : 'The contribution demonstrates logical rigour and verifiable evidence, surpassing the LLM analysis. However, the argument mapping indicates that its trajectory does not destroy the author\'s central premise, but rather acts as a secondary critique or complement. Action: published automatically in the Repository. Collaborators can interact with it. The system prepares a passive summary for the author\'s later review.',
+  },
+  {
+    level: 3,
+    name: isES ? 'Nivel 3 — Veredicto Autoral (Michel Saer Daccarett)' : 'Level 3 — Authorial Verdict (Michel Saer Daccarett)',
+    description: isES
+      ? 'El algoritmo detecta una antítesis estructuralmente perfecta que amenaza un nodo raíz de una premisa central. Acción: el aporte se "congela" y se eleva con máxima prioridad. Durante los días 36 al 41 (Veda Dialéctica), pasa directamente al escritorio del autor. Es aquí donde la simbiosis máquina-humano termina y comienza el riesgo político del autor humano. Este debe redactar una respuesta, asumir la derrota intelectual (si la hubiere) y decidir la reescritura, complementación o adición del texto matriz.'
+      : 'The algorithm detects a structurally perfect antithesis that threatens a root node of a central premise. Action: the contribution is "frozen" and elevated with maximum priority. During days 36 to 41 (Dialectical Blackout), it goes directly to the author\'s desk. This is where the human-machine symbiosis ends and the political risk of the human author begins. The author must write a response, accept intellectual defeat (if any), and decide the rewriting, supplementation, or addition of the source text.',
+  },
+];
 ---
 <BaseLayout
   title={isES ? 'Repositorio · Plocos' : 'Repository · Plocos'}
   description={isES
-    ? 'El núcleo tecnológico de la interacción rápida. Indexa los aportes por año y por periodo de iteración.'
-    : 'The technological core of fast interaction. Indexes contributions by year and iteration period.'}
+    ? 'Núcleo tecnológico de la interacción rápida. Indexa los aportes por año y por periodo de iteración. La simbiosis humano-máquina del motor de triaje algorítmico.'
+    : 'Technological core of fast interaction. Indexes contributions by year and iteration period. The human-machine symbiosis of the algorithmic triage engine.'}
 >
   <article class="mx-auto max-w-4xl space-y-12 px-4 py-16 text-text-secondary">
     <header class="space-y-4">
@@ -65,7 +89,7 @@ const PLACEHOLDER_ANNOTATIONS: AnnotationEntry[] = isES
       <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">
         {isES ? 'Repositorio' : 'Repository'}
       </h1>
-      <p class="text-lg leading-relaxed text-text-secondary/90 max-w-2xl">
+      <p class="text-lg leading-relaxed text-text-secondary/90 max-w-3xl">
         {isES
           ? 'El repositorio es el núcleo tecnológico de la interacción rápida. Al ingresar, el sistema exigirá las credenciales (usuario y contraseña).'
           : 'The repository is the technological core of fast interaction. Upon entry, the system will require credentials (username and password).'}
@@ -74,20 +98,46 @@ const PLACEHOLDER_ANNOTATIONS: AnnotationEntry[] = isES
 
     <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-4">
       <h2 class="text-xl font-semibold text-text-primary">
-        {isES ? '¿Cómo funciona?' : 'How does it work?'}
+        {isES ? 'Visualización y filtros' : 'Visualisation and filters'}
       </h2>
-      <ul class="space-y-2 leading-relaxed text-sm">
-        <li>
-          {isES
-            ? 'Visualización y filtros: Los aportes están indexados y ordenados por año, y dentro de cada año, por el periodo de iteración (del 1 al 6).'
-            : 'Visualisation and filters: Contributions are indexed and ordered by year, and within each year, by iteration period (1 to 6).'}
-        </li>
-        <li>
-          {isES
-            ? 'Interacción: La interfaz simula redes sociales consolidadas (tipo Facebook o hilos de Reddit), permitiendo a los Colaboradores responder, debatir y comentar los aportes de otros. El Autor interviene en esta misma interfaz para dar sus veredictos. Los "Lectores" podrán observar toda la actividad sin privilegios de escritura.'
-            : 'Interaction: The interface simulates established social networks (Facebook-style or Reddit threads), letting Collaborators respond, debate, and comment on each other\'s contributions. The Author intervenes in the same interface to deliver his verdicts. "Readers" can observe all activity without writing privileges.'}
-        </li>
-      </ul>
+      <p class="leading-relaxed text-sm">
+        {isES
+          ? 'Los aportes estarán indexados y ordenados por año, y dentro de cada año, por el periodo de iteración (del 1 al 6).'
+          : 'Contributions are indexed and ordered by year, and within each year, by iteration period (1 to 6).'}
+      </p>
+    </section>
+
+    <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-4">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? 'Interacción' : 'Interaction'}
+      </h2>
+      <p class="leading-relaxed text-sm">
+        {isES
+          ? 'La interfaz simulará redes sociales consolidadas (tipo Facebook o hilos de Reddit), permitiendo a los Colaboradores responder, debatir y comentar los aportes de otros. El Autor intervendrá en esta misma interfaz para dar sus veredictos. Los "Lectores" podrán observar toda la actividad sin privilegios de escritura.'
+          : 'The interface simulates established social networks (Facebook-style or Reddit threads), letting Collaborators respond, debate, and comment on each other\'s contributions. The Author intervenes in the same interface to deliver his verdicts. "Readers" can observe all activity without writing privileges.'}
+      </p>
+    </section>
+
+    <section class="space-y-4">
+      <h2 class="text-2xl font-semibold text-text-primary">
+        {isES ? 'El Motor de Triaje: simbiosis humano-máquina' : 'The Triage Engine: human-machine symbiosis'}
+      </h2>
+      <p class="leading-relaxed text-sm">
+        {isES
+          ? 'El volumen potencial de interacción requeriría un equipo de editores costoso y lento. La solución es la implementación de un sistema de "Autor Centauro", que integra técnicas de Procesamiento de Lenguaje Natural (NLP) y Argumentation Mining (Minería de Argumentación). Basándose en el Marco de Argumentación Abstracta propuesto por Dung (1995), el sistema utiliza un Modelo de Lenguaje Grande (LLM) configurado mediante prompts sistémicos rigurosos para actuar como un filtro lógico estructural, no de veracidad.'
+          : 'The potential interaction volume would require a costly and slow team of editors. The solution is the implementation of a "Centaur Author" system, integrating Natural Language Processing (NLP) and Argumentation Mining techniques. Based on the Abstract Argumentation Framework proposed by Dung (1995), the system uses a Large Language Model (LLM) configured through rigorous systemic prompts to act as a structural logic filter, not a veracity one.'}
+      </p>
+
+      <div class="space-y-4">
+        {TRIAGE_LEVELS.map((tier) => (
+          <article class="rounded-2xl border border-border-subtle bg-surface-elevated p-6 space-y-3">
+            <h3 class="text-lg font-semibold text-text-primary">
+              {tier.name}
+            </h3>
+            <p class="text-sm leading-relaxed">{tier.description}</p>
+          </article>
+        ))}
+      </div>
     </section>
 
     <section class="space-y-6">

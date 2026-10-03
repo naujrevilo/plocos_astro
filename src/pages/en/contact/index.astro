@@ -1,6 +1,6 @@
 ---
 /**
- * /en/contact — Sec Contacto (EN mirror)
+ * /en/contact — EN mirror of /contacto
  */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
@@ -10,12 +10,21 @@ const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const isES = locale === 'es';
 const privacyHref = createLocaleHref(locale, translations.paths.privacy);
+
+const DATA_FIELDS = [
+  { field: isES ? 'Nombre y Apellido' : 'Full name', op: isES ? 'Identidad en el repositorio y personalización.' : 'Identity in the repository and personalisation.', legal: isES ? 'Principio de finalidad y veracidad.' : 'Principle of purpose and accuracy.' },
+  { field: isES ? 'Correo electrónico' : 'Email', op: isES ? 'Canal de acceso, recuperación de cuenta y notificaciones.' : 'Access channel, account recovery, and notifications.', legal: isES ? 'Medio de contacto autorizado.' : 'Authorised contact channel.' },
+  { field: isES ? 'Celular' : 'Mobile', op: isES ? 'Verificación secundaria de seguridad o pagos.' : 'Secondary security or payment verification.', legal: isES ? 'Seguridad transaccional.' : 'Transactional security.' },
+  { field: isES ? 'Ciudad y País' : 'City and Country', op: isES ? 'Aplicación de impuestos locales y métricas sociológicas.' : 'Local tax application and sociological metrics.', legal: isES ? 'Principio de necesidad.' : 'Principle of necessity.' },
+  { field: isES ? 'Fecha de Nacimiento' : 'Date of Birth', op: isES ? 'Verificación de mayoría de edad (18 años).' : 'Age of majority verification (18 years).', legal: isES ? 'Protección de menores de edad y capacidad jurídica para contratar.' : 'Protection of minors and legal capacity to contract.' },
+  { field: isES ? 'Género' : 'Gender', op: isES ? 'Análisis estadístico de la audiencia.' : 'Statistical audience analysis.', legal: isES ? 'Dato opcional, sujeto a anonimización.' : 'Optional data, subject to anonymisation.' },
+];
 ---
 <BaseLayout
   title={isES ? 'Contacto · Plocos' : 'Contact · Plocos'}
   description={isES
-    ? 'Canal formal para peticiones ARCO (derechos de Acceso, Rectificación, Cancelación y Oposición) y consultas generales sobre la plataforma.'
-    : 'Formal channel for ARCO requests (Access, Rectification, Cancellation, Opposition) and general inquiries about the platform.'}
+    ? 'Canal formal para la recepción de peticiones legales (ejercicio de derechos ARCO sobre datos personales) y consultas generales, cerrando el bucle de atención al cliente.'
+    : 'Formal channel for receiving legal requests (ARCO rights over personal data) and general inquiries, closing the customer service loop.'}
 >
   <article class="mx-auto max-w-3xl space-y-12 px-4 py-16 text-text-secondary">
     <header class="space-y-4">
@@ -36,15 +45,10 @@ const privacyHref = createLocaleHref(locale, translations.paths.privacy);
       <h2 class="text-xl font-semibold text-text-primary">
         {isES ? 'Peticiones ARCO (Ley 1581/2012)' : 'ARCO requests (Ley 1581/2012)'}
       </h2>
-      <p class="leading-relaxed">
+      <p class="leading-relaxed text-sm">
         {isES
           ? 'Conforme a la Ley 1581/2012, todo titular puede ejercer en cualquier momento los derechos de Acceso, Rectificación, Cancelación y Oposición (derechos ARCO), y los derechos adicionales de supresión y portabilidad. La cancelación de la cuenta se ejecuta en cascada: se eliminan la fila en `users`, las suscripciones, las anotaciones del Repositorio y, en la siguiente iteración, los perfiles públicos asociados.'
           : 'Under Ley 1581/2012, every data subject may exercise at any time the rights of Access, Rectification, Cancellation, and Opposition (ARCO rights), and the additional rights of erasure and portability. Account cancellation is executed in cascade: the `users` row, subscriptions, Repository annotations, and (in the next iteration) associated public profiles are erased.'}
-      </p>
-      <p class="text-sm leading-relaxed">
-        {isES
-          ? 'Para hacerlo, basta con seleccionar la opción "Ejercicio de derechos ARCO" en el formulario de abajo, completar los campos requeridos y adjuntar copia del documento de identidad. Recibirás respuesta en los plazos previstos por la Superintendencia de Industria y Comercio (SIC).'
-          : 'To do so, simply select the "Exercise of ARCO rights" option in the form below, complete the required fields, and attach a copy of your ID. You will receive a response within the timeframes provided by the Superintendencia de Industria y Comercio (SIC).'}
       </p>
       <p class="text-xs text-text-secondary/80">
         {isES
@@ -53,6 +57,42 @@ const privacyHref = createLocaleHref(locale, translations.paths.privacy);
         <a href={privacyHref} class="text-accent hover:underline ml-1">
           {isES ? 'Política de Privacidad' : 'Privacy Policy'}
         </a>
+      </p>
+    </section>
+
+    <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-4">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? 'Datos que recogemos' : 'Data we collect'}
+      </h2>
+      <p class="leading-relaxed text-sm">
+        {isES
+          ? 'Si tu solicitud requiere inscripción en la plataforma, los campos mínimos viables que recogemos son:'
+          : 'If your request requires enrolment in the platform, the minimum viable fields we collect are:'}
+      </p>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-left text-sm">
+          <thead>
+            <tr class="border-b border-border-subtle">
+              <th class="py-2 pr-4 font-semibold text-text-primary">{isES ? 'Campo' : 'Field'}</th>
+              <th class="py-2 pr-4 font-semibold text-text-primary">{isES ? 'Justificación operativa' : 'Operational rationale'}</th>
+              <th class="py-2 font-semibold text-text-primary">{isES ? 'Justificación legal (Ley 1581/2012)' : 'Legal rationale (Ley 1581/2012)'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {DATA_FIELDS.map((row) => (
+              <tr class="border-b border-border-subtle/60 align-top">
+                <td class="py-2 pr-4 font-semibold text-text-primary">{row.field}</td>
+                <td class="py-2 pr-4">{row.op}</td>
+                <td class="py-2">{row.legal}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-text-secondary/70 italic">
+        {isES
+          ? 'Todos estos campos se tratan bajo el principio de recolección mínima y con casillas de verificación obligatorias (opt-in) para la política de tratamiento de datos y los Términos del Sitio.'
+          : 'All of these fields are processed under the principle of minimum collection and with mandatory opt-in checkboxes for the data processing policy and the Site Terms.'}
       </p>
     </section>
 
