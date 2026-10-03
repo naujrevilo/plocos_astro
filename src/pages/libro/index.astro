@@ -1,0 +1,112 @@
+---
+/**
+ * /libro — Sec Nomás que la Vida (introducción al ecosistema dialéctico)
+ *
+ * Renderiza la intro del ecosistema dialéctico + listado de iteraciones. Las
+ * iteraciones se leen del schema Drizzle (T07) cuando T14 completa el contenido
+ * del PDF. Por ahora, la página renderiza un listado placeholder con los 6
+ * ciclos del año 2026.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
+import { createLocaleHref } from '../../lib/routes';
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const translations = getTranslations(locale);
+const isES = locale === 'es';
+
+// Placeholder de las 6 iteraciones del año 2026. El contenido real (PDF, fecha
+// exacta, estado actual) lo provee T14 cuando el writer complete el contenido.
+const ITERATIONS_PLACEHOLDER = [
+  { cycleNum: 1, label: isES ? 'Iteración 01 — Apertura' : 'Iteration 01 — Opening' },
+  { cycleNum: 2, label: isES ? 'Iteración 02 — Veda' : 'Iteration 02 — Blackout' },
+  { cycleNum: 3, label: isES ? 'Iteración 03 — Reescritura' : 'Iteration 03 — Rewriting' },
+  { cycleNum: 4, label: isES ? 'Iteración 04 — Reapertura' : 'Iteration 04 — Reopening' },
+  { cycleNum: 5, label: isES ? 'Iteración 05 — Escrutinio' : 'Iteration 05 — Scrutiny' },
+  { cycleNum: 6, label: isES ? 'Iteración 06 — Cierre de ciclo' : 'Iteration 06 — Cycle close' },
+];
+---
+<BaseLayout
+  title={isES ? 'No más que la Vida · Plocos' : 'No más que la Vida · Plocos'}
+  description={isES
+    ? 'El canon. La obra dialéctica. Un ecosistema de doble núcleo donde tu suscripción te da acceso a la lectura y, según tu rol, te habilita a refutar el canon.'
+    : 'The canon. The dialectical work. A two-nucleus ecosystem where your subscription gives you reading access and, depending on your role, the right to rebut the canon.'}
+>
+  <article class="mx-auto max-w-3xl space-y-12 px-4 py-16 text-text-secondary">
+    <header class="space-y-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-accent">
+        {isES ? 'Sección 2 — El canon' : 'Section 2 — The canon'}
+      </p>
+      <h1 class="text-5xl font-bold tracking-tight text-text-primary md:text-6xl">
+        {isES ? 'No más que la Vida' : 'No más que la Vida'}
+      </h1>
+      <p class="text-base italic text-text-secondary/80">
+        {isES
+          ? 'Por Michel Saer Daccarett — Cartagena de Indias, Colombia'
+          : 'By Michel Saer Daccarett — Cartagena de Indias, Colombia'}
+      </p>
+    </header>
+
+    <section class="space-y-4 leading-relaxed">
+      <p>
+        {isES
+          ? 'No más que la Vida no es simplemente un libro digital interactivo. Es un ecosistema de dialéctica de doble núcleo al cual te haces parte activa. Un espacio que te permitirá alterar tu experiencia de lectura y te posibilita para que con tus aportes transformes la narrativa, estructura o código original del libro. Todos los aportes recibidos serán curados y respondidos.'
+          : 'No más que la Vida is not just an interactive digital book. It is a dialectical two-nucleus ecosystem that you join as an active part. A space that lets you alter your reading experience and enables you, through your contributions, to transform the original narrative, structure, or code of the book. Every contribution received will be curated and answered.'}
+      </p>
+      <p>
+        {isES
+          ? 'Las ideas brillantes que obliguen a alterar la obra se incluirán, siguiendo lo establecido en los Términos y Condiciones de Auditoría, en la versión depurada que se publique en cada una de las seis iteraciones anuales de la obra (cada 60 días). Es un sistema de auditoría donde participa la comunidad de suscriptores habilitada para este propósito. El autor se compromete a ceder el monopolio de la interpretación y asume el riesgo político de que la comunidad vigile su rigor.'
+          : 'Brilliant ideas that compel the work to change will be included, per the Auditor Terms and Conditions, in the curated version published in each of the six annual iterations (every 60 days). It is an audit system in which the enabled subscriber community participates. The author commits to ceding the monopoly of interpretation and assumes the political risk of the community policing his rigour.'}
+      </p>
+    </section>
+
+    <section class="space-y-4">
+      <h2 class="text-2xl font-semibold text-text-primary">
+        {isES ? 'El ritmo de las iteraciones' : 'The rhythm of iterations'}
+      </h2>
+      <p class="leading-relaxed">
+        {isES
+          ? 'El año se divide en seis iteraciones de 60 días. El núcleo lento (el PDF) se actualiza cada 60 días. La periferia rápida (el Repositorio) opera en tiempo real entre iteraciones.'
+          : 'The year is divided into six 60-day iterations. The slow nucleus (the PDF) is updated every 60 days. The fast periphery (the Repository) operates in real time between iterations.'}
+      </p>
+      <ol class="space-y-2 pl-0 list-none">
+        {ITERATIONS_PLACEHOLDER.map((it) => (
+          <li class="flex items-baseline gap-3 border-l-2 border-accent/30 pl-4">
+            <span class="font-mono text-xs text-text-secondary/70 shrink-0">
+              {isES ? `Ciclo ${it.cycleNum.toString().padStart(2, '0')}` : `Cycle ${it.cycleNum.toString().padStart(2, '0')}`}
+            </span>
+            <span class="text-text-primary">{it.label}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-3">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? 'Filosofía · Arte · Cartagena de Indias' : 'Philosophy · Art · Cartagena de Indias'}
+      </h2>
+      <p class="leading-relaxed">
+        {isES
+          ? 'Pensamiento crítico y flanqueo cognitivo. Memoria viva del Ploco. El ploco rechaza la pasividad del aforismo, del refrán o de la máxima. Mientras que estas formas tradicionales buscan sentenciar una verdad terminada, el ploco se erige como un «Bloque de Pensamiento»: una estructura abierta y deliberadamente diseñada como un ancla cognitiva. Su propósito no es instruir, sino generar fricción, provocando la derivación de nuevas ideas en quien lo lee.'
+          : 'Critical thinking and cognitive flanking. Living memory of the Ploco. The ploco rejects the passivity of the aphorism, the saying, or the maxim. Where these traditional forms seek to deliver a finished truth, the ploco stands as a "Thought Block": an open structure deliberately designed as a cognitive anchor. Its purpose is not to instruct, but to generate friction, provoking the derivation of new ideas in the reader.'}
+      </p>
+    </section>
+
+    <section class="rounded-3xl border border-accent bg-accent/5 p-8 space-y-3 text-center">
+      <h2 class="text-2xl font-semibold text-text-primary">
+        {isES ? '¿Quieres entrar?' : 'Want in?'}
+      </h2>
+      <p class="leading-relaxed max-w-2xl mx-auto">
+        {isES
+          ? 'Suscríbete a Lector para acceder al PDF, o a Colaborador para tener además la interfaz de aportes. La arena dialéctica te espera.'
+          : 'Subscribe as Reader for PDF access, or as Collaborator to also get the contribution interface. The dialectical arena awaits.'}
+      </p>
+      <a
+        href={createLocaleHref(locale, translations.paths.suscripcion)}
+        class="inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold uppercase tracking-widest text-surface-base shadow-md transition hover:bg-text-primary hover:text-surface-base"
+      >
+        {isES ? 'Suscríbete' : 'Subscribe'}
+      </a>
+    </section>
+  </article>
+</BaseLayout>

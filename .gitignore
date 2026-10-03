@@ -58,3 +58,6 @@ src/test.html
 
 # Alternative runtime lockfile (project uses pnpm)
 bun.lock
+
+# clerk configuration (can include secrets)
+/.clerk/

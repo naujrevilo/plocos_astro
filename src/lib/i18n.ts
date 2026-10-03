@@ -46,12 +46,11 @@ interface Translation {
   };
   paths: {
     home: string;
-    blog: string;
-    categories: string;
+    book: string;
+    auditores: string;
+    repositorio: string;
     contact: string;
-    about: string;
-    labels: string;
-    posts: string;
+    suscripcion: string;
     terms: string;
     privacy: string;
     cookiePolicy: string;
@@ -284,26 +283,39 @@ export const translations: Record<Locale, Translation> = {
     },
     paths: {
       home: '',
-      blog: 'blog',
-      categories: 'categorias',
+      book: 'libro',
+      auditores: 'auditores',
+      repositorio: 'repositorio',
       contact: 'contacto',
-      about: 'nuestra-razon-de-ser',
-      labels: 'labels',
-
-      posts: 'posts',
+      suscripcion: 'suscripcion',
       terms: 'terminos',
       privacy: 'privacidad',
       cookiePolicy: 'politica-de-cookies',
     },
     navigation: [
       { id: 'home', label: 'Inicio', path: '' },
-      { id: 'categories', label: 'Categorías', path: 'categorias' },
-      { id: 'blog', label: 'Blog', path: 'blog' },
+      { id: 'book', label: 'No más que la Vida', path: 'libro' },
+      { id: 'auditores', label: 'Auditores', path: 'auditores' },
+      { id: 'repositorio', label: 'Repositorio', path: 'repositorio' },
       { id: 'contact', label: 'Contacto', path: 'contacto' },
-      { id: 'about', label: 'Nuestra razón de ser', path: 'nuestra-razon-de-ser' },
     ],
     search: {
       label: 'Buscar en Plocos',
+      placeholder: 'Buscar artículos, etiquetas o ideas',
+      empty: 'No se encontraron coincidencias. Ajusta los términos o explora una categoría.',
+      error: 'Ocurrió un error al cargar el buscador. Intenta nuevamente.',
+    },
+    theme: {
+      srLabel: 'Modo de tema',
+      ariaLabel: 'Seleccionar modo de tema',
+      options: [
+        { value: 'light', label: 'Claro' },
+        { value: 'dark', label: 'Oscuro' },
+        { value: 'system', label: 'Sistema' },
+      ],
+    },
+    search: {
+      label: 'Search Plocos',
       placeholder: 'Buscar artículos, etiquetas o ideas',
       empty: 'No se encontraron coincidencias. Ajusta los términos o explora una categoría.',
       error: 'Ocurrió un error al cargar el buscador. Intenta nuevamente.',
@@ -757,22 +769,21 @@ export const translations: Record<Locale, Translation> = {
     },
     paths: {
       home: '',
-      blog: 'blog',
-      categories: 'categories',
+      book: 'book',
+      auditores: 'auditors',
+      repositorio: 'repository',
       contact: 'contact',
-      about: 'our-purpose',
-      labels: 'labels',
-      posts: 'posts',
+      suscripcion: 'subscription',
       terms: 'terms',
       privacy: 'privacy',
       cookiePolicy: 'cookie-policy',
     },
     navigation: [
       { id: 'home', label: 'Home', path: '' },
-      { id: 'categories', label: 'Categories', path: 'categories' },
-      { id: 'blog', label: 'Blog', path: 'blog' },
+      { id: 'book', label: 'No más que la Vida', path: 'book' },
+      { id: 'auditores', label: 'Auditors', path: 'auditors' },
+      { id: 'repositorio', label: 'Repository', path: 'repository' },
       { id: 'contact', label: 'Contact', path: 'contact' },
-      { id: 'about', label: 'Our reason for being', path: 'our-purpose' },
     ],
     search: {
       label: 'Search Plocos',
