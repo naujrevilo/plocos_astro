@@ -2,9 +2,8 @@ import astroConsent from "astro-consent";
 // @ts-check
 import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
-import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
-
+import tailwindcss from '@tailwindcss/vite';
 
 
 
@@ -29,14 +28,13 @@ export default defineConfig({
     }),
     // astro-consent:end
 
-      tailwind({
-          applyBaseStyles: false,
-      }),
       sitemap(),
 
   ],
 
-
+  vite: {
+    plugins: [tailwindcss()],
+  },
 
   i18n: {
       locales: ['es', 'en'],

@@ -28,9 +28,6 @@ importers:
       '@astrojs/starlight-docsearch':
         specifier: 0.8.0
         version: 0.8.0(@algolia/client-search@5.59.0)(@astrojs/starlight@0.42.5(astro@7.3.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@netlify/blobs@10.7.13(supports-color@7.2.0))(@types/node@26.6.4)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1))(supports-color@7.2.0)(typescript@5.6.3))(@types/react@19.2.18)(astro@7.3.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@netlify/blobs@10.7.13(supports-color@7.2.0))(@types/node@26.6.4)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1))(search-insights@2.17.3)
-      '@astrojs/tailwind':
-        specifier: 6.0.2
-        version: 6.0.2(astro@7.3.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@netlify/blobs@10.7.13(supports-color@7.2.0))(@types/node@26.6.4)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1))(tailwindcss@4.3.3)(ts-node@10.9.2(@types/node@26.6.4)(typescript@5.6.3))
       '@libsql/client':
         specifier: 0.15.15
         version: 0.15.15
@@ -59,9 +56,15 @@ importers:
         specifier: 5.6.3
         version: 5.6.3
     devDependencies:
+      '@tailwindcss/postcss':
+        specifier: ^4.3.3
+        version: 4.3.3
       '@tailwindcss/typography':
         specifier: 0.5.20
         version: 0.5.20(tailwindcss@4.3.3)
+      '@tailwindcss/vite':
+        specifier: ^4.3.3
+        version: 4.3.3(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1))
       '@types/node':
         specifier: ^26.4.1
         version: 26.6.4
@@ -344,12 +347,6 @@ packages:
     peerDependenciesMeta:
       '@astrojs/markdown-remark':
         optional: true
-
-  '@astrojs/tailwind@6.0.2':
-    resolution: {integrity: sha512-j3mhLNeugZq6A8dMNXVarUa8K6X9AW+QHU9u3lKNrPLMHhOQ0S7VeWhHwEeJFpEK1BTKEUY1U78VQv2gN6hNGg==}
-    peerDependencies:
-      astro: ^3.0.0 || ^4.0.0 || ^5.0.0
-      tailwindcss: ^3.0.24
 
   '@astrojs/telemetry@3.3.3':
     resolution: {integrity: sha512-C1TLn5sPJr0x4vk56piHWKbnqlEB8BKyte5Y45V02U+D7BGO5eMqZDH5aPjnkXQWJggvmsTXxH03QMZ9NgWLzQ==}
@@ -2094,6 +2091,11 @@ packages:
     resolution: {integrity: sha512-hwbzQuNUfcPvbegQFatVPl/MY/tcM9KLl963hQ5laJKPh81TEZ1+dNG9PirGvcaDBkp+BCshExAyKVPW91dozw==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || >=4.0.0 || insiders'
+
+  '@tailwindcss/vite@4.3.3':
+    resolution: {integrity: sha512-yYU8cogLeSh/ms2jh8Fj7jaba/EWa7Ja6GoUqYZaraEuCI5YS6ms6ObZgjjedm+jm6XZjdNRWBpPP6Z86oOxcw==}
+    peerDependencies:
+      vite: ^5.2.0 || ^6 || ^7 || ^8
 
   '@tsconfig/node10@1.0.13':
     resolution: {integrity: sha512-gcLdvR9HO1ZJBypsOGqaP6TFEzb6vIta0KSTLt9NAQ6pXQO3cRgSVyCN6pzYqI9DlJgY71XKO0dpDhCf08b3pg==}
@@ -4045,10 +4047,6 @@ packages:
     resolution: {integrity: sha512-WkUDrojuJs0xkgGf2udWxa3yGBRxPtxUkB79i6aCZLRgc7PM8fZe9TosfPDcvEpQZbuFASnHYmRLBLUbmLOIIA==}
     engines: {node: '>= 12.0.0'}
 
-  lilconfig@3.1.3:
-    resolution: {integrity: sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==}
-    engines: {node: '>=14'}
-
   listhen@1.10.1:
     resolution: {integrity: sha512-6nt/86SkqUQSLW1ofz8MxC6RhRMqOl3ONISe6qqvJ3xj09aJWQx6DhgSZpugs3PX4PXdOas/WD6A9jx6J2N19A==}
     hasBin: true
@@ -4537,18 +4535,6 @@ packages:
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
-
-  postcss-load-config@4.0.2:
-    resolution: {integrity: sha512-bSVhyJGL00wMVoPUzAVAnbEoWyqRxkjv64tUl427SKnPrENtq6hJwUojroMz2VB+Q1edmi4IfrAPpami5VVgMQ==}
-    engines: {node: '>= 14'}
-    peerDependencies:
-      postcss: '>=8.0.9'
-      ts-node: '>=9.0.0'
-    peerDependenciesMeta:
-      postcss:
-        optional: true
-      ts-node:
-        optional: true
 
   postcss-nested@6.2.0:
     resolution: {integrity: sha512-HQbt28KulC5AJzG+cZtj9kvKB93CFCdLvog1WFLf1D+xmMvPGlBstkpTEZfK5+AN9hfJocyBFCNiqyS48bpgzQ==}
@@ -5992,16 +5978,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
       - typescript
-
-  '@astrojs/tailwind@6.0.2(astro@7.3.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@netlify/blobs@10.7.13(supports-color@7.2.0))(@types/node@26.6.4)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1))(tailwindcss@4.3.3)(ts-node@10.9.2(@types/node@26.6.4)(typescript@5.6.3))':
-    dependencies:
-      astro: 7.3.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@netlify/blobs@10.7.13(supports-color@7.2.0))(@types/node@26.6.4)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1)
-      autoprefixer: 10.5.5(postcss@8.5.28)
-      postcss: 8.5.28
-      postcss-load-config: 4.0.2(postcss@8.5.28)(ts-node@10.9.2(@types/node@26.6.4)(typescript@5.6.3))
-      tailwindcss: 4.3.3
-    transitivePeerDependencies:
-      - ts-node
 
   '@astrojs/telemetry@3.3.3':
     dependencies:
@@ -7502,6 +7478,13 @@ snapshots:
     dependencies:
       postcss-selector-parser: 6.0.10
       tailwindcss: 4.3.3
+
+  '@tailwindcss/vite@4.3.3(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1))':
+    dependencies:
+      '@tailwindcss/node': 4.3.3
+      '@tailwindcss/oxide': 4.3.3
+      tailwindcss: 4.3.3
+      vite: 8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1)
 
   '@tsconfig/node10@1.0.13': {}
 
@@ -9657,8 +9640,6 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.33.0
       lightningcss-win32-x64-msvc: 1.33.0
 
-  lilconfig@3.1.3: {}
-
   listhen@1.10.1:
     dependencies:
       '@parcel/watcher-wasm': 2.6.0
@@ -10240,14 +10221,6 @@ snapshots:
   picoquery@2.5.0: {}
 
   possible-typed-array-names@1.1.0: {}
-
-  postcss-load-config@4.0.2(postcss@8.5.28)(ts-node@10.9.2(@types/node@26.6.4)(typescript@5.6.3)):
-    dependencies:
-      lilconfig: 3.1.3
-      yaml: 2.9.1
-    optionalDependencies:
-      postcss: 8.5.28
-      ts-node: 10.9.2(@types/node@26.6.4)(typescript@5.6.3)
 
   postcss-nested@6.2.0(postcss@8.5.28):
     dependencies:
