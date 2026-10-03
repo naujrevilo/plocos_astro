@@ -3,6 +3,9 @@
 -- Replaces the legacy Comments table with 8 tables backing the subscription
 -- book platform. Run manually against the Turso DB via libsql client or
 -- `pnpm exec drizzle-kit push` (do NOT auto-run on every build).
+--
+-- All createdAt/updatedAt columns default to `(unixepoch())` so inserts can
+-- rely on the database to stamp them. Requires SQLite 3.38+.
 DROP TABLE IF EXISTS Comments;
 
 CREATE TABLE users (
@@ -11,8 +14,8 @@ CREATE TABLE users (
   displayName TEXT,
   role TEXT NOT NULL DEFAULT 'lector',
   habeasScriptumAcceptedAt INTEGER,
-  createdAt INTEGER NOT NULL,
-  updatedAt INTEGER NOT NULL
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch()),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch())
 );
 
 CREATE TABLE subscriptions (
@@ -24,8 +27,8 @@ CREATE TABLE subscriptions (
   status TEXT NOT NULL DEFAULT 'pending',
   currentPeriodStart INTEGER,
   currentPeriodEnd INTEGER,
-  createdAt INTEGER NOT NULL,
-  updatedAt INTEGER NOT NULL
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch()),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch())
 );
 
 CREATE TABLE iterations (
@@ -36,7 +39,7 @@ CREATE TABLE iterations (
   endsAt INTEGER NOT NULL,
   status TEXT NOT NULL DEFAULT 'open',
   pdfUrl TEXT,
-  createdAt INTEGER NOT NULL,
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch()),
   UNIQUE(year, cycleNum)
 );
 
@@ -46,7 +49,7 @@ CREATE TABLE bookChapters (
   chapterNum INTEGER NOT NULL,
   title TEXT NOT NULL,
   slug TEXT NOT NULL,
-  createdAt INTEGER NOT NULL
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch())
 );
 
 CREATE TABLE bookParagraphs (
@@ -54,7 +57,7 @@ CREATE TABLE bookParagraphs (
   chapterId INTEGER NOT NULL REFERENCES bookChapters(id),
   paragraphNum INTEGER NOT NULL,
   anchorId TEXT NOT NULL,
-  createdAt INTEGER NOT NULL
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch())
 );
 
 CREATE TABLE bookAnnotations (
@@ -67,8 +70,8 @@ CREATE TABLE bookAnnotations (
   triajeReasoning TEXT,
   approvedAt INTEGER,
   approvalReason TEXT,
-  createdAt INTEGER NOT NULL,
-  updatedAt INTEGER NOT NULL
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch()),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch())
 );
 
 CREATE TABLE auditorProfiles (
@@ -79,8 +82,8 @@ CREATE TABLE auditorProfiles (
   photoUrl TEXT,
   ascentionCount INTEGER NOT NULL DEFAULT 0,
   lastAscentionYear INTEGER,
-  createdAt INTEGER NOT NULL,
-  updatedAt INTEGER NOT NULL
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch()),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch())
 );
 
 CREATE TABLE notificationQueue (
@@ -91,5 +94,5 @@ CREATE TABLE notificationQueue (
   status TEXT NOT NULL DEFAULT 'pending',
   scheduledFor INTEGER NOT NULL,
   sentAt INTEGER,
-  createdAt INTEGER NOT NULL
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch())
 );

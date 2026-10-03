@@ -8,7 +8,7 @@
  * We DO NOT call out to a real DB. The schema is plain data — these tests
  * verify it has the right shape, enums, FKs, and UNIQUE constraints.
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, beforeAll } from 'vitest';
 import * as schema from '../src/lib/db/schema';
 
 // Drizzle internal symbols used to introspect table extra config.
@@ -470,5 +470,66 @@ describe('T07 — Schema DB redesign (NQLV platform)', () => {
       expect(configText).toMatch(/dialect:\s*['"]turso['"]/);
       expect(configText).not.toMatch(/driver:\s*['"]turso['"]/);
     });
+  });
+
+  describe('sql migration file (0002_pivot_plataforma.sql)', () => {
+    let sqlText: string;
+
+    beforeAll(async () => {
+      const { readFileSync } = await import('node:fs');
+      const path = (await import('node:path')).default;
+      sqlText = readFileSync(
+        path.resolve(__dirname, '..', 'drizzle', '0002_pivot_plataforma.sql'),
+        'utf8',
+      );
+    });
+
+    // Tables that have BOTH createdAt and updatedAt
+    const tablesWithUpdatedAt = ['users', 'subscriptions', 'bookAnnotations', 'auditorProfiles'];
+    // Tables that have ONLY createdAt
+    const tablesWithCreatedAtOnly = ['iterations', 'bookChapters', 'bookParagraphs', 'notificationQueue'];
+
+    it.each(tablesWithUpdatedAt)(
+      '%s has DEFAULT (unixepoch()) on createdAt and updatedAt',
+      (tableName) => {
+        // Match the CREATE TABLE block for the given table
+        const tableBlockRegex = new RegExp(
+          `CREATE TABLE ${tableName}\\s*\\(([^;]*?)\\);`,
+          's',
+        );
+        const match = tableBlockRegex.exec(sqlText);
+        expect(match, `expected CREATE TABLE block for ${tableName}`).not.toBeNull();
+        const block = match![1];
+        expect(
+          block,
+          `${tableName} should have createdAt DEFAULT (unixepoch())`,
+        ).toMatch(/createdAt\s+INTEGER\s+NOT\s+NULL\s+DEFAULT\s+\(unixepoch\(\)\)/);
+        expect(
+          block,
+          `${tableName} should have updatedAt DEFAULT (unixepoch())`,
+        ).toMatch(/updatedAt\s+INTEGER\s+NOT\s+NULL\s+DEFAULT\s+\(unixepoch\(\)\)/);
+      },
+    );
+
+    it.each(tablesWithCreatedAtOnly)(
+      '%s has DEFAULT (unixepoch()) on createdAt (no updatedAt)',
+      (tableName) => {
+        const tableBlockRegex = new RegExp(
+          `CREATE TABLE ${tableName}\\s*\\(([^;]*?)\\);`,
+          's',
+        );
+        const match = tableBlockRegex.exec(sqlText);
+        expect(match, `expected CREATE TABLE block for ${tableName}`).not.toBeNull();
+        const block = match![1];
+        expect(
+          block,
+          `${tableName} should have createdAt DEFAULT (unixepoch())`,
+        ).toMatch(/createdAt\s+INTEGER\s+NOT\s+NULL\s+DEFAULT\s+\(unixepoch\(\)\)/);
+        expect(
+          block,
+          `${tableName} should NOT have updatedAt column`,
+        ).not.toMatch(/updatedAt/);
+      },
+    );
   });
 });
