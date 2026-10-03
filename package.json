@@ -24,6 +24,7 @@
     "@astrojs/netlify": "8.2.5",
     "@astrojs/sitemap": "3.7.4",
     "@astrojs/starlight-docsearch": "0.8.0",
+    "@clerk/astro": "^4.1.9",
     "@libsql/client": "^0.18.0",
     "all": "^0.0.0",
     "astro": "7.3.1",
@@ -32,6 +33,7 @@
     "preact": "10.29.8",
     "remove-markdown": "0.7.0",
     "slugify": "1.6.9",
+    "svix": "^2.6.1",
     "typescript": "7.0.2"
   },
   "devDependencies": {

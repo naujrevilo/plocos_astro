@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SignIn } from '@clerk/astro/components';
+---
+<BaseLayout title="Sign in · Plocos" description="Sign in to your Plocos account to read «No más que la Vida» or manage your annotations and subscription.">
+  <section class="mx-auto flex max-w-3xl flex-col items-center justify-center px-4 py-16">
+    <SignIn />
+  </section>
+</BaseLayout>

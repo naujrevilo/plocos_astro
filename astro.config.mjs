@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import clerk from '@clerk/astro';
 
 
 
@@ -29,6 +30,11 @@ export default defineConfig({
     // astro-consent:end
 
       sitemap(),
+      clerk({
+        signInUrl: '/sign-in',
+        signUpUrl: '/sign-up',
+        profileUrl: '/cuenta',
+      }),
 
   ],
 

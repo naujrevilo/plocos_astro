@@ -257,6 +257,13 @@ interface Translation {
     saveSuccess: string;
     saveError: string;
   };
+  auth: {
+    signInLabel: string;
+    signUpLabel: string;
+    accountLabel: string;
+    signOutLabel: string;
+    subscriptionRequiredCta: string;
+  };
 }
 
 
@@ -727,6 +734,13 @@ export const translations: Record<Locale, Translation> = {
       saveSuccess: '',
       saveError: '',
     },
+    auth: {
+      signInLabel: 'Iniciar sesión',
+      signUpLabel: 'Crear cuenta',
+      accountLabel: 'Mi cuenta',
+      signOutLabel: 'Cerrar sesión',
+      subscriptionRequiredCta: 'Suscríbete para acceder',
+    },
   },
   en: {
     site: {
@@ -1190,6 +1204,13 @@ export const translations: Record<Locale, Translation> = {
       collections: { posts: { label: '' }, audiovisuales: { label: '' } },
       saveSuccess: '',
       saveError: '',
+    },
+    auth: {
+      signInLabel: 'Sign in',
+      signUpLabel: 'Sign up',
+      accountLabel: 'My account',
+      signOutLabel: 'Sign out',
+      subscriptionRequiredCta: 'Subscribe to access',
     },
   },
 };
