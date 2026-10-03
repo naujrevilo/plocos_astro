@@ -1,158 +1,196 @@
 ---
+/**
+ * /en/contact — Sec Contacto (EN mirror)
+ */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
-import SocialIcon from '../../../components/icons/SocialIcon.astro';
-import rawContactData from '../../../data/contact.json';
-
-type SocialId = 'facebook' | 'instagram' | 'x';
-
-type SocialLink = {
-  id: SocialId;
-  label: string;
-  url: string;
-};
-
-type ContactData = {
-  email: string;
-  social: SocialLink[];
-};
+import { createLocaleHref } from '../../../lib/routes';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
-const contact = translations.contact;
-const contactData = rawContactData as ContactData;
-const emailLabel = contact.emailLabel;
-const cardClasses = 'rounded-3xl border border-border-subtle bg-surface-elevated px-6 py-5';
-
-const socialLinks = contactData.social;
-const socialAnchorClass =
-  'group flex items-center gap-3 rounded-full border border-border-subtle px-4 py-2 text-sm text-text-primary transition hover:border-accent hover:text-text-primary hover:shadow-contemplation';
-const inputClasses =
-  'w-full rounded-xl border border-border-subtle bg-surface-base px-4 py-3 text-text-primary shadow-sm transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40';
-const buttonClasses =
-  'inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-surface-base transition hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent/40';
+const isES = locale === 'es';
+const privacyHref = createLocaleHref(locale, translations.paths.privacy);
 ---
-<BaseLayout title={contact.metaTitle} description={contact.metaDescription}>
-  <section class="mx-auto max-w-3xl space-y-8 px-4 py-16 text-text-secondary">
-    <header class="space-y-3">
-      <h1 class="text-4xl font-bold tracking-tight text-text-primary">{contact.title}</h1>
-      <p>{contact.intro}</p>
+<BaseLayout
+  title={isES ? 'Contacto · Plocos' : 'Contact · Plocos'}
+  description={isES
+    ? 'Canal formal para peticiones ARCO (derechos de Acceso, Rectificación, Cancelación y Oposición) y consultas generales sobre la plataforma.'
+    : 'Formal channel for ARCO requests (Access, Rectification, Cancellation, Opposition) and general inquiries about the platform.'}
+>
+  <article class="mx-auto max-w-3xl space-y-12 px-4 py-16 text-text-secondary">
+    <header class="space-y-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-accent">
+        {isES ? 'Sección 5 · Atención al cliente' : 'Section 5 · Customer support'}
+      </p>
+      <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">
+        {isES ? 'Contacto' : 'Contact'}
+      </h1>
+      <p class="text-lg leading-relaxed text-text-secondary/90 max-w-2xl">
+        {isES
+          ? 'Un canal formal destinado a la recepción de peticiones legales (ejercicio de derechos ARCO sobre datos personales) y consultas generales, cerrando el bucle de atención al cliente.'
+          : 'A formal channel for receiving legal requests (ARCO rights over personal data) and general inquiries, closing the customer service loop.'}
+      </p>
     </header>
 
-    <div class={cardClasses}>
-      <h2 class="text-lg font-semibold text-text-primary">{contact.channelsHeading}</h2>
-      <ul class="mt-3 space-y-3 text-sm">
-        <li>
-          <span class="font-semibold text-text-primary">{emailLabel}:</span>
-          <a class="ml-2 text-text-accent underline decoration-transparent transition hover:decoration-accent" href={`mailto:${contactData.email}`}>
-            {contactData.email}
-          </a>
-        </li>
-      </ul>
-    </div>
+    <section class="rounded-3xl border-2 border-accent bg-accent/5 p-8 space-y-4">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? 'Peticiones ARCO (Ley 1581/2012)' : 'ARCO requests (Ley 1581/2012)'}
+      </h2>
+      <p class="leading-relaxed">
+        {isES
+          ? 'Conforme a la Ley 1581/2012, todo titular puede ejercer en cualquier momento los derechos de Acceso, Rectificación, Cancelación y Oposición (derechos ARCO), y los derechos adicionales de supresión y portabilidad. La cancelación de la cuenta se ejecuta en cascada: se eliminan la fila en `users`, las suscripciones, las anotaciones del Repositorio y, en la siguiente iteración, los perfiles públicos asociados.'
+          : 'Under Ley 1581/2012, every data subject may exercise at any time the rights of Access, Rectification, Cancellation, and Opposition (ARCO rights), and the additional rights of erasure and portability. Account cancellation is executed in cascade: the `users` row, subscriptions, Repository annotations, and (in the next iteration) associated public profiles are erased.'}
+      </p>
+      <p class="text-sm leading-relaxed">
+        {isES
+          ? 'Para hacerlo, basta con seleccionar la opción "Ejercicio de derechos ARCO" en el formulario de abajo, completar los campos requeridos y adjuntar copia del documento de identidad. Recibirás respuesta en los plazos previstos por la Superintendencia de Industria y Comercio (SIC).'
+          : 'To do so, simply select the "Exercise of ARCO rights" option in the form below, complete the required fields, and attach a copy of your ID. You will receive a response within the timeframes provided by the Superintendencia de Industria y Comercio (SIC).'}
+      </p>
+      <p class="text-xs text-text-secondary/80">
+        {isES
+          ? '> Ver la Política de Privacidad completa para los procedimientos y plazos exactos.'
+          : '> See the full Privacy Policy for the exact procedures and timeframes.'}
+        <a href={privacyHref} class="text-accent hover:underline ml-1">
+          {isES ? 'Política de Privacidad' : 'Privacy Policy'}
+        </a>
+      </p>
+    </section>
 
-    <div class={cardClasses}>
-      <h2 class="text-lg font-semibold text-text-primary">Make a payment</h2>
-      <div id="paypal-container-L9HZ7KPD7S28A" class="min-w-[200px] mt-4"></div>
-    </div>
-
-
-    <div class={cardClasses}>
-      <h2 class="text-lg font-semibold text-text-primary">{contact.formHeading}</h2>
-      <p class="mt-3 text-sm">{contact.formDescription}</p>
+    <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-4">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? 'Formulario de contacto' : 'Contact form'}
+      </h2>
       <form
         name="contact"
-        method="post"
+        method="POST"
+        action="/en/contact?gracias=1"
         data-netlify="true"
         netlify-honeypot="bot-field"
-        class="mt-5 space-y-4"
+        class="space-y-4"
       >
-        <input type="hidden" name="form-name" value="contact" />
-        <input type="hidden" name="locale" value={locale} />
         <p class="hidden">
-          <label>
-            {contact.formSpamLabel}
-            <input name="bot-field" />
-          </label>
+          <label>Do not fill: <input name="bot-field" /></label>
         </p>
-        <div>
-          <label class="mb-2 block text-sm font-semibold text-text-primary" for="contact-name">
-            {contact.formNameLabel}
+
+        <div class="space-y-2">
+          <label for="asunto-en" class="block text-sm font-semibold text-text-primary">
+            {isES ? 'Tipo de solicitud' : 'Request type'}
+            <span class="text-accent">*</span>
           </label>
-          <input id="contact-name" name="name" type="text" class={inputClasses} required autocomplete="name" />
+          <select
+            id="asunto-en"
+            name="asunto"
+            required
+            class="block w-full rounded-2xl border border-border-subtle bg-surface-base px-4 py-3 text-base text-text-primary focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <option value="consulta-general">
+              {isES ? 'Consulta general' : 'General inquiry'}
+            </option>
+            <option value="arco">
+              {isES ? 'Ejercicio de derechos ARCO' : 'Exercise of ARCO rights'}
+            </option>
+            <option value="suscripcion">
+              {isES ? 'Ayuda con mi suscripción' : 'Help with my subscription'}
+            </option>
+            <option value="repositorio">
+              {isES ? 'Aporte al Repositorio' : 'Contribution to the Repository'}
+            </option>
+            <option value="otro">
+              {isES ? 'Otro' : 'Other'}
+            </option>
+          </select>
         </div>
-        <div>
-          <label class="mb-2 block text-sm font-semibold text-text-primary" for="contact-email">
-            {contact.formEmailLabel}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label for="nombre-en" class="block text-sm font-semibold text-text-primary">
+              {isES ? 'Nombre completo' : 'Full name'}
+              <span class="text-accent">*</span>
+            </label>
+            <input
+              id="nombre-en"
+              name="nombre"
+              type="text"
+              required
+              autocomplete="name"
+              class="block w-full rounded-2xl border border-border-subtle bg-surface-base px-4 py-3 text-base text-text-primary focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            />
+          </div>
+          <div class="space-y-2">
+            <label for="identificacion-en" class="block text-sm font-semibold text-text-primary">
+              {isES ? 'Número de identificación' : 'Identification number'}
+            </label>
+            <input
+              id="identificacion-en"
+              name="identificacion"
+              type="text"
+              autocomplete="off"
+              class="block w-full rounded-2xl border border-border-subtle bg-surface-base px-4 py-3 text-base text-text-primary focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            />
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label for="email-en" class="block text-sm font-semibold text-text-primary">
+            {isES ? 'Correo electrónico' : 'Email'}
+            <span class="text-accent">*</span>
           </label>
           <input
-            id="contact-email"
+            id="email-en"
             name="email"
             type="email"
-            class={inputClasses}
             required
             autocomplete="email"
+            class="block w-full rounded-2xl border border-border-subtle bg-surface-base px-4 py-3 text-base text-text-primary focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           />
         </div>
-        <div>
-          <label class="mb-2 block text-sm font-semibold text-text-primary" for="contact-message">
-            {contact.formMessageLabel}
+
+        <div class="space-y-2">
+          <label for="mensaje-en" class="block text-sm font-semibold text-text-primary">
+            {isES ? 'Mensaje' : 'Message'}
+            <span class="text-accent">*</span>
           </label>
           <textarea
-            id="contact-message"
-            name="message"
-            class={`${inputClasses} min-h-[160px] resize-y`}
+            id="mensaje-en"
+            name="mensaje"
             required
+            rows="6"
+            class="block w-full rounded-2xl border border-border-subtle bg-surface-base px-4 py-3 text-base text-text-primary focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           ></textarea>
         </div>
-        <div class="space-y-3">
-          <button type="submit" class={buttonClasses}>{contact.formSubmitLabel}</button>
-          <p class="text-xs text-text-secondary/80">{contact.formPrivacy}</p>
+
+        <div class="space-y-2">
+          <label class="flex items-start gap-3 text-sm leading-relaxed">
+            <input
+              type="checkbox"
+              name="acepta-terminos"
+              required
+              class="mt-1 h-4 w-4 rounded border-border-subtle text-accent focus:ring-accent"
+            />
+            <span>
+              {isES
+                ? 'Acepto el tratamiento de mis datos personales conforme a la Ley 1581/2012 y los Términos del Sitio de Plocos.'
+                : 'I accept the processing of my personal data under Ley 1581/2012 and the Plocos Site Terms.'}
+            </span>
+          </label>
         </div>
+
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold uppercase tracking-widest text-surface-base shadow-md transition hover:bg-text-primary hover:text-surface-base"
+        >
+          {isES ? 'Enviar' : 'Submit'}
+        </button>
       </form>
-    </div>
+    </section>
 
-    <div class={cardClasses}>
-      
-      <div id="paypal-container-L9HZ7KPD7S28A" class="mt-4"></div>
-
-    </div>
-
-    <div class={cardClasses}>
-      <h2 class="text-lg font-semibold text-text-primary">{contact.socialHeading}</h2>
-      <p class="mt-3 text-sm">{contact.socialDescription}</p>
-      <ul class="mt-4 flex flex-wrap gap-3 text-sm">
-        {socialLinks.map((social) => (
-          <li>
-            <a
-              class={socialAnchorClass}
-              href={social.url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-surface-muted text-text-primary transition group-hover:bg-accent group-hover:text-surface-base">
-                <SocialIcon name={social.id} />
-              </span>
-              <span class="font-medium">{social.label}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-
-    <p class="text-sm opacity-80">{contact.note}</p>
-  </section>
-<script is:inline src="https://www.paypal.com/sdk/js?client-id=BAAutVLDry6FJf2iLeWFIYBf66y2A7oy_Z9SD79AJ8jhv9oeV71VK46adlOYMqyCWoJEw8l3MngbRig2aA&components=hosted-buttons&disable-funding=venmo&currency=USD"></script>
-<script is:inline>
-  paypal.HostedButtons({
-    hostedButtonId: "L9HZ7KPD7S28A",
-  }).render("#paypal-container-L9HZ7KPD7S28A");
-</script>
+    <p class="text-sm text-text-secondary/70 text-center">
+      {isES
+        ? '¿Prefieres correo directo? Escríbenos a '
+        : 'Prefer direct email? Write to '}
+      <a href="mailto:expresatura@plocos.com" class="text-accent hover:underline">
+        expresatura@plocos.com
+      </a>
+    </p>
+  </article>
 </BaseLayout>
-
-<script is:inline src="https://www.paypal.com/sdk/js?client-id=BAAutVLDry6FJf2iLeWFIYBf66y2A7oy_Z9SD79AJ8jhv9oeV71VK46adlOYMqyCWoJEw8l3MngbRig2aA&components=hosted-buttons&disable-funding=venmo&currency=USD"></script>
-<script is:inline>
-  paypal.HostedButtons({
-    hostedButtonId: "L9HZ7KPD7S28A",
-  }).render("#paypal-container-L9HZ7KPD7S28A");
-</script>
