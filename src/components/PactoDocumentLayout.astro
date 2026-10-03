@@ -1,0 +1,77 @@
+---
+/**
+ * PactoDocumentLayout — shared shell for the standalone pacto documents
+ * (Habeas Scriptum, Términos de Auditoría, Declaración de Simbiosis Algorítmica).
+ *
+ * Renders the page chrome inside BaseLayout, an article header (title, updated
+ * metadata, optional introduction), and a sequential map of sections with
+ * optional bullet support.
+ *
+ * Idempotent across ES / EN. Heading id slugs use the provided idPrefix so
+ * distinct documents don't collide on shared slugs.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+export interface PactoSection {
+  heading: string;
+  body: string;
+  bullets?: string[];
+}
+
+export interface PactoDocument {
+  metaTitle: string;
+  metaDescription: string;
+  title: string;
+  updatedLabel: string;
+  updatedValue: string;
+  introduction?: string;
+  sections: PactoSection[];
+}
+
+interface Props {
+  data: PactoDocument;
+  /** Prefix prepended to heading slug ids to keep them unique across documents. */
+  idPrefix: 'hs' | 'ta' | 'sa';
+}
+
+const { data, idPrefix } = Astro.props as Props;
+
+const toSectionId = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+---
+<BaseLayout title={data.metaTitle} description={data.metaDescription}>
+  <article class="mx-auto max-w-3xl space-y-10 px-4 py-16 text-text-secondary">
+    <header class="space-y-4">
+      <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">{data.title}</h1>
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-text-secondary opacity-80">
+        {data.updatedLabel}: {data.updatedValue}
+      </p>
+      {data.introduction && (
+        <p class="text-base leading-relaxed">{data.introduction}</p>
+      )}
+    </header>
+
+    <div class="space-y-6">
+      {data.sections.map((item) => (
+        <section class="space-y-2" aria-labelledby={`${idPrefix}-${toSectionId(item.heading)}`}>
+          <h2 id={`${idPrefix}-${toSectionId(item.heading)}`} class="text-xl font-semibold text-text-primary">
+            {item.heading}
+          </h2>
+          <p class="leading-relaxed">{item.body}</p>
+          {item.bullets && item.bullets.length > 0 && (
+            <ul class="list-disc space-y-2 pl-6 text-sm leading-relaxed text-text-secondary/90 sm:text-base">
+              {item.bullets.map((point) => (
+                <li>{point}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ))}
+    </div>
+  </article>
+</BaseLayout>

@@ -1,0 +1,34 @@
+---
+/**
+ * /cuenta — Subscriber account dashboard.
+ *
+ * The clerkMiddleware in src/middleware.ts already guarantees `auth().userId`
+ * is set for any request reaching this page (otherwise it redirects to
+ * /sign-in). We still surface the userId and a few session claims for debug
+ * visibility while the paywall flow lands.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { UserProfile } from '@clerk/astro/components';
+
+const { userId, sessionClaims } = Astro.locals.auth();
+const debugClaims =
+  sessionClaims && typeof sessionClaims === 'object'
+    ? JSON.stringify(sessionClaims, null, 2)
+    : 'null';
+---
+<BaseLayout title="Mi cuenta · Plocos" description="Panel de cuenta: gestiona tu suscripción, rol, habeas scriptum y visibilidad pública en el Repositorio.">
+  <section class="mx-auto flex max-w-4xl flex-col gap-10 px-4 py-12">
+    <header class="space-y-2">
+      <h1 class="text-3xl font-bold text-text-primary">Mi cuenta</h1>
+      <p class="text-sm text-text-secondary">
+        Sesión activa: <code class="font-mono">{userId}</code>
+      </p>
+      <details class="rounded-md border border-border-subtle bg-surface-muted p-3 text-xs">
+        <summary class="cursor-pointer font-semibold text-text-secondary">Debug — sessionClaims</summary>
+        <pre class="mt-2 overflow-x-auto text-text-secondary">{debugClaims}</pre>
+      </details>
+    </header>
+
+    <UserProfile />
+  </section>
+</BaseLayout>

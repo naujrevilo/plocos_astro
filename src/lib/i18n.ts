@@ -46,12 +46,11 @@ interface Translation {
   };
   paths: {
     home: string;
-    blog: string;
-    categories: string;
+    book: string;
+    auditores: string;
+    repositorio: string;
     contact: string;
-    about: string;
-    labels: string;
-    posts: string;
+    suscripcion: string;
     terms: string;
     privacy: string;
     cookiePolicy: string;
@@ -257,6 +256,13 @@ interface Translation {
     saveSuccess: string;
     saveError: string;
   };
+  auth: {
+    signInLabel: string;
+    signUpLabel: string;
+    accountLabel: string;
+    signOutLabel: string;
+    subscriptionRequiredCta: string;
+  };
 }
 
 
@@ -277,26 +283,39 @@ export const translations: Record<Locale, Translation> = {
     },
     paths: {
       home: '',
-      blog: 'blog',
-      categories: 'categorias',
+      book: 'libro',
+      auditores: 'auditores',
+      repositorio: 'repositorio',
       contact: 'contacto',
-      about: 'nuestra-razon-de-ser',
-      labels: 'labels',
-
-      posts: 'posts',
+      suscripcion: 'suscripcion',
       terms: 'terminos',
       privacy: 'privacidad',
       cookiePolicy: 'politica-de-cookies',
     },
     navigation: [
       { id: 'home', label: 'Inicio', path: '' },
-      { id: 'categories', label: 'Categorías', path: 'categorias' },
-      { id: 'blog', label: 'Blog', path: 'blog' },
+      { id: 'book', label: 'No más que la Vida', path: 'libro' },
+      { id: 'auditores', label: 'Auditores', path: 'auditores' },
+      { id: 'repositorio', label: 'Repositorio', path: 'repositorio' },
       { id: 'contact', label: 'Contacto', path: 'contacto' },
-      { id: 'about', label: 'Nuestra razón de ser', path: 'nuestra-razon-de-ser' },
     ],
     search: {
       label: 'Buscar en Plocos',
+      placeholder: 'Buscar artículos, etiquetas o ideas',
+      empty: 'No se encontraron coincidencias. Ajusta los términos o explora una categoría.',
+      error: 'Ocurrió un error al cargar el buscador. Intenta nuevamente.',
+    },
+    theme: {
+      srLabel: 'Modo de tema',
+      ariaLabel: 'Seleccionar modo de tema',
+      options: [
+        { value: 'light', label: 'Claro' },
+        { value: 'dark', label: 'Oscuro' },
+        { value: 'system', label: 'Sistema' },
+      ],
+    },
+    search: {
+      label: 'Search Plocos',
       placeholder: 'Buscar artículos, etiquetas o ideas',
       empty: 'No se encontraron coincidencias. Ajusta los términos o explora una categoría.',
       error: 'Ocurrió un error al cargar el buscador. Intenta nuevamente.',
@@ -471,30 +490,40 @@ export const translations: Record<Locale, Translation> = {
     splash: {
       title: 'Aviso de contenido sensible',
       body:
-        'Este archivo contiene reflexiones filosóficas, artísticas y críticas que pueden resultar intensas. Algunas piezas abordan la muerte, la violencia histórica, el sufrimiento humano y otras temáticas difíciles. Decide con autonomía si quieres continuar leyendo.',
+        'Los textos y obras aquí expuestos transitan sin censura con contenido sensible. Si decide continuar, asume los términos de nuestros <a href="/terminos">Términos del Sitio</a>.',
       acknowledge: 'Entiendo, continuar',
       reject: 'Salir del sitio',
     },
     privacy: {
       metaTitle: 'Política de privacidad · Plocos',
       metaDescription:
-        'Cómo Plocos trata los datos personales conforme a la Ley 1581/2012 y al Decreto 1377/2013.',
+        'Cómo Plocos trata los datos personales de suscriptores, colaboradores, auditores y visitantes conforme a la Ley 1581/2012 y al Decreto 1377/2013.',
       title: 'Política de privacidad',
       sections: [
         {
           heading: 'Responsable del tratamiento',
           body:
-            'El responsable del tratamiento de los datos personales recogidos a través de este archivo es el editor de Plocos, con domicilio en Cartagena de Indias (Colombia) y canal de contacto habilitado en la dirección que aparece al final de esta política. Cualquier solicitud, queja o reclamo se puede presentar por ese mismo canal y será atendida en los plazos previstos por la Superintendencia de Industria y Comercio (SIC).',
+            'El responsable del tratamiento de los datos personales recogidos a través de este archivo es Michel Saer, con domicilio en Cartagena de Indias (Colombia) y canal de contacto habilitado en la dirección que aparece al final de esta política. Cualquier solicitud, queja o reclamo se puede presentar por ese mismo canal y será atendida en los plazos previstos por la Superintendencia de Industria y Comercio (SIC).',
+        },
+        {
+          heading: 'Encargados del tratamiento',
+          body:
+            'Para operar la plataforma de suscripción al libro digital «No más que la Vida», Plocos contrata los siguientes encargados, quienes tratan datos personales exclusivamente según las finalidades descritas en esta política y bajo cláusulas contractuales que exigen garantías equivalentes o superiores a la legislación colombiana: (a) Clerk (autenticación y sesión); (b) PayPal y Wompi (procesamiento de pagos, dual según geografía del suscriptor); (c) Netlify (hosting y funciones serverless); (d) Resend (envío de correos transaccionales, aprobaciones, notificaciones de iteración); (e) Google Cloud Platform, donde Google Gemini procesa las anotaciones de los Colaboradores en el motor de triaje algorítmico. El detalle técnico de cada cookie y transferencia se publica en la Política de Cookies.',
         },
         {
           heading: 'Datos que tratamos',
           body:
-            'Tratamos únicamente los datos indispensables para responder a las comunicaciones que el visitante inicia voluntariamente (nombre, dirección de correo electrónico y contenido del mensaje) y los datos técnicos generados por la navegación —dirección IP, agente de usuario, páginas consultadas— cuando el visitante ha aceptado las cookies analíticas. No vendemos, no cedemos y no enriquecemos datos con terceros. Tampoco realizamos perfilado automatizado con fines publicitarios ni tomamos decisiones automatizadas que produzcan efectos jurídicos sobre el visitante.',
+            'Tratamos las siguientes categorías de datos personales según el tipo de usuario. Suscriptores (Lector o Colaborador): nombre, dirección de correo electrónico, número de celular, ciudad, país, género, fecha de nacimiento (para verificar mayoría de edad conforme al artículo 12 de la Ley 1581/2012), y los datos de facturación que la pasarela de pago retiene (Plocos no almacena números completos de tarjeta). Colaboradores y Auditores: además de los anteriores, las anotaciones topográficas que depositan en el Repositorio público (capítulo, párrafo, contenido, fecha) y, si otorgan consentimiento expreso, su dirección de correo electrónico visible junto a su seudónimo. Visitantes anónimos: únicamente los datos técnicos necesarios para servir el sitio (dirección IP, agente de usuario, idioma preferido). No vendemos, no cedemos y no enriquecemos datos con terceros con fines publicitarios.',
+        },
+        {
+          heading: 'Datos del Repositorio público',
+          body:
+            'El Repositorio público indexa los aportes aprobados (anotaciones topográficas) y los datos del suscriptor que los depositó. El Colaborador puede, mediante el panel de control de su cuenta, decidir si su dirección de correo electrónico aparece públicamente asociada a sus aportes. Mientras el toggle esté activo, la autorización es expresa, previa e informada conforme al artículo 9 de la Ley 1581/2012. El Colaborador puede desactivar la visibilidad en cualquier momento; los aportes previamente indexados se anonimizan en la siguiente iteración del Repositorio.',
         },
         {
           heading: 'Finalidades y bases legales',
           body:
-            'Los datos se utilizan para: (a) responder mensajes y coordinar proyectos editoriales (base legal: consentimiento y ejecución de solicitudes del visitante); (b) mantener la seguridad e integridad del archivo y prevenir usos abusivos (base legal: interés legítimo del editor); (c) medir el tráfico de forma agregada y mejorar la experiencia (base legal: consentimiento mediante el banner de cookies); (d) cumplir obligaciones legales y atender requerimientos de autoridades competentes (base legal: cumplimiento de un deber legal).',
+            'Los datos se utilizan para: (a) gestionar suscripciones, procesar pagos y entregar acceso al libro digital (base legal: ejecución del contrato); (b) moderar el Repositorio, ejecutar el motor de triaje y mantener la trazabilidad de los aportes (base legal: consentimiento del Colaborador y ejecución del Habeas Scriptum); (c) mantener la seguridad e integridad del archivo y prevenir usos abusivos (base legal: interés legítimo del editor); (d) medir el tráfico de forma agregada y mejorar la experiencia (base legal: consentimiento mediante el banner de cookies); (e) cumplir obligaciones legales y atender requerimientos de autoridades competentes (base legal: cumplimiento de un deber legal).',
         },
         {
           heading: 'Conservación de los datos',
@@ -502,9 +531,14 @@ export const translations: Record<Locale, Translation> = {
             'Los plazos de conservación se aplican según la categoría y la finalidad del dato:',
         },
         {
-          heading: 'Derechos del visitante',
+          heading: 'Delegado de protección de datos',
           body:
-            'Conforme a la Ley 1581/2012, todo visitante puede ejercer en cualquier momento los derechos de Acceso, Rectificación, Cancelación y Oposición (derechos ARCO). Para hacerlo, basta con enviar una solicitud al canal de contacto habilitado; el procedimiento es el siguiente:',
+            'El responsable del tratamiento designa como punto de contacto único para todas las cuestiones relativas al tratamiento de datos personales, incluyendo el ejercicio de derechos ARCO, a Michel Saer, contactable en expresatura@plocos.com. La SIC puede requerir el nombre del delegado en cualquier momento conforme al artículo 23 de la Ley 1581/2012.',
+        },
+        {
+          heading: 'Derechos del visitante y del suscriptor',
+          body:
+            'Conforme a la Ley 1581/2012, todo titular puede ejercer en cualquier momento los derechos de Acceso, Rectificación, Cancelación y Oposición (derechos ARCO), y los derechos adicionales de supresión y portabilidad previstos en desarrollo normativo. Para hacerlo, basta con enviar una solicitud al canal de contacto habilitado. La cancelación (eliminación) de la cuenta se ejecuta en cascada: se elimina la fila en `users`, las suscripciones, las anotaciones del Repositorio y, en la siguiente iteración, los perfiles públicos asociados. El procedimiento es el siguiente:',
         },
         {
           heading: 'Transferencias internacionales',
@@ -524,6 +558,18 @@ export const translations: Record<Locale, Translation> = {
       },
       retention: [
         {
+          category: 'Cuenta de suscriptor',
+          period: 'Mientras la suscripción esté activa. Al cancelar, los datos personales se eliminan en un máximo de treinta (30) días.',
+        },
+        {
+          category: 'Anotaciones del Repositorio',
+          period: 'Permanentes mientras el aporte esté aprobado e indexado, salvo que el titular solicite supresión (derecho ARCO de Cancelación).',
+        },
+        {
+          category: 'Datos de facturación',
+          period: 'Los retiene la pasarela de pago (PayPal o Wompi) según su propia política. Plocos conserva únicamente identificadores de transacción para cumplimiento fiscal (cinco años).',
+        },
+        {
           category: 'Mensajes de contacto',
           period: 'Mientras dure la conversación y hasta tres (3) años después para fines de trazabilidad editorial.',
         },
@@ -535,32 +581,29 @@ export const translations: Record<Locale, Translation> = {
           category: 'Registros de seguridad del servidor',
           period: 'Doce (12) meses para atender incidentes y requerimientos de autoridades.',
         },
-        {
-          category: 'Comentarios publicados',
-          period: 'Mientras el comentario esté visible en el archivo y hasta dos (2) años después de su retiro.',
-        },
       ],
       arcoProcedure: [
-        'Escribir a expresatura@plocos.com indicando nombre completo y medio de contacto para respuesta.',
-        'Describir con claridad la solicitud y, cuando aplique, los datos objeto de Access, Rectificación, Cancelación u Oposición.',
+        'Escribir a expresatura@plocos.com indicando nombre completo, número de identificación y medio de contacto para respuesta.',
+        'Describir con claridad la solicitud y, cuando aplique, los datos objeto de Acceso, Rectificación, Cancelación u Oposición.',
         'Adjuntar copia del documento de identidad o instrumento que acredite la representación, si actúa en nombre de un tercero.',
         'Recibir respuesta en los plazos previstos por la Superintendencia de Industria y Comercio (SIC).',
+        'La cancelación elimina la cuenta y los datos personales en un máximo de treinta (30) días calendario desde la confirmación de la solicitud.',
       ],
     },
     cookiePolicy: {
       metaTitle: 'Política de cookies · Plocos',
       metaDescription:
-        'Inventario de cookies utilizadas por Plocos: esenciales, analítica anonimizada, búsqueda y protección anti-IA.',
+        'Inventario de cookies y almacenamiento local utilizadas por la plataforma de suscripción Plocos: esenciales, autenticación, paywall, anotaciones, idioma, analítica anonimizada y protección anti-IA.',
       title: 'Política de cookies',
       intro:
-        'Una cookie es un pequeño archivo de texto que un sitio web almacena en el dispositivo del visitante para recordar sus preferencias o medir el uso. Esta política describe las cookies que Plocos utiliza, con qué fines y cómo administrarlas. Las cookies estrictamente necesarias se cargan siempre porque hacen posible el funcionamiento del archivo; las demás requieren tu consentimiento.',
+        'Una cookie es un pequeño archivo de texto que un sitio web almacena en el dispositivo del visitante para recordar sus preferencias o medir el uso. Esta política describe las cookies y el almacenamiento local que Plocos utiliza, con qué fines y cómo administrarlas. Las cookies estrictamente necesarias y las de autenticación se cargan siempre porque hacen posible el funcionamiento de la plataforma; las demás requieren tu consentimiento.',
       updatedLabel: 'Última actualización',
-      updatedValue: '20 de agosto de 2026',
+      updatedValue: '2 de octubre de 2026',
       categories: [
         {
           heading: 'Estrictamente necesarias',
           description:
-            'Habilitan funciones básicas como recordar tus preferencias de cookies, mantener la sesión entre páginas y proteger el sitio contra usos indebidos. No requieren consentimiento porque sin ellas el archivo no podría operar.',
+            'Habilitan funciones básicas como recordar tus preferencias de cookies, mantener la sesión entre páginas y proteger el sitio contra usos indebidos. No requieren consentimiento porque sin ellas la plataforma no podría operar.',
           cookies: [
             {
               name: 'astro-consent',
@@ -579,9 +622,79 @@ export const translations: Record<Locale, Translation> = {
           ],
         },
         {
+          heading: 'Autenticación y sesión',
+          description:
+            'Permiten que un suscriptor (Lector, Colaborador o Auditor) mantenga la sesión iniciada, que el panel de cuenta refleje su rol y que el Habeas Scriptum quede registrado. Clerk es el encargado de tratarlas conforme a su propia política de privacidad.',
+          cookies: [
+            {
+              name: '__session',
+              provider: 'Clerk',
+              purpose: 'Mantener la sesión del usuario entre páginas y protegerla contra falsificación.',
+              duration: 'Sesión (cookie de sesión, se borra al cerrar el navegador).',
+              party: 'first',
+            },
+            {
+              name: '__client',
+              provider: 'Clerk',
+              purpose: 'Token de cliente para inicializar el SDK de Clerk en el navegador.',
+              duration: '1 año.',
+              party: 'first',
+            },
+          ],
+        },
+        {
+          heading: 'Estado de paywall',
+          description:
+            'Permiten que el sistema recuerde qué iteración y qué capítulos ya fueron desbloqueados para el suscriptor, evitando que tenga que volver a pagar o reautenticarse en cada visita. Se almacenan en `localStorage` con clave opaca por seguridad.',
+          cookies: [
+            {
+              name: 'plocos-paywall-iteration',
+              provider: 'Plocos',
+              purpose: 'Recordar la última iteración desbloqueada para evitar redirecciones redundantes al paywall.',
+              duration: 'Persistente hasta que el visitante borre el almacenamiento del navegador.',
+              party: 'first',
+            },
+            {
+              name: 'plocos-paywall-chapter',
+              provider: 'Plocos',
+              purpose: 'Recordar el último capítulo accedido por el suscriptor.',
+              duration: 'Persistente hasta que el visitante borre el almacenamiento del navegador.',
+              party: 'first',
+            },
+          ],
+        },
+        {
+          heading: 'Borrador de anotaciones',
+          description:
+            'Si un Colaborador empieza a redactar una anotación y la abandona sin enviarla, el sistema guarda el borrador en `localStorage` para que pueda retomarla al volver. No se envía al servidor hasta que el usuario hace clic explícito en «Enviar».',
+          cookies: [
+            {
+              name: 'plocos-annotation-draft',
+              provider: 'Plocos',
+              purpose: 'Recuperar borradores de anotaciones no enviadas al recargar o cambiar de capítulo.',
+              duration: '7 días desde la última edición o hasta que se envíe o descarte.',
+              party: 'first',
+            },
+          ],
+        },
+        {
+          heading: 'Preferencia de idioma',
+          description:
+            'Almacenan la elección de idioma del visitante (ES o EN) para evitar redirecciones innecesarias entre versiones localizadas. Se sincroniza con `Astro.currentLocale` para mantener consistencia con el flag de idioma del header.',
+          cookies: [
+            {
+              name: 'plocos-locale',
+              provider: 'Plocos',
+              purpose: 'Recordar el idioma elegido por el visitante.',
+              duration: '1 año.',
+              party: 'first',
+            },
+          ],
+        },
+        {
           heading: 'Analítica anonimizada',
           description:
-            'Nos permiten medir el tráfico del sitio de forma agregada, sin identificar individualmente a las visitantes, para entender qué piezas se leen y cómo mejorar el archivo. Si rechazas esta categoría, el sitio sigue funcionando con normalidad.',
+            'Nos permiten medir el tráfico de la plataforma de forma agregada, sin identificar individualmente a los suscriptores, para entender qué iteraciones se leen y cómo mejorar la experiencia. Si rechazas esta categoría, la plataforma sigue funcionando con normalidad.',
           cookies: [
             {
               name: '_ga',
@@ -600,38 +713,17 @@ export const translations: Record<Locale, Translation> = {
           ],
         },
         {
-          heading: 'Búsqueda en el archivo',
-          description:
-            'El buscador integrado utiliza Algolia para devolver resultados rápidos y relevantes. Estas cookies permiten recordar consultas recientes y mejorar la experiencia sin identificar personalmente al visitante.',
-          cookies: [
-            {
-              name: 'aind',
-              provider: 'Algolia Search',
-              purpose: 'Identificador anónimo del visitante para métricas internas de Algolia.',
-              duration: 'Persistente hasta 1 año en el dispositivo del visitante.',
-              party: 'third',
-            },
-            {
-              name: '_algolia_*',
-              provider: 'Algolia Search',
-              purpose: 'Cookies auxiliares técnicas necesarias para la operativa del buscador.',
-              duration: 'Variable según uso, persistente hasta 1 año.',
-              party: 'third',
-            },
-          ],
-        },
-        {
           heading: 'Protección anti-IA (informativa)',
           description:
-            'Esta categoría no instala cookies. Su propósito es documentar las medidas técnicas adoptadas para impedir el uso del contenido en entrenamiento de inteligencia artificial. Consulta la sección «Protección anti-IA y anti-scraping» del pacto.',
+            'Esta categoría no instala cookies. Su propósito es documentar las medidas técnicas adoptadas para impedir el uso del contenido en entrenamiento de inteligencia artificial (meta `noai, noimageai`, `robots.txt` con 8 user-agents bloqueados, cookies HTTP-only en acciones sensibles). Consulta la sección IV del Términos del Sitio.',
           cookies: [],
         },
       ],
       revocation: [
         'Abrir el enlace «Gestionar cookies» en el pie de página y modificar tus preferencias.',
         'Borrar manualmente la clave «astro-consent» del almacenamiento local del navegador desde las herramientas de desarrollador.',
-        'Configurar tu navegador para bloquear o limitar cookies de terceros; ten en cuenta que algunas funciones del archivo pueden dejar de estar disponibles.',
-        'Escribir a expresatura@plocos.com para solicitar asistencia personalizada.',
+        'Configurar tu navegador para bloquear o limitar cookies de terceros; ten en cuenta que algunas funciones de la plataforma pueden dejar de estar disponibles.',
+        'Escribir a expresatura@plocos.com para solicitar asistencia personalizada o ejercer tu derecho ARCO de Cancelación (ver Política de Privacidad).',
       ],
     },
     av: {
@@ -654,6 +746,13 @@ export const translations: Record<Locale, Translation> = {
       saveSuccess: '',
       saveError: '',
     },
+    auth: {
+      signInLabel: 'Iniciar sesión',
+      signUpLabel: 'Crear cuenta',
+      accountLabel: 'Mi cuenta',
+      signOutLabel: 'Cerrar sesión',
+      subscriptionRequiredCta: 'Suscríbete para acceder',
+    },
   },
   en: {
     site: {
@@ -670,22 +769,21 @@ export const translations: Record<Locale, Translation> = {
     },
     paths: {
       home: '',
-      blog: 'blog',
-      categories: 'categories',
+      book: 'book',
+      auditores: 'auditors',
+      repositorio: 'repository',
       contact: 'contact',
-      about: 'our-purpose',
-      labels: 'labels',
-      posts: 'posts',
+      suscripcion: 'subscription',
       terms: 'terms',
       privacy: 'privacy',
       cookiePolicy: 'cookie-policy',
     },
     navigation: [
       { id: 'home', label: 'Home', path: '' },
-      { id: 'categories', label: 'Categories', path: 'categories' },
-      { id: 'blog', label: 'Blog', path: 'blog' },
+      { id: 'book', label: 'No más que la Vida', path: 'book' },
+      { id: 'auditores', label: 'Auditors', path: 'auditors' },
+      { id: 'repositorio', label: 'Repository', path: 'repository' },
       { id: 'contact', label: 'Contact', path: 'contact' },
-      { id: 'about', label: 'Our reason for being', path: 'our-purpose' },
     ],
     search: {
       label: 'Search Plocos',
@@ -862,30 +960,40 @@ export const translations: Record<Locale, Translation> = {
     splash: {
       title: 'Sensitive content notice',
       body:
-        'This archive contains philosophical, artistic, and critical reflections that some readers may experience as intense. Some pieces address death, historical violence, human suffering, and other demanding themes. Decide for yourself whether you want to continue reading.',
+        'The texts and works presented here transit uncensored with sensitive content. If you decide to continue, you accept the terms of our <a href="/en/terms">Site Terms</a>.',
       acknowledge: 'I understand, continue',
       reject: 'Leave the site',
     },
     privacy: {
       metaTitle: 'Privacy Policy · Plocos',
       metaDescription:
-        'How Plocos handles personal data under Ley 1581/2012 and Decreto 1377/2013.',
+        'How Plocos processes personal data of subscribers, collaborators, auditors, and visitors under Ley 1581/2012 and Decreto 1377/2013. [EN: TODO legal review by Colombian attorney]',
       title: 'Privacy Policy',
       sections: [
         {
           heading: 'Data controller',
           body:
-            'The data controller for the personal data collected through this archive is the editor of Plocos, domiciled in Cartagena de Indias (Colombia), with the contact channel enabled at the address shown at the end of this policy. Any request, complaint, or claim may be submitted through that same channel and will be addressed within the timeframes provided by the Superintendencia de Industria y Comercio (SIC). [EN: TODO legal review by Colombian attorney]',
+            'The data controller for the personal data collected through this archive is Michel Saer, domiciled in Cartagena de Indias (Colombia), with the contact channel enabled at the address shown at the end of this policy. Any request, complaint, or claim may be submitted through that same channel and will be addressed within the timeframes provided by the Superintendencia de Industria y Comercio (SIC). [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Data processors',
+          body:
+            'To operate the subscription platform for the digital book “No más que la Vida”, Plocos engages the following processors, who treat personal data exclusively for the purposes described in this policy and under contractual clauses that require guarantees equivalent to or stronger than Colombian law: (a) Clerk (authentication and session); (b) PayPal and Wompi (payment processing, dual depending on the subscriber’s geography); (c) Netlify (hosting and serverless functions); (d) Resend (transactional email: approvals, notifications, iteration reminders); (e) Google Cloud Platform, where Google Gemini processes collaborator annotations through the algorithmic triage engine. Detailed cookie and transfer mechanics are published in the Cookie Policy. [EN: TODO legal review by Colombian attorney]',
         },
         {
           heading: 'Data we process',
           body:
-            'We process only the data indispensable to respond to communications that the visitor initiates voluntarily (name, email address, and message content) and the technical data generated by browsing—IP address, user agent, pages consulted—when the visitor has accepted analytics cookies. We do not sell, transfer, or enrich data with third parties. Nor do we perform automated profiling for advertising purposes, nor do we make automated decisions that produce legal effects on the visitor. [EN: TODO legal review by Colombian attorney]',
+            'We process the following categories of personal data depending on the user type. Subscribers (Reader or Collaborator): name, email address, mobile phone, city, country, gender, date of birth (to verify age of majority under artículo 12 of Ley 1581/2012), and the billing data retained by the payment gateway (Plocos does not store full card numbers). Collaborators and Auditors: in addition to the above, the topographic annotations they deposit in the public Repository (chapter, paragraph, content, date) and, if they grant explicit consent, their email address visible alongside their pseudonym. Anonymous visitors: only the technical data required to serve the site (IP address, user agent, preferred language). We do not sell, transfer, or enrich data with third parties for advertising purposes. [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Public Repository data',
+          body:
+            'The public Repository indexes approved contributions (topographic annotations) and the subscriber data of the contributor. The Collaborator can, via the account control panel, decide whether their email address appears publicly attached to their contributions. While the toggle is active, the authorisation is express, prior, and informed per artículo 9 of Ley 1581/2012. The Collaborator can disable visibility at any time; previously indexed contributions are anonymised in the next Repository iteration. [EN: TODO legal review by Colombian attorney]',
         },
         {
           heading: 'Purposes and legal bases',
           body:
-            'Data is used to: (a) reply to messages and coordinate editorial projects (legal basis: consent and execution of the visitor’s requests); (b) maintain the security and integrity of the archive and prevent abusive uses (legal basis: legitimate interest of the editor); (c) measure traffic in aggregate form and improve the experience (legal basis: consent through the cookie banner); (d) comply with legal obligations and attend to the requirements of competent authorities (legal basis: compliance with a legal duty). [EN: TODO legal review by Colombian attorney]',
+            'Data is used to: (a) manage subscriptions, process payments, and deliver access to the digital book (legal basis: performance of the contract); (b) moderate the Repository, run the triage engine, and maintain contribution traceability (legal basis: consent of the Collaborator and performance of the Habeas Scriptum); (c) maintain the security and integrity of the archive and prevent abusive uses (legal basis: legitimate interest of the editor); (d) measure traffic in aggregate form and improve the experience (legal basis: consent through the cookie banner); (e) comply with legal obligations and attend to the requirements of competent authorities (legal basis: compliance with a legal duty). [EN: TODO legal review by Colombian attorney]',
         },
         {
           heading: 'Data retention',
@@ -893,9 +1001,14 @@ export const translations: Record<Locale, Translation> = {
             'Retention periods apply according to the category and purpose of the data: [EN: TODO legal review by Colombian attorney]',
         },
         {
-          heading: 'Visitor rights',
+          heading: 'Data Protection Officer',
           body:
-            'Under Ley 1581/2012, every visitor may exercise at any time the rights of Access, Rectification, Cancellation, and Opposition (ARCO rights (Access, Rectification, Cancellation, Opposition)). To do so, simply send a request to the enabled contact channel; the procedure is as follows: [EN: TODO legal review by Colombian attorney]',
+            'The data controller designates as single point of contact for all matters related to personal data processing, including the exercise of ARCO rights, Michel Saer, reachable at expresatura@plocos.com. The SIC may require the name of the officer at any time per artículo 23 of Ley 1581/2012. [EN: TODO legal review by Colombian attorney]',
+        },
+        {
+          heading: 'Visitor and subscriber rights',
+          body:
+            'Under Ley 1581/2012, every data subject may exercise at any time the rights of Access, Rectification, Cancellation, and Opposition (ARCO rights), and the additional rights of erasure and portability provided for in regulatory development. To do so, simply send a request to the enabled contact channel. Account cancellation (erasure) is executed in cascade: the `users` row is deleted along with subscriptions, Repository annotations, and (in the next iteration) the associated public profiles. The procedure is as follows: [EN: TODO legal review by Colombian attorney]',
         },
         {
           heading: 'International transfers',
@@ -915,6 +1028,18 @@ export const translations: Record<Locale, Translation> = {
       },
       retention: [
         {
+          category: 'Subscriber account',
+          period: 'For as long as the subscription is active. On cancellation, personal data is erased within thirty (30) days.',
+        },
+        {
+          category: 'Repository annotations',
+          period: 'Permanent while the contribution is approved and indexed, unless the data subject requests erasure (ARCO Cancellation right).',
+        },
+        {
+          category: 'Billing data',
+          period: 'Retained by the payment gateway (PayPal or Wompi) under their own policy. Plocos keeps only transaction identifiers for tax compliance (five years).',
+        },
+        {
           category: 'Contact messages',
           period: 'For the duration of the conversation and up to three (3) years afterwards for editorial traceability purposes.',
         },
@@ -926,32 +1051,29 @@ export const translations: Record<Locale, Translation> = {
           category: 'Server security logs',
           period: 'Twelve (12) months to handle incidents and requests from authorities.',
         },
-        {
-          category: 'Published comments',
-          period: 'While the comment is visible in the archive and up to two (2) years after its withdrawal.',
-        },
       ],
       arcoProcedure: [
-        'Write to expresatura@plocos.com indicating full name and a contact channel for reply.',
+        'Write to expresatura@plocos.com indicating full name, identification number, and a contact channel for reply.',
         'Clearly describe the request and, where applicable, the data subject to Access, Rectification, Cancellation, or Opposition.',
         'Attach a copy of the identity document or instrument evidencing representation, if acting on behalf of a third party.',
         'Receive a response within the timeframes provided by the Superintendencia de Industria y Comercio (SIC).',
+        'Cancellation erases the account and personal data within a maximum of thirty (30) calendar days from the confirmation of the request.',
       ],
     },
     cookiePolicy: {
       metaTitle: 'Cookie Policy · Plocos',
       metaDescription:
-        'Inventory of cookies used by Plocos: essential, anonymised analytics, search, and AI protection.',
+        'Inventory of cookies and local storage used by the Plocos subscription platform: essential, authentication, paywall, annotations, language, anonymised analytics, and AI protection. [EN: TODO legal review by Colombian attorney]',
       title: 'Cookie Policy',
       intro:
-        'A cookie is a small text file that a website stores on the visitor’s device to remember preferences or measure usage. This policy describes the cookies Plocos uses, with what purposes, and how to manage them. Strictly necessary cookies are always loaded because they make the archive work; all others require your consent.',
+        'A cookie is a small text file that a website stores on the visitor’s device to remember preferences or measure usage. This policy describes the cookies and local storage Plocos uses, with what purposes, and how to manage them. Strictly necessary and authentication cookies are always loaded because they make the platform work; all others require your consent.',
       updatedLabel: 'Last updated',
-      updatedValue: 'August 20, 2026',
+      updatedValue: 'October 2, 2026',
       categories: [
         {
           heading: 'Strictly necessary',
           description:
-            'Enable basic functions such as remembering your cookie preferences, keeping the session across pages, and protecting the site against improper uses. They do not require consent because without them the archive could not operate.',
+            'Enable basic functions such as remembering your cookie preferences, keeping the session across pages, and protecting the site against improper uses. They do not require consent because without them the platform could not operate.',
           cookies: [
             {
               name: 'astro-consent',
@@ -970,9 +1092,79 @@ export const translations: Record<Locale, Translation> = {
           ],
         },
         {
+          heading: 'Authentication and session',
+          description:
+            'Allow a subscriber (Reader, Collaborator, or Auditor) to keep the session active, the account panel to reflect their role, and the Habeas Scriptum to be registered. Clerk is the processor that handles them under its own privacy policy. [EN: TODO legal review by Colombian attorney]',
+          cookies: [
+            {
+              name: '__session',
+              provider: 'Clerk',
+              purpose: 'Maintain the user session across pages and protect it against forgery.',
+              duration: 'Session (session cookie, cleared when the browser closes).',
+              party: 'first',
+            },
+            {
+              name: '__client',
+              provider: 'Clerk',
+              purpose: 'Client token to initialise the Clerk SDK in the browser.',
+              duration: '1 year.',
+              party: 'first',
+            },
+          ],
+        },
+        {
+          heading: 'Paywall state',
+          description:
+            'Allow the system to remember which iteration and which chapters have been unlocked for the subscriber, preventing the need to repurchase or re-authenticate on every visit. Stored in `localStorage` with an opaque key for security.',
+          cookies: [
+            {
+              name: 'plocos-paywall-iteration',
+              provider: 'Plocos',
+              purpose: 'Remember the last unlocked iteration to avoid redundant paywall redirects.',
+              duration: 'Persistent until the visitor clears the browser storage.',
+              party: 'first',
+            },
+            {
+              name: 'plocos-paywall-chapter',
+              provider: 'Plocos',
+              purpose: 'Remember the last chapter accessed by the subscriber.',
+              duration: 'Persistent until the visitor clears the browser storage.',
+              party: 'first',
+            },
+          ],
+        },
+        {
+          heading: 'Annotation draft',
+          description:
+            'If a Collaborator starts drafting an annotation and abandons it without submitting, the system saves the draft in `localStorage` so they can pick it up on return. The draft is not sent to the server until the user explicitly clicks "Submit".',
+          cookies: [
+            {
+              name: 'plocos-annotation-draft',
+              provider: 'Plocos',
+              purpose: 'Recover unsent annotation drafts when reloading or changing chapter.',
+              duration: '7 days from the last edit or until submitted or discarded.',
+              party: 'first',
+            },
+          ],
+        },
+        {
+          heading: 'Language preference',
+          description:
+            'Store the visitor’s language choice (ES or EN) to avoid unnecessary redirects between localised versions. Synchronised with `Astro.currentLocale` to stay consistent with the language flag in the header.',
+          cookies: [
+            {
+              name: 'plocos-locale',
+              provider: 'Plocos',
+              purpose: 'Remember the language chosen by the visitor.',
+              duration: '1 year.',
+              party: 'first',
+            },
+          ],
+        },
+        {
           heading: 'Anonymised analytics',
           description:
-            'Allow us to measure site traffic in aggregate form, without individually identifying visitors, so we understand which pieces are read and how to improve the archive. If you decline this category, the site keeps working normally.',
+            'Allow us to measure platform traffic in aggregate form, without individually identifying subscribers, so we understand which iterations are read and how to improve the experience. If you decline this category, the platform keeps working normally.',
           cookies: [
             {
               name: '_ga',
@@ -991,38 +1183,17 @@ export const translations: Record<Locale, Translation> = {
           ],
         },
         {
-          heading: 'Archive search',
-          description:
-            'The integrated search uses Algolia to return fast, relevant results. These cookies help remember recent queries and improve the experience without personally identifying the visitor.',
-          cookies: [
-            {
-              name: 'aind',
-              provider: 'Algolia Search',
-              purpose: 'Anonymous identifier of the visitor for Algolia internal metrics.',
-              duration: 'Persistent for up to 1 year on the visitor’s device.',
-              party: 'third',
-            },
-            {
-              name: '_algolia_*',
-              provider: 'Algolia Search',
-              purpose: 'Technical auxiliary cookies necessary for the search operation.',
-              duration: 'Variable according to use, persistent for up to 1 year.',
-              party: 'third',
-            },
-          ],
-        },
-        {
           heading: 'AI protection (informational)',
           description:
-            'This category does not install cookies. Its purpose is to document the technical measures adopted to prevent the use of the content in AI training. See the “Anti-AI and anti-scraping protection” section of the agreement.',
+            'This category does not install cookies. Its purpose is to document the technical measures adopted to prevent the use of the content in AI training (meta `noai, noimageai`, `robots.txt` with 8 user-agents blocked, HTTP-only cookies on sensitive actions). See section IV of the Site Terms.',
           cookies: [],
         },
       ],
       revocation: [
         'Open the “Manage cookies” link in the footer and modify your preferences.',
         'Manually delete the “astro-consent” key from the browser’s local storage through the developer tools.',
-        'Configure your browser to block or limit third-party cookies; bear in mind that some archive functions may become unavailable.',
-        'Write to expresatura@plocos.com to request personalised assistance.',
+        'Configure your browser to block or limit third-party cookies; bear in mind that some platform functions may become unavailable.',
+        'Write to expresatura@plocos.com to request personalised assistance or to exercise your ARCO Cancellation right (see Privacy Policy).',
       ],
     },
     av: {
@@ -1044,6 +1215,13 @@ export const translations: Record<Locale, Translation> = {
       collections: { posts: { label: '' }, audiovisuales: { label: '' } },
       saveSuccess: '',
       saveError: '',
+    },
+    auth: {
+      signInLabel: 'Sign in',
+      signUpLabel: 'Sign up',
+      accountLabel: 'My account',
+      signOutLabel: 'Sign out',
+      subscriptionRequiredCta: 'Subscribe to access',
     },
   },
 };

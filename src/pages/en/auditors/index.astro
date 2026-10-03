@@ -1,0 +1,176 @@
+---
+/**
+ * /en/auditors — EN mirror of /auditores
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const translations = getTranslations(locale);
+const isES = locale === 'es';
+
+type AuditorEntry = {
+  name: string;
+  handle: string;
+  bio: string;
+  ascentionYear: number;
+  emailVisible: boolean;
+  email?: string;
+};
+
+const PLACEHOLDER_AUDITORS: AuditorEntry[] = isES
+  ? [
+      {
+        name: 'Por anunciar',
+        handle: '@primer-auditor',
+        bio: 'Próximamente publicaremos los CVs de los Auditores que se conquisten el rango honorífico a través de refutaciones al canon. Sus perfiles incluirán fotografía, formación y el argumento que les otorgó el rango.',
+        ascentionYear: 2026,
+        emailVisible: false,
+      },
+    ]
+  : [
+      {
+        name: 'To be announced',
+        handle: '@first-auditor',
+        bio: 'We will soon publish the CVs of those Auditors who earn the honorific rank through rebuttals to the canon. Their profiles will include photography, background, and the argument that earned them the rank.',
+        ascentionYear: 2026,
+        emailVisible: false,
+      },
+    ];
+---
+<BaseLayout
+  title={isES ? 'Auditores · Plocos' : 'Auditors · Plocos'}
+  description={isES
+    ? 'Salón de la fama intelectual. Currículum vitae resumidos de los usuarios que conquistaron el rango de Auditor. Rango honorífico que no se vende, se conquista.'
+    : 'Hall of intellectual fame. Abbreviated CVs of the users who have earned the Auditor rank. An honorific rank that is not for sale, it is earned.'}
+>
+  <article class="mx-auto max-w-4xl space-y-12 px-4 py-16 text-text-secondary">
+    <header class="space-y-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-accent">
+        {isES ? 'Sección 3 · Salón de la fama' : 'Section 3 · Hall of fame'}
+      </p>
+      <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">
+        {isES ? 'Auditores' : 'Auditors'}
+      </h1>
+      <p class="text-lg leading-relaxed text-text-secondary/90 max-w-3xl">
+        {isES
+          ? 'Este espacio opera como un salón de la fama intelectual. Previa autorización expresa, se exhibirá un currículum vitae (CV) resumido de cada usuario que haya conquistado el rango de Auditor, incluyendo su fotografía, nombres y correo electrónico. Esta sección gamifica la experiencia, convirtiendo el rigor lógico en capital social visible.'
+          : 'This space operates as a hall of intellectual fame. With prior authorisation, the abbreviated CV of each user who has earned the Auditor rank is exhibited, including their photograph, names, and email address. This section gamifies the experience, turning logical rigour into visible social capital.'}
+      </p>
+    </header>
+
+    <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-4">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? 'Ascenso a Auditor y Recompensas' : 'Ascension to Auditor and Rewards'}
+      </h2>
+      <p class="leading-relaxed">
+        {isES
+          ? 'El rango de Auditor no es comercializable; es una distinción honorífica de conquista intelectual. Se otorga exclusivamente a aquel Colaborador cuyas refutaciones obliguen técnicamente a la reescritura de un fragmento de la obra. La recompensa incluye:'
+          : 'The Auditor rank is not commercialisable; it is an honorific distinction of intellectual conquest. It is granted exclusively to a Collaborator whose rebuttals technically compel the rewriting of a fragment of the work. The reward includes:'}
+      </p>
+      <ul class="list-disc pl-6 space-y-2 text-sm leading-relaxed text-text-secondary/90">
+        <li>
+          {isES
+            ? 'Inclusión del currículum y fotografía en la sección "Auditores".'
+            : 'Inclusion of the CV and photograph in the "Auditors" section.'}
+        </li>
+        <li>
+          {isES
+            ? 'Reconocimiento moral explícito en las notas de la nueva versión del PDF iterado.'
+            : 'Explicit moral recognition in the footnotes of the new version of the iterated PDF.'}
+        </li>
+        <li>
+          {isES
+            ? 'Otorgamiento de una suscripción gratuita equivalente al periodo de un año y/o seis (6) ciclos de 60 días.'
+            : 'Granting of a free subscription equivalent to a one-year period and/or six (6) 60-day cycles.'}
+        </li>
+      </ul>
+      <p class="leading-relaxed text-sm text-text-secondary/80 border-l-2 border-accent/40 pl-3 italic">
+        {isES
+          ? 'Conforme al Habeas Scriptum, este rango no confiere titularidad, poder de veto ni derechos patrimoniales sobre la obra.'
+          : 'In accordance with the Habeas Scriptum, this rank confers neither ownership, veto power, nor patrimonial rights over the work.'}
+      </p>
+    </section>
+
+    <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-4">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? 'Reglas de inyección de aportes' : 'Submission injection rules'}
+      </h2>
+      <p class="leading-relaxed text-sm text-text-secondary/90">
+        {isES
+          ? 'Todo aporte será procesado por el motor de triaje (motor LLM). Para evitar el rechazo automático (Nivel 1), el aporte debe:'
+          : 'Every contribution will be processed by the triage engine (LLM). To avoid automatic rejection (Level 1), the contribution must:'}
+      </p>
+      <ul class="list-disc pl-6 space-y-2 text-sm leading-relaxed text-text-secondary/90">
+        <li>
+          {isES
+            ? 'Poseer estructura silogística demostrable (premisas conducentes a una conclusión). Las opiniones estéticas o morales carentes de formulación lógica serán descartadas.'
+            : 'Possess demonstrable syllogistic structure (premises leading to a conclusion). Aesthetic or moral opinions lacking logical formulation will be discarded.'}
+        </li>
+        <li>
+          {isES
+            ? 'Carecer de falacias primarias de razonamiento (Ad hominem, petición de principio, hombre de paja).'
+            : 'Lack primary reasoning fallacies (Ad hominem, begging the question, straw man).'}
+        </li>
+        <li>
+          {isES
+            ? 'Vincularse de manera topográfica exacta al texto (especificando año, iteración, capítulo y párrafo).'
+            : 'Link topographically to the text (specifying year, iteration, chapter, and paragraph).'}
+        </li>
+      </ul>
+    </section>
+
+    <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-4">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? 'El monopolio de la interpretación' : 'The monopoly of interpretation'}
+      </h2>
+      <p class="leading-relaxed text-sm text-text-secondary/90">
+        {isES
+          ? 'Si bien la comunidad vigila el rigor, el Autor retiene de manera exclusiva e indelegable el monopolio de la interpretación final y la toma de decisiones sobre la obra. La aceptación de un argumento que logre vulnerar el canon (Nivel 3) queda a entero arbitrio, riesgo político y filosófico del Autor.'
+          : 'While the community polices rigour, the Author retains the exclusive and non-delegable monopoly of the final interpretation and decision-making on the work. The acceptance of an argument that manages to breach the canon (Level 3) is at the full discretion, political and philosophical risk of the Author.'}
+      </p>
+    </section>
+
+    <section class="space-y-6">
+      <h2 class="text-2xl font-semibold text-text-primary">
+        {isES ? 'Auditores vigentes' : 'Current auditors'}
+      </h2>
+      <p class="text-sm leading-relaxed text-text-secondary/80">
+        {isES
+          ? 'El listado se irá poblando a medida que los Colaboradores vayan cumpliendo los requisitos de ascenso (4 o más aportes que alteren el canon; renovación anual con 2 o más).'
+          : 'The list will populate as Collaborators meet the ascention requirements (4 or more contributions that alter the canon; annual renewal with 2 or more).'}
+      </p>
+      <ul class="space-y-6">
+        {PLACEHOLDER_AUDITORS.map((auditor) => (
+          <li class="rounded-3xl border border-border-subtle bg-surface-elevated p-6 flex flex-col sm:flex-row gap-4">
+            <div class="shrink-0 h-24 w-24 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center text-2xl text-accent">
+              {auditor.name.split(' ').map((p) => p[0]).join('').slice(0, 2)}
+            </div>
+            <div class="flex-1 space-y-2">
+              <div>
+                <h3 class="text-xl font-semibold text-text-primary">
+                  {auditor.name}
+                </h3>
+                <p class="text-sm text-text-secondary/80 font-mono">
+                  {auditor.handle}
+                </p>
+              </div>
+              <p class="text-sm leading-relaxed">{auditor.bio}</p>
+              <p class="text-xs text-text-secondary/70">
+                {isES ? 'Año de ascenso:' : 'Ascention year:'} {auditor.ascentionYear}
+                {auditor.emailVisible && auditor.email && (
+                  <>
+                    {' · '}
+                    <a href={`mailto:${auditor.email}`} class="text-accent hover:underline">
+                      {auditor.email}
+                    </a>
+                  </>
+                )}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </article>
+</BaseLayout>

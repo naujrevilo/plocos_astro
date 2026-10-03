@@ -1,0 +1,174 @@
+---
+/**
+ * /libro — Sec Nomás que la Vida (T14)
+ *
+ * Texto verbatim del doc maestro del cliente (Sección 2: Nomás que la Vida).
+ * Filosofía del modelo hermenéutico y mecánica de doble frecuencia.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
+import { createLocaleHref } from '../../lib/routes';
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const translations = getTranslations(locale);
+const isES = locale === 'es';
+const suscripcionHref = createLocaleHref(locale, translations.paths.suscripcion);
+
+// 6 iteraciones × 60 días = 1 año calendario
+const ITERATIONS = [
+  { cycleNum: 1, name: isES ? 'Apertura' : 'Opening', dates: isES ? 'Días 1-25: flanqueo abierto · 26-35: veda · 36-41: escrutinio · 42-60: reescritura' : 'Days 1-25: open flanking · 26-35: blackout · 36-41: scrutiny · 42-60: rewriting' },
+  { cycleNum: 2, name: isES ? 'Veda' : 'Blackout', dates: isES ? 'Idéntico al ciclo 01' : 'Same as cycle 01' },
+  { cycleNum: 3, name: isES ? 'Reescritura' : 'Rewriting', dates: isES ? 'Idéntico al ciclo 01' : 'Same as cycle 01' },
+  { cycleNum: 4, name: isES ? 'Reapertura' : 'Reopening', dates: isES ? 'Idéntico al ciclo 01' : 'Same as cycle 01' },
+  { cycleNum: 5, name: isES ? 'Escrutinio' : 'Scrutiny', dates: isES ? 'Idéntico al ciclo 01' : 'Same as cycle 01' },
+  { cycleNum: 6, name: isES ? 'Cierre de ciclo' : 'Cycle close', dates: isES ? 'Idéntico al ciclo 01' : 'Same as cycle 01' },
+];
+---
+<BaseLayout
+  title={isES ? 'No más que la Vida · Plocos' : 'No más que la Vida · Plocos'}
+  description={isES
+    ? 'Ecosistema de dialéctica de doble núcleo. El canon es un texto inamovible por 60 días; la periferia son los aportes al Repositorio. La obra es la tensión ontológica entre ambos.'
+    : 'Two-nucleus dialectical ecosystem. The canon is an unmovable text for 60 days; the periphery is the contributions to the Repository. The work is the ontological tension between them.'}
+>
+  <article class="mx-auto max-w-3xl space-y-12 px-4 py-16 text-text-secondary">
+    <header class="space-y-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-accent">
+        {isES ? 'Sección 2 · El canon' : 'Section 2 · The canon'}
+      </p>
+      <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">
+        {isES ? 'No más que la Vida' : 'No más que la Vida'}
+      </h1>
+      <p class="text-base italic text-text-secondary/80">
+        {isES ? 'Por Michel Saer Daccarett — Cartagena de Indias, Colombia' : 'By Michel Saer Daccarett — Cartagena de Indias, Colombia'}
+      </p>
+    </header>
+
+    <section class="space-y-4 leading-relaxed text-base">
+      <p>
+        {isES
+          ? 'Hola, bienvenido. Nomás que la Vida no es simplemente un libro digital interactivo. Es un ecosistema de dialéctica de doble núcleo al cual te haces parte activa. Un espacio que te permitirá alterar tu experiencia de lectura y te posibilita para que con tus aportes transformes la narrativa, estructura o código original del libro. Todos los aportes recibidos serán curados y respondidos.'
+          : 'Hello, welcome. No más que la Vida is not simply an interactive digital book. It is a two-nucleus dialectical ecosystem that you join as an active part. A space that lets you alter your reading experience and enables you, through your contributions, to transform the original narrative, structure, or code of the book. Every contribution received will be curated and answered.'}
+      </p>
+      <p>
+        {isES
+          ? 'Los aportes que previamente hayan sido autorizados se consignarán en nuestro Repositorio público donde se detallará la fecha, usuario del suscriptor, correo-e (requiere autorización previa), capítulo y párrafo al que hace referencia. Las ideas brillantes que obliguen a alterar la obra se incluirán; siguiendo lo establecido en los Términos y Condiciones de Auditoría, en la versión depurada que se publique en cada una de las seis iteraciones anuales de la obra (cada 60 días).'
+          : 'Previously authorised contributions will be recorded in our public Repository with the date, the subscriber\'s username, email (requires prior authorisation), and the chapter and paragraph they refer to. Brilliant ideas that compel a change to the work will be included, per the Auditor Terms and Conditions, in the curated version published in each of the six annual iterations of the work (every 60 days).'}
+      </p>
+      <p>
+        {isES
+          ? 'Es un sistema de auditoría donde participa la comunidad de suscriptores habilitada para este propósito. El autor se compromete a ceder el monopolio de la interpretación y asume el riesgo político de que la comunidad vigile su rigor. El acceso al Repositorio es público, pero únicamente los Colaboradores y Auditores podrán interactuar con los aportes, consignando respuestas o comentarios.'
+          : 'It is an audit system in which the enabled subscriber community participates. The author commits to ceding the monopoly of interpretation and assumes the political risk of the community policing his rigour. The Repository is publicly accessible, but only Collaborators and Auditors can interact with the contributions, posting replies or comments.'}
+      </p>
+    </section>
+
+    <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-4">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? 'Filosóficamente' : 'Philosophically'}
+      </h2>
+      <p class="leading-relaxed">
+        {isES
+          ? 'El proyecto pasa de ser un libro estático a un modelo hermenéutico. El texto central (el canon) estará rodeado por un enjambre de comentarios periféricos (la exégesis). La verdadera obra ya no es el PDF; la obra es la tensión ontológica que existe entre un texto inamovible (por 60 días) y el flujo constante de disrupción en los márgenes. Los lectores ejercen un verdadero ex lateribus cogitate: un flanqueo intelectual a la estructura conceptual de la obra y a la vista de todos.'
+          : 'The project moves from being a static book to a hermeneutical model. The central text (the canon) is surrounded by a swarm of peripheral comments (the exegesis). The true work is no longer the PDF; the work is the ontological tension that exists between a text unmovable for 60 days and the constant flow of disruption at the margins. The readers exercise a true ex lateribus cogitate: an intellectual flanking of the conceptual structure of the work, in plain sight.'}
+      </p>
+    </section>
+
+    <section class="space-y-4">
+      <h2 class="text-2xl font-semibold text-text-primary">
+        {isES ? 'Dos frecuencias temporales' : 'Two temporal frequencies'}
+      </h2>
+      <p>
+        {isES
+          ? 'El proyecto está ensamblado en una mecánica con dos frecuencias temporales distintas:'
+          : 'The project is assembled on a mechanism with two distinct temporal frequencies:'}
+      </p>
+      <ul class="space-y-3 list-none pl-0">
+        <li class="rounded-2xl border border-border-subtle bg-surface-elevated p-5">
+          <h3 class="text-base font-semibold text-text-primary">
+            {isES ? 'El núcleo lento (El PDF)' : 'The slow nucleus (The PDF)'}
+          </h3>
+          <p class="text-sm leading-relaxed mt-2">
+            {isES
+              ? 'El texto, que opera con una latencia de actualización de 60 días. Es estable, curado y refleja la hegemonía de la síntesis.'
+              : 'The text, which operates with a 60-day update latency. It is stable, curated, and reflects the hegemony of the synthesis.'}
+          </p>
+        </li>
+        <li class="rounded-2xl border border-border-subtle bg-surface-elevated p-5">
+          <h3 class="text-base font-semibold text-text-primary">
+            {isES ? 'La periferia rápida (La sección de anotaciones)' : 'The fast periphery (The annotation section)'}
+          </h3>
+          <p class="text-sm leading-relaxed mt-2">
+            {isES
+              ? 'Un bucle de retroalimentación de alta velocidad y baja fricción. Es caótico, descentralizado y polifónico.'
+              : 'A high-velocity, low-friction feedback loop. It is chaotic, decentralised, and polyphonic.'}
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="space-y-4">
+      <h2 class="text-2xl font-semibold text-text-primary">
+        {isES ? 'El ciclo de 60 días (6 iteraciones anuales)' : 'The 60-day cycle (6 annual iterations)'}
+      </h2>
+      <p class="text-sm leading-relaxed">
+        {isES
+          ? 'El ecosistema respirará a través de un ciclo cerrado, dividiendo el año calendario en 6 iteraciones (absorbiendo periodos de latencia). Cada ciclo tiene 4 etapas:'
+          : 'The ecosystem breathes through a closed cycle, dividing the calendar year into 6 iterations (absorbing latency periods). Each cycle has 4 stages:'}
+      </p>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-left text-sm">
+          <thead>
+            <tr class="border-b border-border-subtle">
+              <th class="py-2 pr-4 font-semibold text-text-primary">{isES ? 'Días' : 'Days'}</th>
+              <th class="py-2 pr-4 font-semibold text-text-primary">{isES ? 'Etapa' : 'Stage'}</th>
+              <th class="py-2 font-semibold text-text-primary">{isES ? 'Dinámica' : 'Dynamics'}</th>
+            </tr>
+          </thead>
+          <tbody class="text-text-secondary/90">
+            <tr class="border-b border-border-subtle/60 align-top">
+              <td class="py-2 pr-4 font-mono text-xs">1 – 25</td>
+              <td class="py-2 pr-4 font-semibold">{isES ? 'Flanqueo Abierto' : 'Open Flanking'}</td>
+              <td class="py-2">{isES ? 'El Repositorio público opera en tiempo real. Los Colaboradores inyectan sus refutaciones. El Motor de IA filtra, rechaza o publica. Se fomenta el debate horizontal.' : 'The public Repository operates in real time. Collaborators inject their rebuttals. The AI Engine filters, rejects, or publishes. Horizontal debate is encouraged.'}</td>
+            </tr>
+            <tr class="border-b border-border-subtle/60 align-top">
+              <td class="py-2 pr-4 font-mono text-xs">26 – 35</td>
+              <td class="py-2 pr-4 font-semibold">{isES ? 'Veda Dialéctica' : 'Dialectical Blackout'}</td>
+              <td class="py-2">{isES ? 'Se cierra la API de recepción de aportes. El Repositorio entra en estado de solo lectura.' : 'The submissions API is closed. The Repository enters read-only state.'}</td>
+            </tr>
+            <tr class="border-b border-border-subtle/60 align-top">
+              <td class="py-2 pr-4 font-mono text-xs">36 – 41</td>
+              <td class="py-2 pr-4 font-semibold">{isES ? 'Escrutinio Autoral' : 'Authorial Scrutiny'}</td>
+              <td class="py-2">{isES ? 'El autor recibe el reporte destilado de "refutaciones letales" (Nivel 3). Deliberación solitaria y toma de decisiones filosóficas frente a la efectividad del flanqueo.' : 'The author receives the distilled report of "lethal rebuttals" (Level 3). Solitary deliberation and philosophical decision-making on the effectiveness of the flanking.'}</td>
+            </tr>
+            <tr class="border-b border-border-subtle/60 align-top">
+              <td class="py-2 pr-4 font-mono text-xs">42 – 60</td>
+              <td class="py-2 pr-4 font-semibold">{isES ? 'Reescritura y Despliegue' : 'Rewriting and Deployment'}</td>
+              <td class="py-2">{isES ? 'El autor ejecuta la reescritura del canon. Edición, corrección, maquetación del nuevo PDF. El sistema técnico empaqueta la Iteración correspondiente y la sube al servidor protegido.' : 'The author rewrites the canon. Editing, proofreading, layout of the new PDF. The technical system packages the corresponding Iteration and uploads it to the protected server.'}</td>
+            </tr>
+            <tr class="align-top">
+              <td class="py-2 pr-4 font-mono text-xs">{isES ? 'Día 1 (Ciclo N+1)' : 'Day 1 (Cycle N+1)'}</td>
+              <td class="py-2 pr-4 font-semibold">{isES ? 'Reapertura' : 'Reopening'}</td>
+              <td class="py-2">{isES ? 'Se publica la nueva versión del PDF. Reinicio de la interfaz de recepción de aportes.' : 'The new version of the PDF is published. The submission interface is reset.'}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="rounded-3xl border-2 border-accent bg-accent/5 p-8 space-y-4 text-center">
+      <p class="text-2xl font-bold tracking-tight text-text-primary md:text-3xl leading-relaxed">
+        {isES
+          ? '"No pagas por leer; adquieres el derecho a refutar, someter a prueba y forzar la evolución del pensamiento. A ejercer tu derecho a réplica."'
+          : '"You do not pay to read; you acquire the right to rebut, to put to the test, and to force the evolution of thought. To exercise your right of reply."'}
+      </p>
+      <p class="text-base italic text-text-secondary/80">
+        — Michel Saer
+      </p>
+      <a
+        href={suscripcionHref}
+        class="inline-flex items-center justify-center rounded-full bg-accent px-8 py-4 text-base font-semibold uppercase tracking-widest text-surface-base shadow-md transition hover:bg-text-primary hover:text-surface-base mt-4"
+      >
+        {isES ? 'Suscríbete' : 'Subscribe'}
+      </a>
+    </section>
+  </article>
+</BaseLayout>

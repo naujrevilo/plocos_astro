@@ -1,8 +1,12 @@
----/**
+---
+/**
  * @component SiteFooter
- * @description Renderiza el pie de página del sitio, que incluye información de derechos de autor,
- * enlaces de navegación (Términos, RSS) y enlaces a redes sociales con iconos.
- * Utiliza i18n para las traducciones y carga los datos de contacto desde un archivo JSON.
+ * @description Renderiza el pie de página del sitio para el pivote NQLV. Incluye:
+ *   - Copyright
+ *   - Enlaces a Términos del Sitio, Habeas Scriptum, Términos de Auditoría,
+ *     Declaración de Simbiosis Algorítmica, Privacidad, Cookies
+ *   - Botón "Gestionar cookies"
+ *   - Iconos de redes sociales (Follow:)
  */
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
@@ -25,31 +29,63 @@ type ContactData = {
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 const currentYear = new Date().getFullYear();
-const { rights, rss, terms: termsLabel, follow, manageCookies } = translations.footer;
+const { rights, follow, manageCookies } = translations.footer;
 const contactData = rawContactData as ContactData;
+
+const isES = locale === 'es';
+
+// URLs to the three sub-pages of /terminos. Hrefs are computed by createLocaleHref
+// so the locale prefix is handled automatically. We hardcode the sub-paths because
+// they are project-specific and not part of the i18n `paths` registry.
+const subPageHrefs = {
+  habeasScriptum: createLocaleHref(locale, 'terminos/habeas-scriptum'),
+  auditoria: createLocaleHref(locale, 'terminos/auditoria'),
+  simbiosis: createLocaleHref(locale, 'terminos/simbiosis-algoritmica'),
+};
 const termsHref = createLocaleHref(locale, translations.paths.terms);
+const privacyHref = createLocaleHref(locale, translations.paths.privacy);
+const cookiesHref = createLocaleHref(locale, translations.paths.cookiePolicy);
 
 const socialLinks = contactData.social;
-// Shared styles for icon-only social buttons in the footer to mirror post share actions.
 const socialAnchorClass =
   'inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-muted text-text-primary transition hover:border-accent hover:bg-accent hover:text-surface-base hover:shadow-contemplation';
 ---
 <footer class="border-t border-border-subtle bg-surface-base">
-  <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 text-sm text-text-secondary md:flex-row md:items-center md:justify-between">
-    <p>© {currentYear} Plocos. {rights}</p>
-    <div class="flex flex-col gap-4 md:items-end">
-      <nav aria-label="Footer links" class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end">
-        <a href={termsHref} class="transition-colors hover:text-accent">{termsLabel}</a>
-        <a href="/rss.xml" class="transition-colors hover:text-accent">{rss}</a>
-        <button
-          type="button"
-          id="manage-cookies"
-          class="transition-colors hover:text-accent"
-          data-action="manage-cookies"
-        >
-          {manageCookies}
-        </button>
+  <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 text-sm text-text-secondary md:flex-row md:items-start md:justify-between">
+    <p class="shrink-0">© {currentYear} Plocos. {rights}</p>
 
+    <div class="flex flex-col gap-4 md:items-end">
+      <nav aria-label="Footer legal" class="flex flex-col gap-2 md:items-end text-xs">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end">
+          <a href={termsHref} class="font-semibold text-text-primary transition-colors hover:text-accent">
+            {isES ? 'Términos del Sitio' : 'Site Terms'}
+          </a>
+          <a href={subPageHrefs.habeasScriptum} class="transition-colors hover:text-accent">
+            {isES ? 'Habeas Scriptum' : 'Habeas Scriptum'}
+          </a>
+          <a href={subPageHrefs.auditoria} class="transition-colors hover:text-accent">
+            {isES ? 'Términos de Auditoría' : 'Auditor Terms'}
+          </a>
+          <a href={subPageHrefs.simbiosis} class="transition-colors hover:text-accent">
+            {isES ? 'Simbiosis Algorítmica' : 'Algorithmic Symbiosis'}
+          </a>
+        </div>
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end">
+          <a href={privacyHref} class="transition-colors hover:text-accent">
+            {isES ? 'Privacidad' : 'Privacy'}
+          </a>
+          <a href={cookiesHref} class="transition-colors hover:text-accent">
+            {isES ? 'Cookies' : 'Cookies'}
+          </a>
+          <button
+            type="button"
+            id="manage-cookies"
+            class="transition-colors hover:text-accent"
+            data-action="manage-cookies"
+          >
+            {manageCookies}
+          </button>
+        </div>
       </nav>
 
       <script is:inline>
@@ -64,7 +100,7 @@ const socialAnchorClass =
           }
         });
       </script>
-      
+
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end">
         <span class="font-semibold text-text-primary">{follow}:</span>
         {socialLinks.map((social) => (

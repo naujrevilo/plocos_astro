@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
+import { createLocaleHref } from '../../lib/routes';
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const translations = getTranslations(locale);
+
+const COUNTRIES = [
+  { code: 'CO', label: 'Colombia (COP)', currency: 'COP', provider: 'wompi' },
+  { code: 'MX', label: 'México (MXN)', currency: 'MXN', provider: 'wompi' },
+  { code: 'AR', label: 'Argentina (ARS)', currency: 'ARS', provider: 'wompi' },
+  { code: 'BR', label: 'Brasil (BRL)', currency: 'BRL', provider: 'wompi' },
+  { code: 'CL', label: 'Chile (CLP)', currency: 'CLP', provider: 'wompi' },
+  { code: 'PE', label: 'Perú (PEN)', currency: 'PEN', provider: 'wompi' },
+  { code: 'US', label: 'United States (USD)', currency: 'USD', provider: 'paypal' },
+  { code: 'CA', label: 'Canada (CAD)', currency: 'CAD', provider: 'paypal' },
+  { code: 'GB', label: 'United Kingdom (GBP)', currency: 'GBP', provider: 'paypal' },
+  { code: 'OTHER', label: 'Otro / Other', currency: 'USD', provider: 'paypal' },
+];
+
+const isES = locale === 'es';
+---
+<BaseLayout
+  title={isES ? 'Suscripción · Plocos' : 'Subscription · Plocos'}
+  description={isES
+    ? 'Elige tu categoría de suscripción: Lector o Colaborador. Pago seguro vía PayPal (internacional) o Wompi (Colombia).'
+    : 'Choose your subscription tier: Reader or Collaborator. Secure payment via PayPal (international) or Wompi (Colombia).'}
+>
+  <article class="mx-auto max-w-4xl space-y-12 px-4 py-16 text-text-secondary">
+    <header class="space-y-4 text-center">
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-accent">
+        {isES ? 'Acceso a Nomás que la Vida' : 'Access to No más que la Vida'}
+      </p>
+      <h1 class="text-4xl font-bold tracking-tight text-text-primary md:text-5xl">
+        {isES ? 'Elige cómo quieres entrar' : 'Choose how to enter'}
+      </h1>
+      <p class="text-lg leading-relaxed text-text-secondary/90 max-w-2xl mx-auto">
+        {isES
+          ? 'Dos categorías. La misma obra. Distintos niveles de combate intelectual. Tu suscripción financia la edición de cada iteración y el mantenimiento del Repositorio público.'
+          : 'Two tiers. The same work. Different levels of intellectual combat. Your subscription funds the editing of each iteration and the maintenance of the public Repository.'}
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 shadow-contemplation space-y-4">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-2xl font-bold text-text-primary">
+            {isES ? 'Lector' : 'Reader'}
+          </h2>
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-secondary/80">
+            {isES ? 'Base' : 'Base tier'}
+          </p>
+        </div>
+        <p class="text-3xl font-bold text-accent">
+          {isES ? 'Pago base de la suscripción' : 'Base subscription fee'}
+        </p>
+        <p class="leading-relaxed">
+          {isES
+            ? 'Acceso de lectura al PDF estabilizado y actualizado. Tendrás acceso de solo lectura al Repositorio público (la marginalia digital), pero no podrás enviar aportes ni refutaciones.'
+            : 'Read access to the stabilised, updated PDF. You will have read-only access to the public Repository (the digital marginalia), but you will not be able to submit contributions or rebuttals.'}
+        </p>
+        <ul class="space-y-2 text-sm leading-relaxed">
+          <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Acceso a todas las iteraciones del canon' : 'Access to all iterations of the canon'}</span></li>
+          <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Lectura del Repositorio público' : 'Reading access to the public Repository'}</span></li>
+          <li class="flex flex-row items-start gap-2 text-text-secondary/60"><span>—</span><span>{isES ? 'No puedes enviar aportes' : 'You cannot submit contributions'}</span></li>
+          <li class="flex flex-row items-start gap-2 text-text-secondary/60"><span>—</span><span>{isES ? 'Sin ascenso a Auditor' : 'No ascent to Auditor'}</span></li>
+        </ul>
+        <button type="button" disabled class="block w-full text-center rounded-full bg-text-secondary/30 px-5 py-3 text-sm font-semibold uppercase tracking-widest text-text-secondary/60 cursor-not-allowed">
+          {isES ? 'Pago disponible pronto' : 'Checkout coming soon'}
+        </button>
+      </section>
+
+      <section class="rounded-3xl border-2 border-accent bg-surface-elevated p-8 shadow-contemplation space-y-4 relative">
+        <p class="absolute -top-3 right-6 inline-block rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-widest text-surface-base">
+          {isES ? 'Recomendado' : 'Recommended'}
+        </p>
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-2xl font-bold text-text-primary">
+            {isES ? 'Colaborador' : 'Collaborator'}
+          </h2>
+          <p class="text-xs font-semibold uppercase tracking-widest text-accent">
+            {isES ? 'Con voz' : 'With voice'}
+          </p>
+        </div>
+        <p class="text-3xl font-bold text-accent">
+          {isES ? 'Suscripción con derecho a réplica' : 'Subscription with rebuttal rights'}
+        </p>
+        <p class="leading-relaxed">
+          {isES
+            ? 'Todo lo del plan Lector más la habilitación para enviar aportes al Repositorio. Al aceptar esta categoría firmas digitalmente el Habeas Scriptum. Tus aportes, una vez aprobados, se consignan en el Repositorio público con fecha, usuario y capítulo de referencia.'
+            : 'Everything in the Reader tier plus the ability to submit contributions to the Repository. By accepting this tier you digitally sign the Habeas Scriptum. Your contributions, once approved, are published in the public Repository with date, user, and reference chapter.'}
+        </p>
+        <ul class="space-y-2 text-sm leading-relaxed">
+          <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Todo del plan Lector' : 'Everything from the Reader tier'}</span></li>
+          <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Habilita la interfaz para enviar aportes' : 'Enables the contribution interface'}</span></li>
+          <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Firma digital del Habeas Scriptum' : 'Digital signature of the Habeas Scriptum'}</span></li>
+          <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Posibilidad de ascender a Auditor (rango honorífico)' : 'Possibility of ascending to Auditor (honorific rank)'}</span></li>
+        </ul>
+        <button type="button" disabled class="block w-full text-center rounded-full bg-accent/40 px-5 py-3 text-sm font-semibold uppercase tracking-widest text-surface-base cursor-not-allowed">
+          {isES ? 'Habeas Scriptum + pago disponibles pronto' : 'Habeas Scriptum + checkout coming soon'}
+        </button>
+      </section>
+    </div>
+
+    <section class="rounded-3xl border border-border-subtle bg-surface-muted p-8 space-y-4">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? '¿Desde dónde nos lees?' : 'Where are you reading from?'}
+      </h2>
+      <p class="text-sm leading-relaxed text-text-secondary/90">
+        {isES
+          ? 'Elegimos la pasarela de pago según tu geografía. PayPal para pagos internacionales (USD/EUR/GBP). Wompi para Colombia y LatAm con tarjeta local, PSE, Nequi y Daviplata.'
+          : 'We pick the payment gateway based on your geography. PayPal for international payments (USD/EUR/GBP). Wompi for Colombia and LatAm with local card, PSE, Nequi, and Daviplata.'}
+      </p>
+      <label for="country-en" class="block text-xs font-semibold uppercase tracking-widest text-text-secondary/80">
+        {isES ? 'País' : 'Country'}
+      </label>
+      <select
+        id="country-en"
+        name="country"
+        class="block w-full rounded-2xl border border-border-subtle bg-surface-base px-4 py-3 text-base text-text-primary focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        {COUNTRIES.map((country) => (
+          <option value={country.code} data-provider={country.provider} data-currency={country.currency}>
+            {country.label}
+          </option>
+        ))}
+      </select>
+      <p class="text-xs text-text-secondary/70">
+        <span id="payment-provider-hint-en">
+          {isES
+            ? 'Pasarela de pago: Wompi (COP, Colombia)'
+            : 'Payment gateway: Wompi (COP, Colombia)'}
+        </span>
+      </p>
+    </section>
+
+    <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-3">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? '¿Qué pasa después?' : 'What happens next?'}
+      </h2>
+      <ol class="list-decimal space-y-2 pl-6 text-sm leading-relaxed text-text-secondary/90 sm:text-base">
+        <li>{isES ? 'Seleccionas país y plan. Te redirigimos a la pasarela (PayPal o Wompi).' : 'You select country and plan. We redirect you to the gateway (PayPal or Wompi).'}</li>
+        <li>{isES ? 'Tras el pago confirmado, recibes un correo con un enlace seguro para crear tu cuenta y contraseña.' : 'After payment confirmation, you receive an email with a secure link to create your account and password.'}</li>
+        <li>{isES ? 'Inicias sesión. Si elegiste Colaborador, el sistema te pedirá firmar el Habeas Scriptum antes de habilitar la interfaz de aportes.' : 'You sign in. If you chose Collaborator, the system will ask you to sign the Habeas Scriptum before enabling the contribution interface.'}</li>
+        <li>{isES ? 'Acceso inmediato al PDF de la iteración actual y a todas las anteriores.' : 'Immediate access to the current iteration PDF and all previous ones.'}</li>
+      </ol>
+    </section>
+  </article>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    var select = document.getElementById('country-en');
+    var hint = document.getElementById('payment-provider-hint-en');
+    if (!select || !hint) return;
+    var HINTS = {
+      Wompi: 'Payment gateway: Wompi (COP, Colombia)',
+      PayPal: 'Payment gateway: PayPal (international, USD/EUR/GBP)',
+    };
+    function update() {
+      var opt = select.options[select.selectedIndex];
+      var provider = opt.getAttribute('data-provider') || 'Wompi';
+      hint.textContent = HINTS[provider] || '';
+    }
+    select.addEventListener('change', update);
+    update();
+  })();
+</script>

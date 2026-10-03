@@ -1,0 +1,27 @@
+{
+  "metaTitle": "Audit Terms and Conditions · Plocos",
+  "metaDescription": "Parametric rules for submission, the Author's monopoly over interpretation, and the rewards of the honorary Auditor rank in the work Nomás que la Vida.",
+  "title": "Audit Terms and Conditions",
+  "updatedLabel": "Last updated",
+  "updatedValue": "October 2, 2026",
+  "introduction": "[EN: TODO legal review by Colombian attorney]\n\nParticipation in the Repository of Nomás que la Vida is conditioned on compliance with the maximum argumentative rigour. The author delegates to the community the structural surveillance of the work under the following non-negotiable rules:",
+  "sections": [
+    {
+      "heading": "Rules for Contribution Injection",
+      "body": "[EN: TODO legal review by Colombian attorney]\n\nEvery contribution will be processed by an Algorithmic System (Plocos). To avoid automatic rejection, the contribution must:",
+      "bullets": [
+        "Demonstrate a verifiable syllogistic structure (premises leading to a conclusion). Aesthetic or moral opinions devoid of logical formulation will be discarded.",
+        "Be free of primary reasoning fallacies.",
+        "Be linked in an exact topographic manner to the text (specifying year, iteration, chapter, and paragraph)."
+      ]
+    },
+    {
+      "heading": "The Monopoly of Interpretation",
+      "body": "[EN: TODO legal review by Colombian attorney]\n\nWhile the community monitors rigour, the Author retains, in an exclusive and non-delegable manner, the monopoly over final interpretation and decision-making on the work. The acceptance of an argument that manages to breach the canon (Level 3) remains at the entire discretion, political risk, and philosophical risk of the Author."
+    },
+    {
+      "heading": "Ascension to Auditor and Rewards",
+      "body": "[EN: TODO legal review by Colombian attorney]\n\nThe Auditor rank is not for sale; it is an honorary distinction of intellectual conquest. It is granted exclusively to that Collaborator whose refutations technically force the rewriting of a fragment of the work. The reward includes: a) Inclusion of the curriculum vitae and photograph in the \"Auditors\" section. b) Explicit moral acknowledgement in the notes of the new iterated PDF version. c) Granting of a free subscription equivalent to the period of one year and/or six (6) 60-day cycles. In accordance with the Habeas Scriptum, this rank confers neither ownership, nor veto power, nor economic rights over the work."
+    }
+  ]
+}

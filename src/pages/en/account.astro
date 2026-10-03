@@ -1,0 +1,32 @@
+---
+/**
+ * /en/account — Subscriber account dashboard (English mirror).
+ *
+ * Auth is enforced by clerkMiddleware in src/middleware.ts; unauthenticated
+ * visitors are redirected to /en/sign-in before this page renders.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { UserProfile } from '@clerk/astro/components';
+
+const { userId, sessionClaims } = Astro.locals.auth();
+const debugClaims =
+  sessionClaims && typeof sessionClaims === 'object'
+    ? JSON.stringify(sessionClaims, null, 2)
+    : 'null';
+---
+<BaseLayout title="My account · Plocos" description="Account dashboard: manage your subscription, role, Habeas Scriptum acceptance and public Repository visibility.">
+  <section class="mx-auto flex max-w-4xl flex-col gap-10 px-4 py-12">
+    <header class="space-y-2">
+      <h1 class="text-3xl font-bold text-text-primary">My account</h1>
+      <p class="text-sm text-text-secondary">
+        Active session: <code class="font-mono">{userId}</code>
+      </p>
+      <details class="rounded-md border border-border-subtle bg-surface-muted p-3 text-xs">
+        <summary class="cursor-pointer font-semibold text-text-secondary">Debug — sessionClaims</summary>
+        <pre class="mt-2 overflow-x-auto text-text-secondary">{debugClaims}</pre>
+      </details>
+    </header>
+
+    <UserProfile />
+  </section>
+</BaseLayout>

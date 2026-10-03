@@ -1,67 +1,176 @@
 ---
-import { getCollection } from 'astro:content';
+/**
+ * / — Sec Inicio (Landing, rewrite T13)
+ *
+ * Texto verbatim del doc maestro del cliente (sección "Sección 1: Inicio"
+ * del DOCUMENTO MAESTRO DE PROYECTO).
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PostCard from '../components/PostCard.astro';
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
-
-// Fetch all published posts for the current locale
-const posts = await getCollection('posts', ({ data }) => {
-  return data.draft === false;
-});
-
-// Sort posts by date in descending order
-const sortedPosts = posts.sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
-
-const latestPosts = sortedPosts.slice(0, 12);
 const translations = getTranslations(locale);
-const home = translations.home;
-const categoriesHref = createLocaleHref(locale, translations.paths.categories);
+const isES = locale === 'es';
+const suscripcionHref = createLocaleHref(locale, translations.paths.suscripcion);
+const libroHref = createLocaleHref(locale, translations.paths.book);
+const auditoresHref = createLocaleHref(locale, translations.paths.auditores);
+const repositorioHref = createLocaleHref(locale, translations.paths.repositorio);
+const contactoHref = createLocaleHref(locale, translations.paths.contact);
 ---
-<BaseLayout title={home.metaTitle} description={home.metaDescription}>
-	<section class="relative overflow-hidden">
-		<div
-			class="absolute inset-0"
-			style="background: radial-gradient(80% 60% at 50% 0%, rgba(122,99,217,0.22), transparent 70%);"
-			aria-hidden="true"
-		/>
-		<div class="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 py-20">
-			<div class="max-w-3xl space-y-6">
-				<p class="text-sm font-semibold uppercase tracking-[0.4em] text-text-secondary opacity-70">
-					{home.strapline}
-				</p>
-				<h1 class="text-4xl font-bold leading-tight tracking-tight text-text-primary md:text-5xl">
-					{home.heading}
-				</h1>
-				<p class="text-lg leading-relaxed text-text-secondary">
-					{home.description}
-				</p>
-				<div class="flex flex-wrap gap-3 text-sm text-text-secondary">
-					{home.tags.map((tag) => (
-						<span class="rounded-full border border-border-subtle bg-surface-muted px-4 py-1 uppercase tracking-wide">
-							{tag}
-						</span>
-					))}
-				</div>
-			</div>
-			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{latestPosts.map((post) => (
-					<PostCard post={post} />
-				))}
-			</div>
-					<div class="flex items-center justify-center pt-4">
-						<a
-							href={categoriesHref}
-							class="inline-flex items-center gap-2 rounded-full border border-accent-muted bg-accent-soft px-6 py-3 text-sm font-semibold text-text-accent transition hover:border-accent hover:text-text-primary"
-						>
-							{home.cta}
-							<span aria-hidden="true">→</span>
-						</a>
-					</div>
-		</div>
-	</section>
+<BaseLayout
+  title={isES ? 'Plocos · No más que la Vida' : 'Plocos · No más que la Vida'}
+  description={isES
+    ? 'Filosofía · Arte · Cartagena de Indias. Pensamiento crítico y flanqueo cognitivo. El ploco: bloque de pensamiento. Un campo de batalla ontológico al que te suscribes para refutar el canon.'
+    : 'Philosophy · Art · Cartagena de Indias. Critical thinking and cognitive flanking. The ploco: thought block. An ontological battlefield you subscribe to in order to rebut the canon.'}
+>
+  <article class="mx-auto max-w-3xl space-y-12 px-4 py-16 text-text-secondary">
+    <header class="space-y-3 text-left">
+      <p class="text-sm font-semibold uppercase tracking-[0.4em] text-text-secondary/80">
+        {isES ? 'Filosofía · Arte · Cartagena de Indias' : 'Philosophy · Art · Cartagena de Indias'}
+      </p>
+      <h1 class="text-3xl font-bold tracking-tight text-text-primary md:text-4xl">
+        {isES ? 'Pensamiento crítico y flanqueo cognitivo.' : 'Critical thinking and cognitive flanking.'}
+      </h1>
+      <p class="text-base italic text-text-secondary/90">
+        {isES ? 'Memoria viva del Ploco.' : 'Living memory of the Ploco.'}
+      </p>
+    </header>
+
+    <section class="space-y-4 leading-relaxed text-base">
+      <h2 class="text-xl font-semibold text-text-primary">
+        {isES ? 'Definición ontológica: «ploco»' : 'Ontological definition: «ploco»'}
+      </h2>
+      <p>
+        {isES
+          ? 'Ploco: (Sustantivo, neologismo). Etimología: Fusión conceptual de Bloc (francés: bloque, base, libreta) y Pensamiento. 1. m. y f. Bloque de pensamiento.'
+          : 'Ploco: (Noun, neologism). Etymology: Conceptual fusion of Bloc (French: block, base, notebook) and Thought. 1. m. and f. Thought block.'}
+      </p>
+      <p>
+        {isES
+          ? 'Naturaleza y Diferenciación: Un ploco rechaza la pasividad del aforismo, del refrán o de la máxima. Mientras que estas formas tradicionales buscan sentenciar una verdad terminada, el ploco se erige como un «Bloque de Pensamiento»: una estructura abierta y deliberadamente diseñada como un ancla cognitiva. Su propósito no es instruir, sino generar fricción, provocando la derivación de nuevas ideas en quien lo lee.'
+          : 'Nature and differentiation: A ploco rejects the passivity of the aphorism, the saying, or the maxim. While these traditional forms seek to deliver a finished truth, the ploco stands as a "Thought Block": an open structure deliberately designed as a cognitive anchor. Its purpose is not to instruct, but to generate friction, provoking the derivation of new ideas in the reader.'}
+      </p>
+      <p>
+        {isES
+          ? '2. Morfología: Es una pieza de contenido sometida a extrema compresión. Puede manifestarse como un argumento lógico riguroso, una elucubración textual, un verso simbólico o, en su destilación absoluta, una única imagen. Su formato no dicta su validez; su densidad y concreción conceptual, sí.'
+          : '2. Morphology: It is a piece of content subjected to extreme compression. It can manifest as a rigorous logical argument, a textual elucidation, a symbolic verse, or, in its absolute distillation, a single image. Its format does not dictate its validity; its conceptual density and concreteness do.'}
+      </p>
+      <p>
+        {isES
+          ? '3. Mecánica Estética: El ploco abandona la simple narrativa como vehículo. Es una apuesta táctica por la revelación. Funciona como un dispositivo de interrupción: busca secuestrar la distracción habitual del individuo para transmutarla en una conexión profundamente pertinente. No relata; expone.'
+          : '3. Aesthetic mechanics: The ploco abandons simple narrative as its vehicle. It is a tactical bet on revelation. It works as an interruption device: it seeks to kidnap habitual distraction in order to transmute it into a deeply pertinent connection. It does not narrate; it exposes.'}
+      </p>
+      <p>
+        {isES
+          ? '4. Economía del Tiempo y Potencia: Su brevedad es un arma, no una concesión a la inmediatez. No busca ser una asimilación "fácil", sino una carga explosiva. Son piezas minuciosamente refinadas que exigen una inversión temporal mínima, pero garantizan un impacto intelectual o estético máximo. Forzan al lector a integrar el concepto a su propia experiencia, alterando y enriqueciendo su estructura de pensamiento de manera instantánea.'
+          : '4. Time economy and power: Its brevity is a weapon, not a concession to immediacy. It does not seek to be an "easy" assimilation, but an explosive load. These are meticulously refined pieces that demand a minimum temporal investment, but guarantee a maximum intellectual or aesthetic impact. They force the reader to integrate the concept into their own experience, altering and enriching their thought structure instantaneously.'}
+      </p>
+    </section>
+
+    <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-4">
+      <p class="text-xl font-semibold italic text-text-primary text-center leading-relaxed">
+        {isES
+          ? '¿Quién será el \'guionista\'?'
+          : 'Who will be the \'screenwriter\'?'}
+      </p>
+      <p class="text-base leading-relaxed text-text-secondary/90 text-center">
+        {isES
+          ? '"La Realidad es el \'escenario\', la Consciencia la \'imaginación\', la Verdad la \'inspiración\', el Ser consciente el \'actor\'. ¿Quién será el \'productor\', y esencial, el \'guionista\'?"'
+          : '"Reality is the \'stage\', Consciousness the \'imagination\', Truth the \'inspiration\', the conscious being the \'actor\'. Who will be the \'producer\', and essentially, the \'screenwriter\'?"'}
+      </p>
+    </section>
+
+    <section class="rounded-3xl border-2 border-accent bg-accent/5 p-8 space-y-4 text-center">
+      <p class="text-2xl font-bold tracking-tight text-text-primary md:text-3xl leading-relaxed">
+        {isES
+          ? '"Nomás que la Vida, más que un libro es un campo de batalla ontológico. Suscríbete a esta nueva y perdurable experiencia que revolucionará la manera como lees."'
+          : '"No más que la Vida, more than a book is an ontological battlefield. Subscribe to this new and lasting experience that will revolutionise the way you read."'}
+      </p>
+      <a
+        href={suscripcionHref}
+        class="inline-flex items-center justify-center rounded-full bg-accent px-8 py-4 text-base font-semibold uppercase tracking-widest text-surface-base shadow-md transition hover:bg-text-primary hover:text-surface-base mt-4"
+      >
+        {isES ? 'Suscríbete' : 'Subscribe'}
+      </a>
+    </section>
+
+    <section class="space-y-6">
+      <h2 class="text-2xl font-semibold text-text-primary">
+        {isES ? 'Categorías de suscripción' : 'Subscription tiers'}
+      </h2>
+      <ol class="space-y-4 list-none pl-0">
+        <li class="rounded-2xl border border-border-subtle bg-surface-elevated p-6 space-y-2">
+          <h3 class="text-lg font-semibold text-text-primary">
+            1. {isES ? 'Lector' : 'Reader'}
+          </h3>
+          <p class="text-sm leading-relaxed">
+            {isES
+              ? 'Pagas la suscripción base que te permite consumir todo el contenido del libro. También tendrás acceso de lectura al Repositorio público (la marginalia digital). No habilita la interfaz para enviar o comentar aportes.'
+              : 'You pay the base subscription that lets you consume the entire content of the book. You also get reading access to the public Repository (the digital marginalia). It does not enable the interface to submit or comment on contributions.'}
+          </p>
+        </li>
+        <li class="rounded-2xl border border-accent bg-accent/5 p-6 space-y-2">
+          <h3 class="text-lg font-semibold text-text-primary">
+            2. {isES ? 'Colaborador' : 'Collaborator'}
+          </h3>
+          <p class="text-sm leading-relaxed">
+            {isES
+              ? 'Al suscribirse en este nivel se habilita la interfaz para enviar aportes. El suscriptor acepta que, bajo su nombre o seudónimo, sean auditados y/o publicados en el Repositorio público. En este nivel se firma digitalmente el Habeas Scriptum.'
+              : 'Subscribing at this level enables the interface to submit contributions. The subscriber accepts that, under their name or pseudonym, they will be audited and/or published in the public Repository. At this level the Habeas Scriptum is digitally signed.'}
+          </p>
+        </li>
+        <li class="rounded-2xl border border-border-subtle bg-surface-elevated p-6 space-y-2">
+          <h3 class="text-lg font-semibold text-text-primary">
+            3. {isES ? 'Auditor (Rango Honorífico)' : 'Auditor (Honorific Rank)'}
+          </h3>
+          <p class="text-sm leading-relaxed">
+            {isES
+              ? 'Este estatus no se vende, se conquista. Un Colaborador asciende a Auditor únicamente si sus refutaciones obliguen a reescribir la obra.'
+              : 'This status is not for sale, it is earned. A Collaborator ascends to Auditor only if their rebuttals compel a rewriting of the work.'}
+          </p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="space-y-6">
+      <h2 class="text-2xl font-semibold text-text-primary">
+        {isES ? 'Secciones del portal' : 'Portal sections'}
+      </h2>
+      <nav class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <a href={libroHref} class="rounded-2xl border border-border-subtle bg-surface-muted p-5 transition hover:border-accent">
+          <h3 class="text-base font-semibold text-text-primary">
+            {isES ? 'No más que la Vida' : 'No más que la Vida'}
+          </h3>
+          <p class="mt-1 text-sm text-text-secondary/80">
+            {isES ? 'El canon dialéctico' : 'The dialectical canon'}
+          </p>
+        </a>
+        <a href={auditoresHref} class="rounded-2xl border border-border-subtle bg-surface-muted p-5 transition hover:border-accent">
+          <h3 class="text-base font-semibold text-text-primary">
+            {isES ? 'Auditores' : 'Auditors'}
+          </h3>
+          <p class="mt-1 text-sm text-text-secondary/80">
+            {isES ? 'Rango honorífico' : 'Honorific rank'}
+          </p>
+        </a>
+        <a href={repositorioHref} class="rounded-2xl border border-border-subtle bg-surface-muted p-5 transition hover:border-accent">
+          <h3 class="text-base font-semibold text-text-primary">
+            {isES ? 'Repositorio' : 'Repository'}
+          </h3>
+          <p class="mt-1 text-sm text-text-secondary/80">
+            {isES ? 'Marginalia digital' : 'Digital marginalia'}
+          </p>
+        </a>
+        <a href={contactoHref} class="rounded-2xl border border-border-subtle bg-surface-muted p-5 transition hover:border-accent">
+          <h3 class="text-base font-semibold text-text-primary">
+            {isES ? 'Contacto' : 'Contact'}
+          </h3>
+          <p class="mt-1 text-sm text-text-secondary/80">
+            {isES ? 'ARCO + consultas' : 'ARCO + inquiries'}
+          </p>
+        </a>
+      </nav>
+    </section>
+  </article>
 </BaseLayout>

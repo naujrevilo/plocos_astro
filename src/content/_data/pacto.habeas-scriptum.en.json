@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Habeas Scriptum · Plocos",
+  "metaDescription": "Habeas Scriptum: authorship-assignment and delimitation pact that the Collaborator accepts via clickwrap when enabling the Repository contribution interface.",
+  "title": "Habeas Scriptum",
+  "updatedLabel": "Last updated",
+  "updatedValue": "October 2, 2026",
+  "introduction": "[EN: TODO legal review by Colombian attorney]\n\nThis document governs the legal relationship between the Subscriber in the Collaborator category (hereinafter, \"The Contributor\") and Michel Saer (hereinafter, \"The Author\"), exclusive holder of the economic and moral rights of the work Nomás que la Vida. By enabling the interface for sending contributions, observations, or annotations to the Repository, The Contributor expresses free, prior, and express consent to the following provisions:",
+  "sections": [
+    {
+      "heading": "Recognition of Original Work",
+      "body": "[EN: TODO legal review by Colombian attorney]\n\nThe Contributor acknowledges that Nomás que la Vida is an original literary work of exclusive creation of the Author, protected under article 6 of Ley 23 de 1982. The interactions, refutations, or comments lodged in the Repository do not constitute the development of a \"work in collaboration\" nor of a \"collective work\" under current legislation."
+    },
+    {
+      "heading": "Unilateral Adaptation Licence and Assignment",
+      "body": "[EN: TODO legal review by Colombian attorney]\n\nThe Contributor retains the original economic and moral rights exclusively over the exact text of their isolated comment deposited in the Repository. However, by accepting this agreement, The Contributor grants The Author and its successors a worldwide, irrevocable, perpetual, transferable, royalty-free licence to assimilate, paraphrase, modify, transmute, and commercialise the underlying ideas, logical structures, premises, and conclusions of their contribution, in order to integrate them into any past, present, or future iteration of Nomás que la Vida. This authorisation explicitly includes the patrimonial rights of transformation and reproduction."
+    },
+    {
+      "heading": "Waiver of Commercial Co-authorship and Dividends",
+      "body": "[EN: TODO legal review by Colombian attorney]\n\nThe Contributor expressly accepts that any alteration of the canon motivated by their contribution does not create any partnership with The Author. Likewise, they formally waive the right to claim moral rights over the mother work and to participate in any income, royalties, dividends, or economic compensation derived from the sale, subscription, or licensing of the work, acknowledging that their reward is strictly limited to moral recognition within the ecosystem in the event of ascending to the Auditor rank."
+    },
+    {
+      "heading": "Publicity and Habeas Data",
+      "body": "[EN: TODO legal review by Colombian attorney]\n\nThe Contributor expressly authorises (under article 9 of Ley 1581 de 2012) that their contributions, comments, and identity data (name or pseudonym, and optionally their email) be published, audited, commented on, and exposed to public scrutiny within the Repository."
+    }
+  ]
+}
