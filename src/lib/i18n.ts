@@ -471,7 +471,7 @@ export const translations: Record<Locale, Translation> = {
     splash: {
       title: 'Aviso de contenido sensible',
       body:
-        'Este archivo contiene reflexiones filosóficas, artísticas y críticas que pueden resultar intensas. Algunas piezas abordan la muerte, la violencia histórica, el sufrimiento humano y otras temáticas difíciles. Decide con autonomía si quieres continuar leyendo.',
+        'Los textos y obras aquí expuestos transitan sin censura con contenido sensible. Si decide continuar, asume los términos de nuestros <a href="/terminos">Términos del Sitio</a>.',
       acknowledge: 'Entiendo, continuar',
       reject: 'Salir del sitio',
     },
@@ -862,7 +862,7 @@ export const translations: Record<Locale, Translation> = {
     splash: {
       title: 'Sensitive content notice',
       body:
-        'This archive contains philosophical, artistic, and critical reflections that some readers may experience as intense. Some pieces address death, historical violence, human suffering, and other demanding themes. Decide for yourself whether you want to continue reading.',
+        'The texts and works presented here transit uncensored with sensitive content. If you decide to continue, you accept the terms of our <a href="/en/terms">Site Terms</a>.',
       acknowledge: 'I understand, continue',
       reject: 'Leave the site',
     },

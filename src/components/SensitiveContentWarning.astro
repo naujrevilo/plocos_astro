@@ -14,7 +14,7 @@ const splash = getTranslations(locale).splash;
     class="splash-dialog"
   >
     <h2 id="splash-title" class="splash-title">{splash.title}</h2>
-    <p id="splash-body" class="splash-body">{splash.body}</p>
+    <p id="splash-body" class="splash-body" set:html={splash.body} />
     <form method="dialog" class="splash-actions">
       <button type="submit" data-action="acknowledge" class="splash-btn-primary">
         {splash.acknowledge}
