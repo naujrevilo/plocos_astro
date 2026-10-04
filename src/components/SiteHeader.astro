@@ -17,6 +17,7 @@ import { createLocaleHref } from "../lib/routes";
 import rawContactData from "../data/contact.json";
 import { Show, UserButton } from "@clerk/astro/components";
 import { getSignInPath } from "../lib/routeMatcher";
+import { canContribute, getRoleFromClaims } from "../lib/access";
 
 type SocialLink = { id: 'facebook' | 'instagram' | 'x'; label: string; url: string };
 
@@ -99,6 +100,12 @@ const socialLinks = (rawContactData as { social: SocialLink[] }).social;
 const authLabels = translations.auth;
 const signInHref = getSignInPath(homeHref);
 const accountHref = createLocaleHref(locale as Locale, translations.paths.account);
+// Member shortcuts by role (T26). Role comes from the Clerk session token, no DB query.
+const role = getRoleFromClaims(Astro.locals.auth?.().sessionClaims);
+const memberLinks = [
+  ...(role ? [{ href: createLocaleHref(locale as Locale, translations.paths.book), label: locale === "es" ? "Leer el libro" : "Read the book" }] : []),
+  ...(canContribute(role) ? [{ href: createLocaleHref(locale as Locale, translations.paths.repositorio), label: locale === "es" ? "Aportar" : "Contribute" }] : []),
+];
 ---
 <header class="site-header mb-4">
   <div class="header-spacer"></div>
@@ -167,6 +174,14 @@ const accountHref = createLocaleHref(locale as Locale, translations.paths.accoun
             </a>
           </Show>
           <Show when="signed-in">
+            {memberLinks.map((link) => (
+              <a
+                href={link.href}
+                class="hidden lg:inline-flex items-center rounded-full px-3 py-2 text-sm font-medium text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent"
+              >
+                {link.label}
+              </a>
+            ))}
             <UserButton />
           </Show>
           <ThemeToggle />
@@ -240,6 +255,13 @@ const accountHref = createLocaleHref(locale as Locale, translations.paths.accoun
           </li>
         </Show>
         <Show when="signed-in">
+          {memberLinks.map((link) => (
+            <li class="w-full">
+              <a href={link.href} class="block w-full rounded border border-accent px-4 py-3 text-accent font-semibold transition hover:bg-accent/10">
+                {link.label}
+              </a>
+            </li>
+          ))}
           <li class="w-full">
             <a href={accountHref} class="block w-full rounded border border-border-subtle bg-surface-elevated px-4 py-3 text-text-primary transition hover:border-accent hover:text-accent">
               {authLabels.accountLabel}

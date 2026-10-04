@@ -11,3 +11,11 @@ interface ImportMetaEnv {
 interface ImportMeta {
 	readonly env: ImportMetaEnv;
 }
+
+// Clerk session token claims (T26). Customize session token in the Clerk
+// Dashboard with `{"metadata": "{{user.public_metadata}}"}`.
+interface CustomJwtSessionClaims {
+	metadata?: {
+		role?: string;
+	};
+}
