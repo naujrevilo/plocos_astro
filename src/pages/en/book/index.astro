@@ -5,6 +5,8 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { defaultLocale, getTranslations, type Locale } from '../../../lib/i18n';
 import { createLocaleHref } from '../../../lib/routes';
+import { getRoleFromClaims } from '../../../lib/access';
+import { getBookPdfPath, groupIterationsByYear, listIterations, type ArchiveYear } from '../../../lib/books';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
@@ -19,6 +21,21 @@ const ITERATIONS = [
   { cycleNum: 5, name: isES ? 'Escrutinio' : 'Scrutiny', dates: isES ? 'Idéntico al ciclo 01' : 'Same as cycle 01' },
   { cycleNum: 6, name: isES ? 'Cierre de ciclo' : 'Cycle close', dates: isES ? 'Idéntico al ciclo 01' : 'Same as cycle 01' },
 ];
+
+// Canon archive (T14a): Turso is only queried for subscribers (any role).
+const role = getRoleFromClaims(Astro.locals.auth?.().sessionClaims);
+let archive: ArchiveYear[] = [];
+let archiveUnavailable = false;
+if (role) {
+  try {
+    archive = groupIterationsByYear(await listIterations());
+  } catch (error) {
+    console.error('[book] archive unavailable', error);
+    archiveUnavailable = true;
+  }
+}
+const dateFormat = new Intl.DateTimeFormat(isES ? 'es-CO' : 'en-US', { dateStyle: 'medium', timeZone: 'UTC' });
+const pdfHref = (year: number, cycleNum: number) => getBookPdfPath(year, cycleNum) + (isES ? '' : '?locale=en');
 ---
 <BaseLayout
   title={isES ? 'No más que la Vida · Plocos' : 'No más que la Vida · Plocos'}
@@ -165,6 +182,81 @@ const ITERATIONS = [
       >
         {isES ? 'Suscríbete' : 'Subscribe'}
       </a>
+    </section>
+    <section id="archivo" class="space-y-6 border-t border-border-subtle pt-12">
+      <header class="space-y-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-accent">
+          {isES ? 'Archivo del Canon' : 'Canon archive'}
+        </p>
+        <h2 class="text-2xl font-semibold text-text-primary">
+          {isES ? 'Iteraciones publicadas' : 'Published iterations'}
+        </h2>
+      </header>
+
+      {!role ? (
+        <div class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 space-y-4">
+          <p class="leading-relaxed">
+            {isES
+              ? 'Cada iteración del Canon queda archivada en PDF. El acceso está reservado a los suscriptores (Lectores, Colaboradores y Auditores).'
+              : 'Every iteration of the Canon is archived as a PDF. Access is reserved for subscribers (Readers, Collaborators and Auditors).'}
+          </p>
+          <a
+            href={suscripcionHref}
+            class="inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold uppercase tracking-widest text-surface-base transition hover:bg-text-primary"
+          >
+            {isES ? 'Ver planes de suscripción' : 'See subscription plans'}
+          </a>
+        </div>
+      ) : archiveUnavailable ? (
+        <p class="rounded-2xl border border-border-subtle bg-surface-elevated p-5 text-sm">
+          {isES
+            ? 'El archivo no está disponible en este momento. Inténtalo de nuevo más tarde.'
+            : 'The archive is unavailable right now. Please try again later.'}
+        </p>
+      ) : archive.length === 0 ? (
+        <p class="rounded-2xl border border-border-subtle bg-surface-elevated p-5 text-sm">
+          {isES ? 'Aún no hay iteraciones publicadas.' : 'No iterations have been published yet.'}
+        </p>
+      ) : (
+        <div class="space-y-8">
+          {archive.map((group) => (
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-text-primary">{group.year}</h3>
+              <ul class="space-y-3 list-none pl-0">
+                {group.iterations.map((it) => (
+                  <li class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-subtle bg-surface-elevated p-5">
+                    <div class="space-y-1">
+                      <p class="flex items-center gap-3 text-base font-semibold text-text-primary">
+                        {isES ? `Iteración ${it.cycleNum}` : `Iteration ${it.cycleNum}`}
+                        {it.isLatest && (
+                          <span class="rounded-full border border-accent px-2 py-0.5 text-xs font-semibold uppercase tracking-widest text-accent">
+                            {isES ? 'Versión vigente' : 'Current version'}
+                          </span>
+                        )}
+                      </p>
+                      <p class="text-sm text-text-secondary/80">
+                        {dateFormat.format(it.startsAt)} – {dateFormat.format(it.endsAt)}
+                      </p>
+                    </div>
+                    {it.hasPdf ? (
+                      <a
+                        href={pdfHref(it.year, it.cycleNum)}
+                        target="_blank"
+                        rel="noopener"
+                        class="inline-flex items-center rounded-full border border-accent px-4 py-2 text-sm font-semibold text-accent transition hover:bg-accent hover:text-surface-base"
+                      >
+                        {isES ? 'Abrir PDF' : 'Open PDF'}
+                      </a>
+                    ) : (
+                      <span class="text-sm text-text-secondary/70">{isES ? 'PDF no disponible' : 'PDF not available'}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   </article>
 </BaseLayout>

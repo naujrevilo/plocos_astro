@@ -66,3 +66,4 @@ bun.lock
 
 sesion.txt
 .backups/
+private/

@@ -128,6 +128,15 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - `src/pages/libro/[year]/[iteration]/[chapter].astro` (render del capítulo + visor PDF + anotaciones) + EN.
   - **Acceptance**: navegación funciona, paywall se aplica, visor PDF renderiza, anotaciones topográficas se pueden crear y persisten.
 
+- [ ] **T14a** Archivo del Canon + PDF protegido (slice de T14 + T24; ~350 líneas, TDD). Ruta: delegated direct (writer) — trigger: 2+ archivos no triviales.
+  - `src/lib/books.ts`: agrupación pura de iteraciones por año (años desc, ciclos asc, marca la última como vigente) + consulta `listIterations`.
+  - `/libro` y `/en/book`: sección "Archivo" bajo el texto verbatim existente; con rol lista años → iteraciones con enlace al PDF; sin rol CTA a suscripción.
+  - Endpoint `/api/books/[year]/[cycle].pdf`: exige rol (`getRoleFromClaims`), busca la iteración en Turso, sirve el blob `plocos-books` en streaming (límite Netlify: 6 MB buffered / 20 MB streamed; PDF de prueba 15,7 MB). Sin rol → redirige a suscripción.
+  - Ruta solo-dev para sembrar el blob desde `private/books/` (gitignored); producción se sube con `netlify link` + `netlify blobs:set` al desplegar.
+  - Datos: fila `iterations` id=1 (2026, ciclo 1, `pdfUrl='2026/1.pdf'`) insertada en `plocos` con autorización del usuario (2026-10-04).
+  - **Acceptance**: tests de agrupación y del endpoint (rol/sin rol/iteración inexistente/streaming); con rol se abre el PDF en el navegador; sin rol no.
+  - **Progreso**: código listo; RED 30/30 → GREEN 30/30; suite 237/237; tsc y astro check sin errores; `/libro` y `/en/book` 200; `/api/books/2026/1.pdf` anónimo → 302 `/sign-in`. Pendiente: sembrar blob local (fetch desde consola del navegador) y verificar apertura del PDF con rol.
+
 - [ ] **T24** Netlify storage para PDFs (~150 líneas).
   - Configurar Netlify Blobs store `plocos-books`.
   - API endpoint `/api/books/[year]/[iteration]/[chapter].pdf` sirve el PDF con auth check.
