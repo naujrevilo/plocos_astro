@@ -17,11 +17,11 @@
  *   - /en/(book|auditors|repository|contact|subscription|terms|privacy|cookie-policy)(.*)
  *                            : EN mirrors of the public sections
  *   - /api/webhooks(.*)      : inbound webhooks (signed by providers)
- *   - /api/comments(.*)      : future public comment read endpoints
- *   - /sign-in(.*)           : Clerk sign-in UI
- *   - /sign-up(.*)           : Clerk sign-up UI
+ *   - /sign-in(.*), /en/sign-in(.*) : Clerk sign-in UI (ES / EN)
+ *   - /sign-up(.*), /en/sign-up(.*) : Clerk sign-up UI (ES / EN)
  *
- * Protected routes (require an authenticated user):
+ * Protected routes (require an authenticated user; unauthenticated requests
+ * are redirected to /en/sign-in for /en/* and to /sign-in otherwise):
  *   - /cuenta(.*) and /en/account(.*) : subscriber account dashboard
  *   - /api/(?!webhooks)      : any other API endpoint
  *
@@ -31,7 +31,7 @@
  * tier or chapter access.
  */
 import { clerkMiddleware } from '@clerk/astro/server';
-import { createRouteMatcher } from './lib/routeMatcher';
+import { createRouteMatcher, getSignInPath } from './lib/routeMatcher';
 
 const isPublicRoute = createRouteMatcher([
   '/',
@@ -57,15 +57,16 @@ const isPublicRoute = createRouteMatcher([
   '/en/cookie-policy',
   // Public API surfaces
   '/api/webhooks(.*)',
-  '/api/comments(.*)',
   // Auth UI
   '/sign-in(.*)',
   '/sign-up(.*)',
+  '/en/sign-in(.*)',
+  '/en/sign-up(.*)',
 ]);
 
 export const onRequest = clerkMiddleware((auth, context) => {
   const { pathname } = new URL(context.request.url);
   if (!isPublicRoute(pathname) && !auth().userId) {
-    return context.redirect('/sign-in');
+    return context.redirect(getSignInPath(pathname));
   }
 });

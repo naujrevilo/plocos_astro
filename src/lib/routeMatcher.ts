@@ -57,6 +57,15 @@ export function compile(pattern: string): RegExp {
 }
 
 /**
+ * Sign-in page for an unauthenticated request: EN routes (`/en` and
+ * `/en/...`) go to the EN sign-in page, everything else to the ES default.
+ */
+export function getSignInPath(pathname: string): string {
+  const p = normalisePathname(pathname);
+  return p === '/en' || p.startsWith('/en/') ? '/en/sign-in' : '/sign-in';
+}
+
+/**
  * Strip query string / hash, collapse repeated slashes, drop the trailing
  * slash (except for the bare '/').
  */

@@ -34,15 +34,16 @@ const contactData = rawContactData as ContactData;
 
 const isES = locale === 'es';
 
-// URLs to the three sub-pages of /terminos. Hrefs are computed by createLocaleHref
-// so the locale prefix is handled automatically. We hardcode the sub-paths because
-// they are project-specific and not part of the i18n `paths` registry.
+// URLs to the three legal sub-pages. The parent segment comes from the i18n
+// `paths.terms` registry (ES `terminos`, EN `terms`); the sub-page slugs are
+// shared by both locales (see src/pages/terminos and src/pages/en/terms).
+const termsSegment = translations.paths.terms;
 const subPageHrefs = {
-  habeasScriptum: createLocaleHref(locale, 'terminos/habeas-scriptum'),
-  auditoria: createLocaleHref(locale, 'terminos/auditoria'),
-  simbiosis: createLocaleHref(locale, 'terminos/simbiosis-algoritmica'),
+  habeasScriptum: createLocaleHref(locale, `${termsSegment}/habeas-scriptum`),
+  auditoria: createLocaleHref(locale, `${termsSegment}/auditoria`),
+  simbiosis: createLocaleHref(locale, `${termsSegment}/simbiosis-algoritmica`),
 };
-const termsHref = createLocaleHref(locale, translations.paths.terms);
+const termsHref = createLocaleHref(locale, termsSegment);
 const privacyHref = createLocaleHref(locale, translations.paths.privacy);
 const cookiesHref = createLocaleHref(locale, translations.paths.cookiePolicy);
 

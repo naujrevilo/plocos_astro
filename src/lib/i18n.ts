@@ -29,7 +29,7 @@ export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = 'es';
 
 interface NavigationItem {
-  id: 'home' | 'categories' | 'blog' | 'contact' | 'about';
+  id: 'home' | 'book' | 'auditores' | 'repositorio' | 'contact';
   label: string;
   path: string;
 }
@@ -38,11 +38,6 @@ interface Translation {
   site: {
     title: string;
     description: string;
-    localeNames: Record<Locale, string>;
-    language: {
-      label: string;
-      srLabel: string;
-    };
   };
   paths: {
     home: string;
@@ -51,17 +46,12 @@ interface Translation {
     repositorio: string;
     contact: string;
     suscripcion: string;
+    account: string;
     terms: string;
     privacy: string;
     cookiePolicy: string;
   };
   navigation: NavigationItem[];
-  search: {
-    label: string;
-    placeholder: string;
-    empty: string;
-    error: string;
-  };
   theme: {
     srLabel: string;
     ariaLabel: string;
@@ -69,116 +59,8 @@ interface Translation {
   };
   footer: {
     rights: string;
-    rss: string;
-    terms: string;
-
     follow: string;
     manageCookies: string;
-  };
-  home: {
-    metaTitle: string;
-    metaDescription: string;
-    strapline: string;
-    heading: string;
-    description: string;
-    tags: string[];
-    cta: string;
-  };
-  blog: {
-    metaTitle: string;
-    metaDescription: string;
-    title: string;
-    description: string;
-    pagination: {
-      ariaLabel: string;
-      previous: string;
-      next: string;
-      pageLabel: string;
-    };
-  };
-  contact: {
-    metaTitle: string;
-    metaDescription: string;
-    title: string;
-    intro: string;
-    channelsHeading: string;
-    emailLabel: string;
-    socialHeading: string;
-    socialDescription: string;
-    note: string;
-    formHeading: string;
-    formDescription: string;
-    formNameLabel: string;
-    formEmailLabel: string;
-    formMessageLabel: string;
-    formSubmitLabel: string;
-    formPrivacy: string;
-    formSpamLabel: string;
-  };
-  about: {
-    metaTitle: string;
-    metaDescription: string;
-    title: string;
-    paragraphs: string[];
-  };
-  categories: {
-    metaTitle: string;
-    metaDescription: string;
-    title: string;
-    description: string[];
-    badge: string;
-    backLink: string;
-    empty: string;
-    count: { singular: string; plural: string };
-    fallbackDescriptionPrefix: string;
-  };
-  labelsList: {
-    metaTitle: string;
-    metaDescription: string;
-    title: string;
-    description: string;
-    badge: string;
-    count: { singular: string; plural: string };
-  };
-  labelsDetail: {
-    backLink: string;
-    badge: string;
-    count: { singular: string; plural: string };
-    descriptionPrefix: string;
-  };
-  posts: {
-    backToHome: string;
-    updatedPrefix: string;
-    originalLabel: string;
-    footerNote: string;
-    imageAlt: string;
-    defaultDescriptionPrefix: string;
-    navigation: {
-      terms: 'terms',
-      heading: string;
-      previous: string;
-      next: string;
-    };
-    share: {
-      heading: string;
-      x: string;
-      facebook: string;
-      instagram: string;
-      email: string;
-    };
-    comments: {
-      heading: string;
-      description: string;
-      empty: string;
-      pending: string;
-      success: string;
-      error: string;
-      nameLabel: string;
-      emailLabel: string;
-      messageLabel: string;
-      submitLabel: string;
-      moderationNotice: string;
-    };
   };
   terms: {
     metaTitle: string;
@@ -236,26 +118,6 @@ interface Translation {
     }[];
     revocation: string[];
   };
-  av: {
-    collection: {
-      title: string;
-      description: string;
-      empty: string;
-      detailAlt: string;
-      mediumLabel: string;
-      dimensionsLabel: string;
-      yearLabel: string;
-      coverLabel: string;
-      galleryLabel: string;
-    };
-  };
-  editor: {
-    appTitle: string;
-    loginCta: string;
-    collections: { posts: { label: string }; audiovisuales: { label: string } };
-    saveSuccess: string;
-    saveError: string;
-  };
   auth: {
     signInLabel: string;
     signUpLabel: string;
@@ -271,15 +133,8 @@ export const translations: Record<Locale, Translation> = {
   es: {
     site: {
       title: 'Plocos',
-      description: 'Colección digital de arte, ideas y narrativas de Plocos.',
-      localeNames: {
-        es: 'Español',
-        en: 'English',
-      },
-      language: {
-        label: 'Idioma',
-        srLabel: 'Seleccionar idioma',
-      },
+      description:
+        'Nomás que la Vida, más que un libro es un campo de batalla ontológico. Un ecosistema dialéctico de doble núcleo donde la lectura deja de ser un acto de asimilación pacífica para convertirse en un flanqueo cognitivo.',
     },
     paths: {
       home: '',
@@ -288,6 +143,7 @@ export const translations: Record<Locale, Translation> = {
       repositorio: 'repositorio',
       contact: 'contacto',
       suscripcion: 'suscripcion',
+      account: 'cuenta',
       terms: 'terminos',
       privacy: 'privacidad',
       cookiePolicy: 'politica-de-cookies',
@@ -299,27 +155,6 @@ export const translations: Record<Locale, Translation> = {
       { id: 'repositorio', label: 'Repositorio', path: 'repositorio' },
       { id: 'contact', label: 'Contacto', path: 'contacto' },
     ],
-    search: {
-      label: 'Buscar en Plocos',
-      placeholder: 'Buscar artículos, etiquetas o ideas',
-      empty: 'No se encontraron coincidencias. Ajusta los términos o explora una categoría.',
-      error: 'Ocurrió un error al cargar el buscador. Intenta nuevamente.',
-    },
-    theme: {
-      srLabel: 'Modo de tema',
-      ariaLabel: 'Seleccionar modo de tema',
-      options: [
-        { value: 'light', label: 'Claro' },
-        { value: 'dark', label: 'Oscuro' },
-        { value: 'system', label: 'Sistema' },
-      ],
-    },
-    search: {
-      label: 'Search Plocos',
-      placeholder: 'Buscar artículos, etiquetas o ideas',
-      empty: 'No se encontraron coincidencias. Ajusta los términos o explora una categoría.',
-      error: 'Ocurrió un error al cargar el buscador. Intenta nuevamente.',
-    },
     theme: {
       srLabel: 'Modo de tema',
       ariaLabel: 'Seleccionar modo de tema',
@@ -331,150 +166,14 @@ export const translations: Record<Locale, Translation> = {
     },
     footer: {
       rights: 'Todos los derechos reservados.',
-      rss: 'RSS',
-      terms: 'Términos del sitio',
       follow: 'Redes sociales',
       manageCookies: 'Gestionar cookies',
-    },
-    home: {
-      metaTitle: 'Plocos · Arte, ideas y narrativas',
-      metaDescription: 'Archivo moderno de Plocos con contenido curado, arte y reflexiones.',
-      strapline: 'Filosofía · Arte · Cartagena',
-      heading: 'Pensamiento crítico, poesía visual y memoria viva de Plocos.',
-      description:
-        'Un laboratorio de ideas donde conviven manifiestos, ilustraciones y crónicas sensoriales. Recorre la voz de Plocos a través de archivos curados, experiencias sinestésicas y rutas de contemplación.',
-      tags: ['Ensayos lumínicos', 'Poética visual', 'Bitácora crítica'],
-      cta: 'Explorar todas las categorías',
-    },
-    blog: {
-      metaTitle: 'Blog · Plocos',
-      metaDescription: 'Listado completo de publicaciones de Plocos.',
-      title: 'Blog',
-      description:
-        'Explora todas las entradas publicadas en el archivo. Usa el buscador superior para ir directo a palabras clave, etiquetas o preguntas específicas.',
-      pagination: {
-        ariaLabel: 'Paginación de entradas del blog',
-        previous: 'Anterior',
-        next: 'Siguiente',
-        pageLabel: 'Página {{page}}',
-      },
-    },
-    contact: {
-      metaTitle: 'Contacto · Plocos',
-      metaDescription: 'Puntos de contacto con el archivo Plocos.',
-      title: 'Contacto',
-      intro:
-        'Plocos es un laboratorio vivo que abraza el intercambio crítico y la colaboración creativa. Escríbenos para conversar sobre exposiciones, publicaciones, residencias o proyectos educativos.',
-  channelsHeading: 'Canales activos',
-  emailLabel: 'Correo electrónico',
-      socialHeading: 'Redes y comunidad',
-      socialDescription:
-        'Sigue el proceso creativo, las exposiciones itinerantes y las activaciones educativas de Plocos en estos espacios digitales.',
-      note:
-        'Respondemos a cada mensaje en un máximo de 72 horas hábiles. Si tu solicitud es urgente, indica el plazo en el asunto del correo.',
-      formHeading: 'Escríbenos desde el sitio',
-      formDescription:
-        'Completa este formulario y coordinaremos la respuesta según el tipo de proyecto. Si prefieres escribir directamente, también puedes usar el correo electrónico.',
-      formNameLabel: 'Nombre',
-      formEmailLabel: 'Correo de contacto',
-      formMessageLabel: 'Mensaje',
-      formSubmitLabel: 'Enviar mensaje',
-      formPrivacy:
-        'Al enviar aceptas que usemos tu información solo para responder esta conversación. No compartimos datos con terceros.',
-      formSpamLabel: 'Déjalo en blanco y omite este campo (antispam)',
-    },
-    about: {
-      metaTitle: 'Nuestra razón de ser · Plocos',
-      metaDescription: 'Propósito y visión del archivo Plocos.',
-      title: 'Nuestra razón de ser',
-      paragraphs: [
-        'No es únicamente un término de mi ideación, o la idea que origino esta propuesta virtual, es el ancla para generar nuevos pensamientos o inclusive, ideas. Un "Bloque de Pensamiento" (fusión de las palabras pensamiento del español y bloc del francés), y elemento central de este portal de arte y filosofía.',
-        'Es una pieza de contenido, ya sea un argumento riguroso, una elucubración textual o un verso simbólico, diseñada para desatar la reflexión en el lector. Nace con la intención de establecer un diálogo distinto, de modo sintético y universal. En sus formas más concisas, puede presentarse como una única imagen o verso que ofrece un concepto denso y concreto que el lector puede integrar a su propia experiencia, transformando o enriqueciendo su pensar.',
-        'Es una apuesta deliberada por la revelación sobre la simple narrativa, que busca convertir la distracción en una conexión profundamente pertinente. Su brevedad es deliberada; no busca ser "fácil", sino potente. Son piezas refinadas que pretenden un "anclaje" conceptual con una inversión de tiempo corta, buscando la conexión estética o intelectual inmediata.',        
-      ],
-    },
-    categories: {
-      metaTitle: 'Categorías · Plocos',
-      metaDescription: 'Explora las categorías que organizan la obra de Plocos.',
-      title: 'Categorías',
-      description: [
-        'Se toparán con categorías tituladas en latín; por ejemplo, "Ex lateribus cogite" que traduce: Piensa desde los lados/fuera del molde. Selecciones, cuya pretensión no es confundir, sino crear un espacio que busca posicionarse como intelectual y reflexivo.',
-        'No solo visual ya que es analítico y discursivo. Donde se estilan conceptos que valoran la escritura ya sea como herramienta de análisis (filosofía) o como fin en sí misma (arte).',
-        'Procuré mantener una redacción culta, articulada y soportada en una base de lectura filosófica, conservando una originalidad conceptual. En ellas, encontrarán el ploco, (Bloque de pensamiento), que aborda temas complejos desde ángulos frescos.',
-      ],
-      badge: 'Categoría',
-      backLink: '← Todas las categorías',
-      empty: 'No hay publicaciones asociadas aún, prueba el buscador o explora otras categorías.',
-        fallbackDescriptionPrefix: 'Archivo',
-      count: {
-        singular: 'publicación seleccionada.',
-        plural: 'publicaciones seleccionadas.',
-      },
-    },
-    labelsList: {
-      metaTitle: 'Etiquetas · Plocos',
-      metaDescription: 'Explora las etiquetas y conceptos que atraviesan el archivo de Plocos.',
-      title: 'Etiquetas del archivo',
-      description:
-        'Descubre el archivo completo de Plocos filtrado por etiquetas temáticas, símbolos recurrentes y proyectos curatoriales. Selecciona una etiqueta para profundizar en sus publicaciones.',
-      badge: 'Etiqueta',
-      count: {
-        singular: 'publicación',
-        plural: 'publicaciones',
-      },
-    },
-    labelsDetail: {
-      backLink: '← Todas las etiquetas',
-      badge: 'Etiqueta',
-      count: {
-        singular: 'publicación asociada a esta etiqueta.',
-        plural: 'publicaciones asociadas a esta etiqueta.',
-      },
-      descriptionPrefix: 'Publicaciones etiquetadas como',
-    },
-    posts: {
-      backToHome: '← Volver al inicio',
-      updatedPrefix: 'Actualizado el',
-      originalLabel: 'Publicación original',
-      footerNote: 'Reflexiones y arte por Plocos.',
-      imageAlt: 'Ilustración de',
-      defaultDescriptionPrefix: 'Entrada publicada el',
-      navigation: {
-        terms: 'terms',
-        heading: 'Navegación',
-        previous: '← Publicación anterior',
-        next: 'Siguiente publicación →',
-      },
-      share: {
-        heading: 'Compartir',
-        x: 'Compartir en X',
-        facebook: 'Compartir en Facebook',
-        instagram: 'Compartir en Instagram',
-        email: 'Enviar por correo',
-      },
-      comments: {
-        heading: 'Comentarios',
-        description:
-          'Participa en la conversación con respeto y contexto. Cada aporte pasa por moderación editorial antes de publicarse.',
-        empty: 'Aún no hay comentarios publicados. Sé la primera persona en escribir.',
-        pending:
-          'Comentario recibido. Lo revisaremos antes de publicarlo para cuidar el archivo.',
-        success: '¡Gracias por aportar a la conversación!',
-        error:
-          'No pudimos enviar tu comentario. Intenta de nuevo en unos minutos o contáctanos directamente.',
-        nameLabel: 'Nombre',
-        emailLabel: 'Correo (opcional, solo para responderte)',
-        messageLabel: 'Comentario',
-        submitLabel: 'Enviar comentario',
-        moderationNotice:
-          'Moderamos cada comentario para asegurar que la conversación se mantenga respetuosa y acorde con la línea editorial de Plocos.',
-      },
     },
     terms: pactoEsData as Translation['terms'],
     consent: {
       headline: 'Tu privacidad, tu decisión',
       description:
-        'Usamos cookies para que el archivo funcione, medir el tráfico de forma anónima y recordar tus preferencias. Puedes aceptar todo, rechazar lo opcional o ajustar las categorías una por una.',
+        'Usamos cookies para que el sitio funcione, medir el tráfico de forma anónima y recordar tus preferencias. Puedes aceptar todo, rechazar lo opcional o ajustar las categorías una por una.',
       acceptLabel: 'Aceptar todas',
       rejectLabel: 'Rechazar opcionales',
       manageLabel: 'Administrar preferencias',
@@ -726,26 +425,6 @@ export const translations: Record<Locale, Translation> = {
         'Escribir a expresatura@plocos.com para solicitar asistencia personalizada o ejercer tu derecho ARCO de Cancelación (ver Política de Privacidad).',
       ],
     },
-    av: {
-      collection: {
-        title: '',
-        description: '',
-        empty: '',
-        detailAlt: '',
-        mediumLabel: '',
-        dimensionsLabel: '',
-        yearLabel: '',
-        coverLabel: '',
-        galleryLabel: '',
-      },
-    },
-    editor: {
-      appTitle: '',
-      loginCta: '',
-      collections: { posts: { label: '' }, audiovisuales: { label: '' } },
-      saveSuccess: '',
-      saveError: '',
-    },
     auth: {
       signInLabel: 'Iniciar sesión',
       signUpLabel: 'Crear cuenta',
@@ -757,15 +436,8 @@ export const translations: Record<Locale, Translation> = {
   en: {
     site: {
       title: 'Plocos',
-      description: 'Digital collection of Plocos art, ideas, and narratives.',
-      localeNames: {
-        es: 'Español',
-        en: 'English',
-      },
-      language: {
-        label: 'Language',
-        srLabel: 'Select language',
-      },
+      description:
+        'No más que la Vida, more than a book is an ontological battlefield. A two-nucleus dialectical ecosystem where reading stops being an act of peaceful assimilation and becomes cognitive flanking.',
     },
     paths: {
       home: '',
@@ -774,6 +446,7 @@ export const translations: Record<Locale, Translation> = {
       repositorio: 'repository',
       contact: 'contact',
       suscripcion: 'subscription',
+      account: 'account',
       terms: 'terms',
       privacy: 'privacy',
       cookiePolicy: 'cookie-policy',
@@ -785,12 +458,6 @@ export const translations: Record<Locale, Translation> = {
       { id: 'repositorio', label: 'Repository', path: 'repository' },
       { id: 'contact', label: 'Contact', path: 'contact' },
     ],
-    search: {
-      label: 'Search Plocos',
-      placeholder: 'Search articles, tags, or ideas',
-      empty: 'No matches found. Adjust your terms or explore a category.',
-      error: 'An error occurred while loading search. Please try again.',
-    },
     theme: {
       srLabel: 'Theme mode',
       ariaLabel: 'Select theme mode',
@@ -802,149 +469,14 @@ export const translations: Record<Locale, Translation> = {
     },
     footer: {
       rights: 'All rights reserved.',
-      rss: 'RSS',
-      terms: 'Site terms',
       follow: 'Social',
       manageCookies: 'Manage cookies',
-    },
-    home: {
-      metaTitle: 'Plocos · Art, ideas, and narratives',
-      metaDescription: 'Plocos modern archive with curated content, art, and reflections.',
-      strapline: 'Philosophy · Art · Cartagena',
-      heading: 'Critical thinking, visual poetry, and the living memory of Plocos.',
-      description:
-        'A laboratory of ideas where manifestos, illustrations, and sensorial chronicles coexist. Explore Plocos’ voice through curated archives, synesthetic experiences, and routes of contemplation.',
-      tags: ['Luminous essays', 'Visual poetry', 'Critical logbook'],
-      cta: 'Explore all categories',
-    },
-    blog: {
-      metaTitle: 'Blog · Plocos',
-      metaDescription: 'Complete list of published entries from Plocos.',
-      title: 'Blog',
-      description:
-        'Browse every entry published in the archive. Use the search above to jump directly to keywords, tags, or specific questions.',
-      pagination: {
-        ariaLabel: 'Blog pagination',
-        previous: 'Previous',
-        next: 'Next',
-        pageLabel: 'Page {{page}}',
-      },
-    },
-    contact: {
-      metaTitle: 'Contact · Plocos',
-      metaDescription: 'Contact points for the Plocos archive.',
-      title: 'Contact',
-      intro:
-        'Plocos is a living laboratory that embraces critical exchange and creative collaboration. Write to us about exhibitions, publications, residencies, or educational projects.',
-  channelsHeading: 'Active channels',
-  emailLabel: 'Email',
-      socialHeading: 'Social channels',
-      socialDescription:
-        'Follow Plocos’ creative process, traveling exhibitions, and educational activations across these spaces.',
-      note:
-        'We reply to every message within 72 business hours. If your request is time-sensitive, include the deadline in the email subject.',
-      formHeading: 'Write to us from the site',
-      formDescription:
-        'Fill out this form and we will coordinate the response according to the nature of your project. If you prefer, you can also email us directly.',
-      formNameLabel: 'Name',
-      formEmailLabel: 'Contact email',
-      formMessageLabel: 'Message',
-      formSubmitLabel: 'Send message',
-      formPrivacy:
-        'By submitting you agree that we will use your information only to continue this conversation. We do not share data with third parties.',
-      formSpamLabel: 'Leave this field empty (spam protection)',
-    },
-    about: {
-      metaTitle: 'Our reason for being · Plocos',
-      metaDescription: 'Purpose and vision of the Plocos archive.',
-      title: 'Our reason for being',
-      paragraphs: [
-        'It is not merely a term of my own invention, or the idea that gave rise to this virtual proposal; it is the anchor for generating new thoughts or even ideas. A "Thought Block" (a fusion of the Spanish word "pensamiento" and the French word "bloc"), and the central element of this art and philosophy portal.',
-        'It is a piece of content, whether a rigorous argument, a textual elaboration or a symbolic verse, designed to spark reflection in the reader. It was created with the intention of establishing a different dialogue, in a synthetic and universal way. In its most concise forms, it can be presented as a single image or verse that offers a dense and concrete concept that the reader can integrate into their own experience, transforming or enriching their thinking.',
-        'It is a deliberate commitment to revelation over simple narrative, seeking to turn distraction into a deeply relevant connection. Its brevity is deliberate; it does not seek to be "easy", but powerful. These are refined pieces that aim for a conceptual "anchor" with a short investment of time, seeking immediate aesthetic or intellectual connection.',
-      ],
-    },
-    categories: {
-      metaTitle: 'Categories · Plocos',
-      metaDescription: 'Explore the categories that organize Plocos’ work.',
-      title: 'Categories',
-      description: [
-        'You will encounter categories with Latin titles; for example, "Ex lateribus cogite", which translates as: Think outside the box. Selections, whose aim is not to confuse, but to create a space that seeks to position itself as intellectual and reflective.',
-        'Not only visual, as it is analytical and discursive. Where concepts that value writing are used, either as a tool for analysis (philosophy) or as an end in itself (art).',
-        'I tried to maintain a cultured, articulate style based on philosophical reading, while preserving conceptual originality. In them, you will find the ploco (thought block), which addresses complex issues from fresh angles.',
-      ],
-      badge: 'Category',
-      backLink: '← All categories',
-      empty: 'There are no publications yet. Try the search bar or explore other categories.',
-      fallbackDescriptionPrefix: 'Archive',
-      count: {
-        singular: 'selected publication.',
-        plural: 'selected publications.',
-      },
-    },
-    labelsList: {
-      metaTitle: 'Tags · Plocos',
-      metaDescription: 'Explore the tags and concepts that weave through the Plocos archive.',
-      title: 'Archive tags',
-      description:
-        'Browse Plocos’ entire archive filtered by thematic tags, recurring symbols, and curatorial projects. Choose a tag to dive deeper into its publications.',
-      badge: 'Tag',
-      count: {
-        singular: 'publication',
-        plural: 'publications',
-      },
-    },
-    labelsDetail: {
-      backLink: '← All tags',
-      badge: 'Tag',
-      count: {
-        singular: 'publication associated with this tag.',
-        plural: 'publications associated with this tag.',
-      },
-      descriptionPrefix: 'Entries tagged as',
-    },
-    posts: {
-      backToHome: '← Back to home',
-      updatedPrefix: 'Updated on',
-      originalLabel: 'Original publication',
-      footerNote: 'Reflections and art by Plocos.',
-      imageAlt: 'Illustration of',
-      defaultDescriptionPrefix: 'Entry published on',
-      navigation: {
-        terms: 'terms',
-        heading: 'Navigation',
-        previous: '← Previous entry',
-        next: 'Next entry →',
-      },
-      share: {
-        heading: 'Share',
-        x: 'Share on X',
-        facebook: 'Share on Facebook',
-        instagram: 'Share on Instagram',
-        email: 'Send by email',
-      },
-        comments: {
-          heading: 'Comments',
-          description:
-            'Join the conversation with context and respect. Every contribution goes through editorial moderation before it appears.',
-          empty: 'No comments have been published yet. Be the first to share your thoughts.',
-          pending: 'Comment received. We will review it before publishing to safeguard the archive.',
-          success: 'Thanks for contributing to the conversation!',
-          error:
-            'We could not send your comment. Please try again shortly or reach out via email.',
-          nameLabel: 'Name',
-          emailLabel: 'Email (optional, used only to reply)',
-          messageLabel: 'Comment',
-          submitLabel: 'Post comment',
-          moderationNotice:
-            'We moderate each comment to keep the discussion aligned with Plocos’ editorial standards.',
-        },
     },
     terms: pactoEnData as Translation['terms'],
     consent: {
       headline: 'Your privacy, your choice',
       description:
-        'We use cookies to keep the archive running, measure traffic anonymously, and remember your preferences. You can accept everything, decline the optional ones, or fine-tune each category.',
+        'We use cookies to keep the site running, measure traffic anonymously, and remember your preferences. You can accept everything, decline the optional ones, or fine-tune each category.',
       acceptLabel: 'Accept all',
       rejectLabel: 'Decline optional',
       manageLabel: 'Manage preferences',
@@ -1195,26 +727,6 @@ export const translations: Record<Locale, Translation> = {
         'Configure your browser to block or limit third-party cookies; bear in mind that some platform functions may become unavailable.',
         'Write to expresatura@plocos.com to request personalised assistance or to exercise your ARCO Cancellation right (see Privacy Policy).',
       ],
-    },
-    av: {
-      collection: {
-        title: '',
-        description: '',
-        empty: '',
-        detailAlt: '',
-        mediumLabel: '',
-        dimensionsLabel: '',
-        yearLabel: '',
-        coverLabel: '',
-        galleryLabel: '',
-      },
-    },
-    editor: {
-      appTitle: '',
-      loginCta: '',
-      collections: { posts: { label: '' }, audiovisuales: { label: '' } },
-      saveSuccess: '',
-      saveError: '',
     },
     auth: {
       signInLabel: 'Sign in',
