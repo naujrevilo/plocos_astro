@@ -89,12 +89,14 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - Actualizar `src/pages/politica-de-cookies/index.astro` y `src/pages/en/cookie-policy/index.astro`: añadir cookies de auth (Clerk `__session`, `__client`), preferencia (locale, theme), paywall (iteración visitada), anotaciones en curso.
   - **Acceptance**: 4 categorías de cookies cubiertas, todas declaradas con propósito y duración.
 
-- [ ] **T27** Conectar Turso (BD `plocos`) + mirror de usuarios Clerk (~350 líneas, TDD con libsql en memoria). Ruta: delegated direct (writer) — trigger: 2+ archivos no triviales (schema, db client, users.ts, webhook, tests).
+- [x] **T27** Conectar Turso (BD `plocos`) + mirror de usuarios Clerk (~350 líneas, TDD con libsql en memoria). Ruta: delegated direct (writer) — trigger: 2+ archivos no triviales (schema, db client, users.ts, webhook, tests).
   - Estado previo (inspección read-only 2026-10-04): BD `default` en estado Astro DB (`Comments` 25 filas de prueba, `_astro_db_snapshot`, `__drizzle_migrations` vacía); la migración manual `0002_pivot_plataforma.sql` nunca se aplicó y no estaba en el journal. Respaldo: `.backups/turso-legacy-2026-10-04.json` (gitignored).
   - Decisiones: BD nueva `plocos` (Turso no permite renombrar); `users.role` nullable, `NULL` = sin suscripción (alinea con T26); FKs hacia `users` con `onDelete: 'cascade'` (Política de Privacidad promete cancelación en cascada).
   - Migraciones regeneradas desde `schema.ts` (drizzle-kit generate, journal limpio); se eliminan 0000/0001 (blog) y la 0002 manual.
   - `src/lib/db/users.ts`: upsert/delete reales; webhook Clerk devuelve error real (no traga fallos) para que Clerk reintente.
-  - **Progreso (código local)**: migración `drizzle/0000_naive_susan_delgado.sql`; FKs cascade en subscriptions/bookAnnotations/auditorProfiles/notificationQueue.userId, estructura del libro sin cascade (borrar contenido no debe borrar anotaciones). Bug latente corregido: svix 2.6.1 `verify()` devuelve void → el webhook nunca procesó eventos (el 200 lo ocultaba); ahora `JSON.parse(body)` tras verificar. Evidencia: RED t27 (import) y t08 (sin upsert, 200 en vez de 500) → GREEN; suite 207/207; tsc 0 errores. Pendiente: aplicar migración a `plocos` (autorización remota).
+  - **Progreso (código local)**: migración `drizzle/0000_naive_susan_delgado.sql`; FKs cascade en subscriptions/bookAnnotations/auditorProfiles/notificationQueue.userId, estructura del libro sin cascade (borrar contenido no debe borrar anotaciones). Bug latente corregido: svix 2.6.1 `verify()` devuelve void → el webhook nunca procesó eventos (el 200 lo ocultaba); ahora `JSON.parse(body)` tras verificar. Evidencia: RED t27 (import) y t08 (sin upsert, 200 en vez de 500) → GREEN; suite 207/207; tsc 0 errores. Commit 6f74f21.
+  - **Migración remota (2026-10-04, autorizada por el usuario)**: BD `plocos` verificada vacía → `migrate()` → 8 tablas + `__drizzle_migrations` (1), FK subscriptions→users `CASCADE`, `users.role` nullable sin default.
+  - **Pendiente externo**: endpoint del webhook en Clerk (requiere URL pública: túnel en dev o deploy) + `CLERK_WEBHOOK_SIGNING_SECRET`; usuarios creados antes del webhook no están en `users` (backfill opcional).
   - **Acceptance**: tests de `users.ts` contra libsql en memoria con la migración generada; webhook `user.created` inserta con `role = NULL`; `user.deleted` borra en cascada; migración aplicada a `plocos` (requiere autorización del usuario para escritura remota).
 
 ### PR 3 — Payments integration
@@ -334,4 +336,4 @@ notificationQueue: {
 
 ## Next Step
 
-PR 3 — Payments (T10 PayPal + T11 Wompi) en `feature/pr-3-payments`. Pendientes externos: dominio del cliente para Clerk producción + webhook; T02 sin verificar.
+T14 (archivo del libro, PDF de prueba del usuario) + T12 (paywall) sobre la BD `plocos`. Luego PR 3 — Payments (T10 PayPal + T11 Wompi) en `feature/pr-3-payments`. Pendientes externos: dominio del cliente para Clerk producción + webhook; T02 sin verificar.
