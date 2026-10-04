@@ -10,9 +10,13 @@
  */
 
 import ThemeToggle from "./ThemeToggle.astro";
+import SocialIcon from "./icons/SocialIcon.astro";
 import { translations as allTranslations, defaultLocale } from "../lib/i18n";
 import type { Locale } from "../lib/i18n";
 import { createLocaleHref } from "../lib/routes";
+import rawContactData from "../data/contact.json";
+
+type SocialLink = { id: 'facebook' | 'instagram' | 'x'; label: string; url: string };
 
 const { currentPath = "/", locale } = Astro.props as { currentPath?: string; locale: string };
 const translations = allTranslations[locale as Locale];
@@ -87,6 +91,8 @@ const ctaLabel = locale === "es" ? "Suscríbete" : "Subscribe";
 // Blog legacy link (external, opens new tab).
 const blogLegacyHref = "https://plocos.blogspot.com";
 const blogLegacyLabel = locale === "es" ? "Blog (archivo)" : "Blog (archive)";
+// Social links loaded from the same data source as the footer.
+const socialLinks = (rawContactData as { social: SocialLink[] }).social;
 ---
 <header class="site-header mb-4">
   <div class="header-spacer"></div>
@@ -95,7 +101,7 @@ const blogLegacyLabel = locale === "es" ? "Blog (archivo)" : "Blog (archive)";
       <div class="w-full flex flex-row flex-nowrap items-center justify-between p-4 gap-4">
         <!-- Logo a la izquierda -->
         <a href={homeHref} class="logo-link flex items-center shrink-0" aria-label="Logo de Plocos">
-          <img src="/logo.svg" alt="Logo de Plocos" class="logo-mark h-12 w-12 md:h-14 md:w-14" />
+          <img src="/logo.svg" alt="Logo de Plocos" class="logo-mark h-16 w-16 md:h-20 md:w-20" />
         </a>
 
         <!-- Menú de navegación Desktop (centrado) -->
@@ -106,7 +112,7 @@ const blogLegacyLabel = locale === "es" ? "Blog (archivo)" : "Blog (archive)";
               const active = isActive(href);
               return (
                 <li>
-                  <a href={href} aria-current={active ? "page" : undefined} class={`block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-accent md:p-0 transition ${active ? "font-bold underline decoration-accent decoration-2 underline-offset-4" : ""}`}>{item.label}</a>
+                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center rounded-full px-3.5 py-2 text-[0.95rem] text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent ${active ? "text-accent font-semibold" : ""}`}>{item.label}</a>
                 </li>
               );
             })}
@@ -115,6 +121,20 @@ const blogLegacyLabel = locale === "es" ? "Blog (archivo)" : "Blog (archive)";
 
         <!-- Controles Derecha (Desktop) -->
         <div class="hidden md:flex items-center gap-2">
+          <div class="hidden lg:flex items-center gap-0.5 pr-2 mr-1 border-r border-border-subtle">
+            {socialLinks.map((social) => (
+              <a
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.label}
+                title={social.label}
+                class="inline-flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition-colors duration-200 hover:bg-surface-muted hover:text-accent"
+              >
+                <SocialIcon name={social.id} class="h-4 w-4" />
+              </a>
+            ))}
+          </div>
           <a
             href={blogLegacyHref}
             target="_blank"
@@ -247,7 +267,8 @@ const blogLegacyLabel = locale === "es" ? "Blog (archivo)" : "Blog (archive)";
       }
     }
   .site-header {
-    --header-height: 4.5rem;
+    /* Logo desktop = 5rem (80px) + 2 * p-4 (16px) = 7rem (112px) */
+    --header-height: 7rem;
   }
 
   .site-header .header-spacer {
@@ -280,7 +301,8 @@ const blogLegacyLabel = locale === "es" ? "Blog (archivo)" : "Blog (archive)";
 
   @media (max-width: 767px) {
     .site-header {
-      --header-height: 5rem;
+      /* Logo mobile = 4rem (64px) + 2 * p-4 (16px) = 6rem (96px) */
+      --header-height: 6rem;
     }
   }
 </style>

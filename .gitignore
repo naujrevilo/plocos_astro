@@ -61,3 +61,7 @@ bun.lock
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# Session id
+
+sesion.txt
