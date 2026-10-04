@@ -10,10 +10,12 @@
  *   - user.updated   → upsertUserFromClerk
  *   - user.deleted   → deleteUserFromClerk
  *
- * Any unhandled event returns 200 OK so Clerk does not retry. Database
- * errors (UNIMPLEMENTED in T08 mockups) are also swallowed with a 200
- * response + a console.error so we don't burn retry budget while the DB
- * layer lands in T10/T11.
+ * Responses:
+ *   - 400 for missing svix headers or an invalid signature / body.
+ *   - 500 when the signing secret is missing or the database write fails;
+ *     the error is logged and Clerk retries the delivery.
+ *   - 200 once the event is handled, and for unhandled event types (so
+ *     Clerk does not retry them).
  */
 import type { APIRoute } from 'astro';
 import { Webhook } from 'svix';
@@ -44,11 +46,13 @@ export const POST: APIRoute = async ({ request }) => {
 
   let evt: { type: string; data: any };
   try {
-    evt = wh.verify(body, {
+    // svix >= 2.x `verify` returns void, so parse the verified body ourselves.
+    wh.verify(body, {
       'svix-id': svix_id,
       'svix-timestamp': svix_timestamp,
       'svix-signature': svix_signature,
-    }) as { type: string; data: any };
+    });
+    evt = JSON.parse(body) as { type: string; data: any };
   } catch {
     return new Response('Invalid signature', { status: 400 });
   }
@@ -67,9 +71,10 @@ export const POST: APIRoute = async ({ request }) => {
         break;
     }
   } catch (err) {
-    // Mockups throw UNIMPLEMENTED. Log and return 200 so Clerk doesn't
-    // retry; real DB errors will be wired once T10/T11 land.
-    console.error('[clerk webhook] handler error:', err);
+    // Non-2xx makes Clerk retry with backoff, so a transient DB failure does
+    // not silently lose the mirror update.
+    console.error(`[clerk webhook] ${evt.type} failed:`, err);
+    return new Response('Webhook handler error', { status: 500 });
   }
 
   return new Response('OK', { status: 200 });

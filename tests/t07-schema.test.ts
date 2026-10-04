@@ -20,6 +20,7 @@ const EXTRA_CONFIG_COLUMNS = Symbol.for('drizzle:ExtraConfigColumns');
 type DrizzleTable = Record<string | symbol, unknown> & {
   [ORIG_NAME_SYM]: string;
   [INLINE_FKS]?: Array<{
+    onDelete?: string;
     reference: () => {
       columns: Array<{ name: string }>;
       foreignTable: Record<symbol, unknown>;
@@ -102,6 +103,7 @@ function foreignKeysOn(
   columns: Array<{ name: string }>;
   foreignTable: string;
   foreignColumns: Array<{ name: string }>;
+  onDelete?: string;
 }> {
   const fks = table[INLINE_FKS] ?? [];
   return fks.map((fk) => {
@@ -110,6 +112,7 @@ function foreignKeysOn(
       columns: ref.columns,
       foreignTable: ref.foreignTable[ORIG_NAME_SYM] as string,
       foreignColumns: ref.foreignColumns,
+      onDelete: fk.onDelete,
     };
   });
 }
@@ -161,10 +164,11 @@ describe('T07 — Schema DB redesign (NQLV platform)', () => {
       expect(col.notNull).toBe(true);
     });
 
-    it('has role enum with lector/colaborador/auditor defaulting to lector', () => {
+    it('has nullable role enum lector/colaborador/auditor with no default (NULL = no subscription)', () => {
       const col = getColumn(table(), 'role');
       expect(col.enumValues).toEqual(['lector', 'colaborador', 'auditor']);
-      expect(col.hasDefault).toBe(true);
+      expect(col.notNull).toBe(false);
+      expect(col.hasDefault).toBe(false);
     });
 
     it('has habeasScriptumAcceptedAt nullable timestamp', () => {
@@ -472,14 +476,50 @@ describe('T07 — Schema DB redesign (NQLV platform)', () => {
     });
   });
 
-  describe('sql migration file (0002_pivot_plataforma.sql)', () => {
+  describe('user-owned FKs cascade on delete (privacy policy: account deletion)', () => {
+    const userOwnedTables = [
+      'subscriptions',
+      'bookAnnotations',
+      'auditorProfiles',
+      'notificationQueue',
+    ];
+
+    it.each(userOwnedTables)('%s.userId -> users.clerkUserId uses ON DELETE cascade', (name) => {
+      const fk = foreignKeysOn(getTable(name)).find(
+        (f) => f.foreignTable === 'users' && f.columns[0]?.name === 'userId',
+      );
+      expect(fk, `expected userId FK on ${name}`).toBeDefined();
+      expect(fk?.onDelete).toBe('cascade');
+    });
+
+    it('book-structure FKs do not cascade (deleting content never wipes annotations)', () => {
+      const structural = [
+        ...foreignKeysOn(getTable('bookChapters')),
+        ...foreignKeysOn(getTable('bookParagraphs')),
+        ...foreignKeysOn(getTable('bookAnnotations')).filter(
+          (f) => f.foreignTable === 'bookParagraphs',
+        ),
+      ];
+      expect(structural).toHaveLength(3);
+      for (const fk of structural) {
+        expect(fk.onDelete).not.toBe('cascade');
+      }
+    });
+  });
+
+  describe('generated sql migration (single initial migration)', () => {
     let sqlText: string;
 
     beforeAll(async () => {
       const { readFileSync } = await import('node:fs');
       const path = (await import('node:path')).default;
+      const drizzleDir = path.resolve(__dirname, '..', 'drizzle');
+      const journal = JSON.parse(
+        readFileSync(path.join(drizzleDir, 'meta', '_journal.json'), 'utf8'),
+      ) as { entries: Array<{ tag: string }> };
+      expect(journal.entries).toHaveLength(1);
       sqlText = readFileSync(
-        path.resolve(__dirname, '..', 'drizzle', '0002_pivot_plataforma.sql'),
+        path.join(drizzleDir, `${journal.entries[0].tag}.sql`),
         'utf8',
       );
     });
@@ -489,47 +529,48 @@ describe('T07 — Schema DB redesign (NQLV platform)', () => {
     // Tables that have ONLY createdAt
     const tablesWithCreatedAtOnly = ['iterations', 'bookChapters', 'bookParagraphs', 'notificationQueue'];
 
+    /** Extract the column/constraint body of a drizzle-kit CREATE TABLE. */
+    function tableBlock(tableName: string): string {
+      const tableBlockRegex = new RegExp(
+        `CREATE TABLE \`${tableName}\`\s*\(([^;]*?)\);`,
+        's',
+      );
+      const match = tableBlockRegex.exec(sqlText);
+      expect(match, `expected CREATE TABLE block for ${tableName}`).not.toBeNull();
+      return match![1];
+    }
+
+    const createdAtDefault = /`createdAt` integer DEFAULT \(unixepoch\(\)\) NOT NULL/;
+    const updatedAtDefault = /`updatedAt` integer DEFAULT \(unixepoch\(\)\) NOT NULL/;
+
     it.each(tablesWithUpdatedAt)(
       '%s has DEFAULT (unixepoch()) on createdAt and updatedAt',
       (tableName) => {
-        // Match the CREATE TABLE block for the given table
-        const tableBlockRegex = new RegExp(
-          `CREATE TABLE ${tableName}\\s*\\(([^;]*?)\\);`,
-          's',
-        );
-        const match = tableBlockRegex.exec(sqlText);
-        expect(match, `expected CREATE TABLE block for ${tableName}`).not.toBeNull();
-        const block = match![1];
-        expect(
-          block,
-          `${tableName} should have createdAt DEFAULT (unixepoch())`,
-        ).toMatch(/createdAt\s+INTEGER\s+NOT\s+NULL\s+DEFAULT\s+\(unixepoch\(\)\)/);
-        expect(
-          block,
-          `${tableName} should have updatedAt DEFAULT (unixepoch())`,
-        ).toMatch(/updatedAt\s+INTEGER\s+NOT\s+NULL\s+DEFAULT\s+\(unixepoch\(\)\)/);
+        const block = tableBlock(tableName);
+        expect(block).toMatch(createdAtDefault);
+        expect(block).toMatch(updatedAtDefault);
       },
     );
 
     it.each(tablesWithCreatedAtOnly)(
       '%s has DEFAULT (unixepoch()) on createdAt (no updatedAt)',
       (tableName) => {
-        const tableBlockRegex = new RegExp(
-          `CREATE TABLE ${tableName}\\s*\\(([^;]*?)\\);`,
-          's',
-        );
-        const match = tableBlockRegex.exec(sqlText);
-        expect(match, `expected CREATE TABLE block for ${tableName}`).not.toBeNull();
-        const block = match![1];
-        expect(
-          block,
-          `${tableName} should have createdAt DEFAULT (unixepoch())`,
-        ).toMatch(/createdAt\s+INTEGER\s+NOT\s+NULL\s+DEFAULT\s+\(unixepoch\(\)\)/);
-        expect(
-          block,
-          `${tableName} should NOT have updatedAt column`,
-        ).not.toMatch(/updatedAt/);
+        const block = tableBlock(tableName);
+        expect(block).toMatch(createdAtDefault);
+        expect(block).not.toMatch(/updatedAt/);
       },
     );
+
+    it('declares users.role as nullable text with no default', () => {
+      expect(tableBlock('users')).toMatch(/`role` text,/);
+    });
+
+    it('declares ON DELETE cascade for every FK to users', () => {
+      const userFks = sqlText.match(/REFERENCES `users`\(`clerkUserId`\)[^,\n]*/g) ?? [];
+      expect(userFks).toHaveLength(4);
+      for (const fk of userFks) {
+        expect(fk).toMatch(/ON DELETE cascade/);
+      }
+    });
   });
 });

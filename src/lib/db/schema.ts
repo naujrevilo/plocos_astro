@@ -24,6 +24,11 @@ import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 //   - Enums are stored as TEXT with an `enum:` constraint on the column.
 //   - FKs are inline via `.references(() => ...)`. They are introspectable at
 //     runtime via the `drizzle:SQLiteInlineForeignKeys` symbol on the table.
+//   - Every FK to `users.clerkUserId` uses `onDelete: 'cascade'`: deleting a
+//     user (Clerk `user.deleted`) removes all of their personal data, as the
+//     published privacy policy promises. Book-structure FKs (chapters,
+//     paragraphs, annotations → paragraphs) keep the default (no action) so
+//     deleting content never silently wipes reader annotations.
 //   - UNIQUE constraints use the third arg of `sqliteTable()` (array API).
 // ============================================================================
 
@@ -90,7 +95,9 @@ export const users = sqliteTable('users', {
   clerkUserId: text('clerkUserId').primaryKey(),
   email: text('email').notNull(),
   displayName: text('displayName'),
-  role: text('role', { enum: USER_ROLES }).notNull().default('lector'),
+  // NULL means "no subscription". Paid roles are set by the payment webhooks
+  // (T10/T11), never by the Clerk mirror.
+  role: text('role', { enum: USER_ROLES }),
   habeasScriptumAcceptedAt: integer('habeasScriptumAcceptedAt', {
     mode: 'timestamp',
   }),
@@ -102,7 +109,7 @@ export const subscriptions = sqliteTable('subscriptions', {
   id: autoIncrementId(),
   userId: text('userId')
     .notNull()
-    .references(() => users.clerkUserId),
+    .references(() => users.clerkUserId, { onDelete: 'cascade' }),
   provider: text('provider', { enum: PAYMENT_PROVIDERS }).notNull(),
   providerSubscriptionId: text('providerSubscriptionId').notNull(),
   plan: text('plan', { enum: SUBSCRIPTION_PLANS }).notNull(),
@@ -160,7 +167,7 @@ export const bookAnnotations = sqliteTable('bookAnnotations', {
     .references(() => bookParagraphs.id),
   userId: text('userId')
     .notNull()
-    .references(() => users.clerkUserId),
+    .references(() => users.clerkUserId, { onDelete: 'cascade' }),
   content: text('content').notNull(),
   status: text('status', { enum: ANNOTATION_STATUSES })
     .notNull()
@@ -179,7 +186,7 @@ export const auditorProfiles = sqliteTable(
     id: autoIncrementId(),
     userId: text('userId')
       .notNull()
-      .references(() => users.clerkUserId),
+      .references(() => users.clerkUserId, { onDelete: 'cascade' }),
     publicVisible: integer('publicVisible', { mode: 'boolean' })
       .notNull()
       .default(false),
@@ -195,7 +202,7 @@ export const auditorProfiles = sqliteTable(
 
 export const notificationQueue = sqliteTable('notificationQueue', {
   id: autoIncrementId(),
-  userId: text('userId').references(() => users.clerkUserId),
+  userId: text('userId').references(() => users.clerkUserId, { onDelete: 'cascade' }),
   emailType: text('emailType').notNull(),
   payload: text('payload').notNull(),
   status: text('status', { enum: NOTIFICATION_STATUSES })

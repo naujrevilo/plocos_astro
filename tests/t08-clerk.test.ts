@@ -7,9 +7,15 @@
  * We DO NOT call out to Clerk. The integration is plain code + files. These
  * tests verify it has the right shape.
  */
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { Webhook } from 'svix';
+
+vi.mock('../src/lib/db/users', () => ({
+  upsertUserFromClerk: vi.fn(),
+  deleteUserFromClerk: vi.fn(),
+}));
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -276,6 +282,88 @@ describe('T08 — Wire Clerk auth', () => {
           `${rel} should not import @clerk/astro/server`,
         ).not.toMatch(/from\s+['"]@clerk\/astro\/server['"]/);
       }
+    });
+  });
+
+  describe('webhook — /api/webhooks/clerk behavior', () => {
+    const SECRET = `whsec_${Buffer.from('t08-test-secret-0123456789').toString('base64')}`;
+
+    function signedRequest(event: unknown, secret = SECRET): Request {
+      const body = JSON.stringify(event);
+      const msgId = 'msg_t08';
+      const now = new Date();
+      const signature = new Webhook(secret).sign(msgId, now, body);
+      return new Request('http://localhost/api/webhooks/clerk', {
+        method: 'POST',
+        body,
+        headers: {
+          'svix-id': msgId,
+          'svix-timestamp': String(Math.floor(now.getTime() / 1000)),
+          'svix-signature': signature,
+        },
+      });
+    }
+
+    async function callWebhook(request: Request): Promise<Response> {
+      const { POST } = await import('../src/pages/api/webhooks/clerk');
+      return (await POST({ request } as never)) as Response;
+    }
+
+    beforeEach(() => {
+      vi.stubEnv('CLERK_WEBHOOK_SIGNING_SECRET', SECRET);
+    });
+
+    afterEach(() => {
+      vi.unstubAllEnvs();
+      vi.clearAllMocks();
+      vi.restoreAllMocks();
+    });
+
+    it('returns 400 when svix headers are missing', async () => {
+      const res = await callWebhook(
+        new Request('http://localhost/api/webhooks/clerk', {
+          method: 'POST',
+          body: '{}',
+        }),
+      );
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 400 on an invalid signature', async () => {
+      const otherSecret = `whsec_${Buffer.from('another-secret-abcdefghij').toString('base64')}`;
+      const res = await callWebhook(
+        signedRequest({ type: 'user.created', data: { id: 'u1' } }, otherSecret),
+      );
+      expect(res.status).toBe(400);
+    });
+
+    it('upserts on user.created and returns 200', async () => {
+      const users = await import('../src/lib/db/users');
+      const data = { id: 'u1', email_addresses: [] };
+      const res = await callWebhook(signedRequest({ type: 'user.created', data }));
+      expect(res.status).toBe(200);
+      expect(users.upsertUserFromClerk).toHaveBeenCalledWith(data);
+    });
+
+    it('deletes on user.deleted and returns 200', async () => {
+      const users = await import('../src/lib/db/users');
+      const data = { id: 'u1', deleted: true };
+      const res = await callWebhook(signedRequest({ type: 'user.deleted', data }));
+      expect(res.status).toBe(200);
+      expect(users.deleteUserFromClerk).toHaveBeenCalledWith(data);
+    });
+
+    it('returns 500 (so Clerk retries) and logs when the database fails', async () => {
+      const users = await import('../src/lib/db/users');
+      vi.mocked(users.upsertUserFromClerk).mockRejectedValueOnce(
+        new Error('db down'),
+      );
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const res = await callWebhook(
+        signedRequest({ type: 'user.updated', data: { id: 'u1' } }),
+      );
+      expect(res.status).toBe(500);
+      expect(errorSpy).toHaveBeenCalled();
     });
   });
 });

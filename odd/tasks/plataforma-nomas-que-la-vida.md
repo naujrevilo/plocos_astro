@@ -89,6 +89,14 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - Actualizar `src/pages/politica-de-cookies/index.astro` y `src/pages/en/cookie-policy/index.astro`: añadir cookies de auth (Clerk `__session`, `__client`), preferencia (locale, theme), paywall (iteración visitada), anotaciones en curso.
   - **Acceptance**: 4 categorías de cookies cubiertas, todas declaradas con propósito y duración.
 
+- [ ] **T27** Conectar Turso (BD `plocos`) + mirror de usuarios Clerk (~350 líneas, TDD con libsql en memoria). Ruta: delegated direct (writer) — trigger: 2+ archivos no triviales (schema, db client, users.ts, webhook, tests).
+  - Estado previo (inspección read-only 2026-10-04): BD `default` en estado Astro DB (`Comments` 25 filas de prueba, `_astro_db_snapshot`, `__drizzle_migrations` vacía); la migración manual `0002_pivot_plataforma.sql` nunca se aplicó y no estaba en el journal. Respaldo: `.backups/turso-legacy-2026-10-04.json` (gitignored).
+  - Decisiones: BD nueva `plocos` (Turso no permite renombrar); `users.role` nullable, `NULL` = sin suscripción (alinea con T26); FKs hacia `users` con `onDelete: 'cascade'` (Política de Privacidad promete cancelación en cascada).
+  - Migraciones regeneradas desde `schema.ts` (drizzle-kit generate, journal limpio); se eliminan 0000/0001 (blog) y la 0002 manual.
+  - `src/lib/db/users.ts`: upsert/delete reales; webhook Clerk devuelve error real (no traga fallos) para que Clerk reintente.
+  - **Progreso (código local)**: migración `drizzle/0000_naive_susan_delgado.sql`; FKs cascade en subscriptions/bookAnnotations/auditorProfiles/notificationQueue.userId, estructura del libro sin cascade (borrar contenido no debe borrar anotaciones). Bug latente corregido: svix 2.6.1 `verify()` devuelve void → el webhook nunca procesó eventos (el 200 lo ocultaba); ahora `JSON.parse(body)` tras verificar. Evidencia: RED t27 (import) y t08 (sin upsert, 200 en vez de 500) → GREEN; suite 207/207; tsc 0 errores. Pendiente: aplicar migración a `plocos` (autorización remota).
+  - **Acceptance**: tests de `users.ts` contra libsql en memoria con la migración generada; webhook `user.created` inserta con `role = NULL`; `user.deleted` borra en cascada; migración aplicada a `plocos` (requiere autorización del usuario para escritura remota).
+
 ### PR 3 — Payments integration
 
 - [ ] **T10** Integración PayPal (~400 líneas, TDD para webhook signature verification).
@@ -182,6 +190,7 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - Header con sesión: "Leer el libro" (todo rol) + "Aportar" (colaborador/auditor; la UI de aportes llega en T21).
   - **Acceptance**: con rol → `/libro` (`/en/book`); sin rol → `/suscripcion` (`/en/subscription`); claims con rol inválido se tratan como sin rol; tests verdes.
   - **Evidencia**: `tests/t26-access.test.ts` RED (módulo ausente → 4 fallos del stub) → GREEN; suite 187/187. `/auth/continue` sin sesión → 302 `/sign-in`. Flujo con sesión: el usuario llegó a `/auth/continue` tras login (pendiente: confirmar destino `/libro` con rol y `/suscripcion` sin rol en navegador).
+  - **Verificado en navegador (2026-10-04)**: con `role: colaborador` el login aterriza en `/libro` y el header muestra "Leer el libro" + "Aportar".
   - **Setup externo (usuario)**: Clerk Dashboard → Sessions → Customize session token `{"metadata": "{{user.public_metadata}}"}`; publicMetadata de prueba `{"role":"colaborador"}`.
 
 ### PR 7 — i18n + automation

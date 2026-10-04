@@ -1,75 +1,108 @@
 /**
  * @module db/users
- * @description Helpers to mirror Clerk users into the local `users` table.
+ * @description Mirror of Clerk users into the local `users` table.
  *
- * T08 wires the surface (signatures, return shapes, error handling). The
- * real database operations will be implemented in a follow-up task that
- * owns the subscriptions / paywall flow (T10/T11). For now, the helpers
- * accept the same payload that Clerk sends in `user.created`,
- * `user.updated`, and `user.deleted` webhooks, and they throw an
- * explicit `UNIMPLEMENTED` error if called — production must wire these
- * to the actual `db` (libsql) connection.
+ * Called from the Clerk webhook (`src/pages/api/webhooks/clerk.ts`):
+ *   - `user.created` / `user.updated` → `upsertUserFromClerk`
+ *   - `user.deleted`                  → `deleteUserFromClerk`
  *
- * The webhook handler (`src/pages/api/webhooks/clerk.ts`) imports these
- * helpers and catches the UNIMPLEMENTED error so that signature-verified
- * requests still return 200 OK to Clerk (Clerk retries on non-2xx, which
- * we want to avoid until the DB layer is fully wired).
+ * The mirror only owns identity fields (email, displayName). `role` is set by
+ * the payment webhooks (T10/T11) and `habeasScriptumAcceptedAt` by the
+ * consent flow, so an update never touches them; a new row starts with
+ * `role = NULL` (no subscription).
+ *
+ * Deleting a user cascades (FK `ON DELETE cascade`) to every user-owned row,
+ * which implements the ARCO right of cancellation (Ley 1581/2012).
+ *
+ * Errors propagate: the webhook turns them into a 500 so Clerk retries.
+ * Every helper takes an optional `Database` so tests can pass an in-memory one.
  */
-import type { User as ClerkUser } from '@clerk/backend';
+import { eq, sql } from 'drizzle-orm';
+import { db as appDb, type Database } from '../db';
+import { users, type User } from './schema';
 
 /**
- * Minimum shape we care about from Clerk's webhook payloads. Clerk sends
- * a richer User object; we narrow it here to the fields the local `users`
- * table stores.
+ * Fields we read from Clerk's `UserJSON` webhook payload (snake_case, as sent
+ * over the wire). Declared locally so we do not depend on `@clerk/backend`
+ * types, which are not a direct dependency.
  */
-export type ClerkUserPayload = Pick<
-  ClerkUser,
-  'id' | 'email_addresses' | 'first_name' | 'last_name'
->;
+export interface ClerkUserPayload {
+  id: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  primary_email_address_id?: string | null;
+  email_addresses: Array<{ id: string; email_address: string }>;
+}
+
+/** Clerk's `user.deleted` payload (`DeletedObjectJSON`): `id` may be absent. */
+export interface ClerkDeletedPayload {
+  id?: string | null;
+}
+
+/** Primary email if Clerk flags one, else the first address. */
+function pickEmail(data: ClerkUserPayload): string {
+  const addresses = data.email_addresses ?? [];
+  const primary = addresses.find((e) => e.id === data.primary_email_address_id);
+  const email = (primary ?? addresses[0])?.email_address;
+  if (!email) {
+    throw new Error(`Clerk user ${data.id} has no email address`);
+  }
+  return email;
+}
+
+/** "First Last", trimmed; null when both names are empty. */
+function buildDisplayName(data: ClerkUserPayload): string | null {
+  const name = [data.first_name, data.last_name]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(' ');
+  return name || null;
+}
 
 /**
- * Upsert a Clerk user into the local `users` table.
- *
- * Called from the Clerk webhook for `user.created` and `user.updated`
- * events. The local `users.clerkUserId` is the PRIMARY KEY so this is a
- * true insert-or-update keyed by Clerk's `user.id`.
+ * Insert or update a Clerk user keyed by `clerkUserId`. On conflict only
+ * email, displayName and updatedAt change; role and consent are preserved.
  */
 export async function upsertUserFromClerk(
-  _data: ClerkUserPayload,
+  data: ClerkUserPayload,
+  database: Database = appDb,
 ): Promise<void> {
-  // TODO(plocos): replace with the real drizzle upsert once T07's `users`
-  // table is connected to the libsql client (T10/T11 follow-up).
-  // Reference:
-  //   await db.insert(users).values({...}).onConflictDoUpdate({...});
-  throw new Error('upsertUserFromClerk: UNIMPLEMENTED (T08 mockup)');
+  const email = pickEmail(data);
+  const displayName = buildDisplayName(data);
+
+  await database
+    .insert(users)
+    .values({ clerkUserId: data.id, email, displayName })
+    .onConflictDoUpdate({
+      target: users.clerkUserId,
+      set: { email, displayName, updatedAt: sql`(unixepoch())` },
+    });
 }
 
 /**
- * Delete a Clerk user from the local `users` table (cascades per schema).
- *
- * Called from the Clerk webhook for `user.deleted` events. ARCO right of
- * Cancellation (Ley 1581/2012) requires this on Clerk-side account
- * deletion; the local row is the source of truth for downstream cascade.
+ * Delete a Clerk user; FK cascades remove their subscriptions, annotations,
+ * auditor profile and queued notifications. Unknown ids are a no-op.
  */
 export async function deleteUserFromClerk(
-  _data: Pick<ClerkUser, 'id'>,
+  data: ClerkDeletedPayload,
+  database: Database = appDb,
 ): Promise<void> {
-  // TODO(plocos): replace with the real drizzle delete.
-  // Reference:
-  //   await db.delete(users).where(eq(users.clerkUserId, _data.id));
-  throw new Error('deleteUserFromClerk: UNIMPLEMENTED (T08 mockup)');
+  if (!data.id) {
+    console.warn('[db/users] user.deleted payload without id; nothing to delete');
+    return;
+  }
+  await database.delete(users).where(eq(users.clerkUserId, data.id));
 }
 
-/**
- * Fetch a local user row by Clerk user id. Returns null when the user
- * has not been mirrored yet (e.g. webhook not processed).
- */
+/** Fetch a mirrored user, or null if the webhook has not been processed. */
 export async function getUser(
-  _clerkUserId: string,
-): Promise<null> {
-  // TODO(plocos): replace with the real drizzle select.
-  // Reference:
-  //   const rows = await db.select().from(users).where(eq(users.clerkUserId, _clerkUserId)).limit(1);
-  //   return rows[0] ?? null;
-  throw new Error('getUser: UNIMPLEMENTED (T08 mockup)');
+  clerkUserId: string,
+  database: Database = appDb,
+): Promise<User | null> {
+  const rows = await database
+    .select()
+    .from(users)
+    .where(eq(users.clerkUserId, clerkUserId))
+    .limit(1);
+  return rows[0] ?? null;
 }
