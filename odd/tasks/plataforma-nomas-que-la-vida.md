@@ -346,4 +346,6 @@ notificationQueue: {
 
 ## Next Step
 
-T14 (archivo del libro, PDF de prueba del usuario) + T12 (paywall) sobre la BD `plocos`. Luego PR 3 — Payments (T10 PayPal + T11 Wompi) en `feature/pr-3-payments`. Pendientes externos: dominio del cliente para Clerk producción + webhook; T02 sin verificar.
+**En curso — webhook Clerk en dev (sin código nuevo):** 1) `winget install --id Cloudflare.cloudflared`; 2) `pnpm dev --allowed-hosts .trycloudflare.com`; 3) `cloudflared tunnel --url http://localhost:4321`; 4) Clerk → Webhooks → endpoint `https://<tunnel>/api/webhooks/clerk` con `user.created/updated/deleted`; 5) `CLERK_WEBHOOK_SIGNING_SECRET` en `.env.local` (lo pone el usuario) + reiniciar dev; 6) editar el usuario en Clerk → `user.updated` hace upsert → verificar fila en `users` de `plocos` (consulta read-only, pedir autorización). La URL del túnel cambia en cada arranque.
+
+Después: T10 Wompi (solo Colombia, geo `CO` ya emulado en local) / T11 PayPal; resto de T14 + T12; antes del merge a `main`: env vars en Netlify, `netlify link` + `netlify blobs:set` del PDF, limpiar `netlify.toml` (`build --remote`, `included_files db/**`).
