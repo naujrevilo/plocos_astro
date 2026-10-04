@@ -173,6 +173,16 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - Crear `src/pages/suscripcion.astro` y `src/pages/en/subscription.astro`: página donde el visitante elige Lector vs Colaborador e inicia el flujo de pago (decide PayPal o Wompi según geografía, con selector manual).
   - Reescribir `src/components/SiteFooter.astro` (ES+EN): añadir enlaces a `/habeas-scriptum`, `/terminos/auditoria`, `/terminos/simbiosis-algoritmica` además de los actuales.
   - **Acceptance**: el header enlaza las 5 secciones + Blog + Suscripción + redes; el footer enlaza los sub-documentos legales; `/suscripcion` muestra opciones de plan con pre-selección geográfica o selector manual.
+  - **Decisión 2026-10-04 (afecta T10/T11)**: desde Colombia (geo-IP) se muestra SOLO Wompi; fuera de Colombia SOLO PayPal. Clerk Billing descartado (solo Stripe). País desconocido → fallback a definir en T10/T11.
+
+- [x] **T26** Acceso por rol al iniciar sesión (~250 líneas, TDD para `src/lib/access.ts`). Ruta: inline guiado (el usuario pidió guía y aporta la regla de negocio). — commits: cf97738 (header sign-in/UserButton), ba5b0d3 (access + /auth/continue + member links)
+  - Opción A elegida: el rol se replica en `publicMetadata` de Clerk y viaja en el session token (`metadata.role`); Turso sigue siendo la fuente de verdad (los webhooks de pago escribirán ambos en T10/T11).
+  - `src/lib/access.ts`: `getRoleFromClaims` (valida contra `USER_ROLES`), `getPostSignInPath(role, locale)`, `getMemberLinks(role, locale)`.
+  - `/auth/continue`: redirige según rol; `<SignIn fallbackRedirectUrl>` apunta ahí (respeta `redirect_url` del middleware).
+  - Header con sesión: "Leer el libro" (todo rol) + "Aportar" (colaborador/auditor; la UI de aportes llega en T21).
+  - **Acceptance**: con rol → `/libro` (`/en/book`); sin rol → `/suscripcion` (`/en/subscription`); claims con rol inválido se tratan como sin rol; tests verdes.
+  - **Evidencia**: `tests/t26-access.test.ts` RED (módulo ausente → 4 fallos del stub) → GREEN; suite 187/187. `/auth/continue` sin sesión → 302 `/sign-in`. Flujo con sesión: el usuario llegó a `/auth/continue` tras login (pendiente: confirmar destino `/libro` con rol y `/suscripcion` sin rol en navegador).
+  - **Setup externo (usuario)**: Clerk Dashboard → Sessions → Customize session token `{"metadata": "{{user.public_metadata}}"}`; publicMetadata de prueba `{"role":"colaborador"}`.
 
 ### PR 7 — i18n + automation
 
