@@ -109,9 +109,10 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - **Acceptance**: subscription se crea en checkout; webhook actualiza `subscriptions.status`; tests RED para verificación de signature.
 
 - [ ] **T11** Integración Wompi (~400 líneas, TDD para webhook integrity).
-  - Configurar `WOMPI_PUBLIC_KEY` + `WOMPI_PRIVATE_KEY` + `WOMPI_INTEGRITY_SECRET` env vars.
-  - Endpoint `/api/payments/wompi/checkout` genera link de pago con tokenización para suscripciones recurrentes.
-  - Webhook `/api/webhooks/wompi` para `transaction.updated`. Verificación con integrity secret.
+  - **Bloqueada (2026-10-04): decisión del cliente sobre el modelo de cobro.** Investigación (docs.wompi.co: fuentes-de-pago, eventos, ambientes-y-llaves): Wompi NO tiene suscripciones nativas; lo recurrente son fuentes de pago (`/v1/tokens/*` → `POST /v1/payment_sources` → cada cobro lo dispara el comercio con `POST /v1/transactions` + `payment_source_id`; cancelar `PUT /v1/payment_sources/{id}/void`). Opciones: A) recurrente propio (scheduler mensual, reintentos, cobros fallidos); B) periodos prepagados vía Web Checkout (incluye PSE, renovación manual con recordatorio por email). Recomendación: B para lanzar. Mientras: sandbox con cuenta propia; las llaves del cliente reemplazan solo env vars.
+  - Configurar `WOMPI_PUBLIC_KEY` + `WOMPI_PRIVATE_KEY` + `WOMPI_INTEGRITY_SECRET` + `WOMPI_EVENTS_SECRET` env vars (prefijos sandbox `pub_test_`/`prv_test_`/`test_integrity_`/`test_events_`; base `sandbox.wompi.co/v1` vs `production.wompi.co/v1`).
+  - Endpoint `/api/payments/wompi/checkout` (diseño según la decisión A/B).
+  - Webhook `/api/webhooks/wompi` para `transaction.updated`. Verificación con el **events secret**: `SHA256(valores de signature.properties + timestamp + events secret)` vs header `X-Event-Checksum`. Wompi espera 200 y reintenta solo 3 veces en 24 h.
   - **Acceptance**: subscription se crea; webhook actualiza `subscriptions.status`; tests RED para integrity verification.
 
 ### PR 4 — Book section + paywall
