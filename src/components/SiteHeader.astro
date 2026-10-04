@@ -15,6 +15,8 @@ import { translations as allTranslations, defaultLocale } from "../lib/i18n";
 import type { Locale } from "../lib/i18n";
 import { createLocaleHref } from "../lib/routes";
 import rawContactData from "../data/contact.json";
+import { Show, UserButton } from "@clerk/astro/components";
+import { getSignInPath } from "../lib/routeMatcher";
 
 type SocialLink = { id: 'facebook' | 'instagram' | 'x'; label: string; url: string };
 
@@ -93,6 +95,10 @@ const blogLegacyHref = "https://plocos.blogspot.com";
 const blogLegacyLabel = locale === "es" ? "Blog (archivo)" : "Blog (archive)";
 // Social links loaded from the same data source as the footer.
 const socialLinks = (rawContactData as { social: SocialLink[] }).social;
+// Auth entry points (Clerk). Sign-in path is locale-aware, same as the middleware redirect.
+const authLabels = translations.auth;
+const signInHref = getSignInPath(homeHref);
+const accountHref = createLocaleHref(locale as Locale, translations.paths.account);
 ---
 <header class="site-header mb-4">
   <div class="header-spacer"></div>
@@ -149,6 +155,20 @@ const socialLinks = (rawContactData as { social: SocialLink[] }).social;
           >
             {ctaLabel}
           </a>
+          <Show when="signed-out">
+            <a
+              href={signInHref}
+              aria-label={authLabels.signInLabel}
+              title={authLabels.signInLabel}
+              class="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent"
+            >
+              <svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.1a7.5 7.5 0 0 1 15 0A17.9 17.9 0 0 1 12 21.75c-2.68 0-5.22-.58-7.5-1.65Z"/></svg>
+              <span class="hidden lg:inline">{authLabels.signInLabel}</span>
+            </a>
+          </Show>
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
           <ThemeToggle />
           <div class="flex gap-1 ml-2">
             <a href={languageOptions[0].href} aria-label="Español" class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'es' ? 'ring-2 ring-accent' : ''}`}>
@@ -212,6 +232,20 @@ const socialLinks = (rawContactData as { social: SocialLink[] }).social;
             {blogLegacyLabel} ↗
           </a>
         </li>
+        <Show when="signed-out">
+          <li class="w-full">
+            <a href={signInHref} class="block w-full rounded border border-accent px-4 py-3 text-accent font-semibold transition hover:bg-accent/10">
+              {authLabels.signInLabel}
+            </a>
+          </li>
+        </Show>
+        <Show when="signed-in">
+          <li class="w-full">
+            <a href={accountHref} class="block w-full rounded border border-border-subtle bg-surface-elevated px-4 py-3 text-text-primary transition hover:border-accent hover:text-accent">
+              {authLabels.accountLabel}
+            </a>
+          </li>
+        </Show>
       </ul>
     </nav>
   </div>
