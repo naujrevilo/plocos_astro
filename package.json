@@ -41,6 +41,8 @@
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
     "postcss": "8.5.28",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.1",
     "sharp": "0.35.4",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.13",
