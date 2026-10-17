@@ -44,7 +44,11 @@ export const POST: APIRoute = async ({ request }) => {
   const xSignature = request.headers.get('x-signature');
   const xRequestId = request.headers.get('x-request-id');
   if (!xSignature || !xRequestId) {
-    return new Response('Missing signature headers', { status: 400 });
+    // MP's panel "URL test" button sends the sample payload WITHOUT the
+    // signature headers; only real notifications come signed. Acknowledge
+    // with 200 so the panel test passes, but never process an unsigned
+    // payload — an unsigned request is never allowed to touch the DB.
+    return new Response('OK (unsigned, not processed)', { status: 200 });
   }
 
   const rawBody = await request.text();

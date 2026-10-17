@@ -234,14 +234,15 @@ describe('T11 - POST /api/webhooks/mercadopago', () => {
     expect(res.status).toBe(500);
   });
 
-  it('returns 400 when x-signature header is missing', async () => {
+  it('returns 200 without processing when signature headers are missing (MP panel test)', async () => {
     const res = await callPost(buildRequest({ body: PANEL_PAYLOAD, xSignature: null }));
-    expect(res.status).toBe(400);
-  });
+    expect(res.status).toBe(200);
+    const mp = await import('../src/lib/mercadopago');
+    expect(mp.fetchPreapproval).not.toHaveBeenCalled();
 
-  it('returns 400 when x-request-id header is missing', async () => {
-    const res = await callPost(buildRequest({ body: PANEL_PAYLOAD, xRequestId: null }));
-    expect(res.status).toBe(400);
+    const res2 = await callPost(buildRequest({ body: PANEL_PAYLOAD, xRequestId: null }));
+    expect(res2.status).toBe(200);
+    expect(mp.fetchPreapproval).not.toHaveBeenCalled();
   });
 
   it('returns 400 on an invalid signature', async () => {
