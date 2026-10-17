@@ -20,12 +20,12 @@ import { createPreapprovalSubscription } from '../../../lib/mercadopago';
 import { getRoleFromClaims } from '../../../lib/access';
 import type { UserRole } from '../../../lib/db/schema';
 
-const PLAN_IDS = {
-  lector: () => import.meta.env.MERCADOPAGO_PLAN_LECTOR,
-  colaborador: () => import.meta.env.MERCADOPAGO_PLAN_COLABORADOR,
+const PLAN_PRICES = {
+  lector: () => import.meta.env.MERCADOPAGO_PRICE_LECTOR,
+  colaborador: () => import.meta.env.MERCADOPAGO_PRICE_COLABORADOR,
 } as const;
 
-type PlanName = keyof typeof PLAN_IDS;
+type PlanName = keyof typeof PLAN_PRICES;
 
 function isPlanName(value: unknown): value is PlanName {
   return value === 'lector' || value === 'colaborador';
@@ -58,10 +58,11 @@ export const POST: APIRoute = async (context) => {
     });
   }
 
-  const planId = PLAN_IDS[body.plan]();
-  if (!planId) {
+  const priceRaw = PLAN_PRICES[body.plan]();
+  const amount = priceRaw ? Number(priceRaw) : NaN;
+  if (!Number.isFinite(amount) || amount <= 0) {
     return new Response(
-      `Plan id not configured for ${body.plan} (MERCADOPAGO_PLAN_${body.plan.toUpperCase()})`,
+      `Price not configured for ${body.plan} (MERCADOPAGO_PRICE_${body.plan.toUpperCase()})`,
       { status: 500 },
     );
   }
@@ -78,11 +79,11 @@ export const POST: APIRoute = async (context) => {
 
   try {
     const creation = await createPreapprovalSubscription({
-      planId,
       payerEmail,
       externalReference: auth.userId,
       backUrl,
       reason: isEN ? `Plocos ${body.plan} subscription` : `Suscripción ${body.plan} Plocos`,
+      amount,
     });
     return new Response(JSON.stringify({ init_point: creation.init_point }), {
       status: 200,

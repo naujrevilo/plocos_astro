@@ -362,6 +362,7 @@ describe('T11 - POST /api/suscripcion/mercadopago (checkout flow)', () => {
   });
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllEnvs();
     vi.resetModules();
     vi.clearAllMocks();
   });
@@ -420,7 +421,7 @@ describe('T11 - POST /api/suscripcion/mercadopago (checkout flow)', () => {
   });
 
   it('creates the preapproval with external_reference = clerk id and returns init_point', async () => {
-    vi.stubEnv('MERCADOPAGO_PLAN_COLABORADOR', 'plan-id-2c93');
+    vi.stubEnv('MERCADOPAGO_PRICE_COLABORADOR', '20000');
     const mp = await import('../src/lib/mercadopago');
     (mp.createPreapprovalSubscription as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: '2c938084-preapproval',
@@ -439,10 +440,19 @@ describe('T11 - POST /api/suscripcion/mercadopago (checkout flow)', () => {
 
     expect(mp.createPreapprovalSubscription).toHaveBeenCalledWith(
       expect.objectContaining({
-        planId: 'plan-id-2c93',
+        amount: 20000,
         payerEmail: 'buyer@test.plocos',
         externalReference: 'user_123',
       }),
     );
+  });
+
+  it('returns 500 when the plan price env var is missing', async () => {
+    const res = await callEndpoint(
+      buildAuthedRequest({ body: { plan: 'colaborador' } }),
+      'lector',
+      'user_123',
+    );
+    expect(res.status).toBe(500);
   });
 });

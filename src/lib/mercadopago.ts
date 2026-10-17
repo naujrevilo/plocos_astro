@@ -149,17 +149,28 @@ export type PreapprovalCreation = {
 };
 
 /**
- * Create a subscription (preapproval) for a user from one of our MP
- * plans. `externalReference` is our Clerk user id — it is the ONLY way
- * the webhook can later map the subscription back to the subscriber,
- * so it is mandatory here (raw plan payment links lose this binding).
+ * Create a subscription (preapproval) without an associated plan:
+ * recurrence and amount travel inline (`auto_recurring`), and the
+ * preapproval is created in `pending` status so MP returns an
+ * `init_point` where the payer authorizes on the MP-hosted page.
+ *
+ * Why not plan-associated: plans created via the MP panel are bound to
+ * automatic card debit, and API-created preapprovals against them
+ * demand a client-side `card_token_id`. The pending+init_point flow
+ * needs no tokenization in our code and keeps `external_reference`
+ * (our Clerk user id) intact — the ONLY binding the webhook can use
+ * to map the approval back to the subscriber.
  */
 export async function createPreapprovalSubscription(input: {
-  planId: string;
   payerEmail: string;
   externalReference: string;
   backUrl: string;
   reason: string;
+  /** Monthly amount in the given currency (must exceed the country minimum). */
+  amount: number;
+  currency?: string;
+  frequency?: number;
+  frequencyType?: 'months' | 'days';
   accessToken?: string;
 }): Promise<PreapprovalCreation> {
   const accessToken = input.accessToken ?? getAccessToken() ?? '';
@@ -173,16 +184,22 @@ export async function createPreapprovalSubscription(input: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      preapproval_plan_id: input.planId,
       payer_email: input.payerEmail,
       external_reference: input.externalReference,
       back_url: input.backUrl,
       reason: input.reason,
+      auto_recurring: {
+        frequency: input.frequency ?? 1,
+        frequency_type: input.frequencyType ?? 'months',
+        transaction_amount: input.amount,
+        currency_id: input.currency ?? 'COP',
+      },
+      status: 'pending',
     }),
   });
   if (!res.ok) {
     // Surface MP's error body: 400s here carry the real reason
-    // (e.g. payer_email must be a test user in TEST mode).
+    // (e.g. amounts below the country minimum).
     const errorBody = await res.text();
     throw new Error(
       `createPreapprovalSubscription failed: MP responded ${res.status}: ${errorBody}`,
