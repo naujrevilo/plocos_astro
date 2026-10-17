@@ -32,6 +32,8 @@
  */
 import { clerkMiddleware } from '@clerk/astro/server';
 import { createRouteMatcher, getSignInPath } from './lib/routeMatcher';
+import { getRoleFromClaims } from './lib/access';
+import { evaluatePaywall } from './lib/paywall';
 
 const isPublicRoute = createRouteMatcher([
   '/',
@@ -64,9 +66,42 @@ const isPublicRoute = createRouteMatcher([
   '/en/sign-up(.*)',
 ]);
 
+/**
+ * Map a pathname to the matching subscription path in the same locale.
+ * Used as the redirect target when the paywall denies access for a signed-
+ * in visitor without a paid role.
+ */
+function getSubscriptionPath(pathname: string): string {
+  return pathname === '/en' || pathname.startsWith('/en/') ? '/en/subscription' : '/suscripcion';
+}
+
 export const onRequest = clerkMiddleware((auth, context) => {
   const { pathname } = new URL(context.request.url);
-  if (!isPublicRoute(pathname) && !auth().userId) {
+  // Public routes bypass both auth and paywall (marketing, legal, auth UI).
+  if (isPublicRoute(pathname)) return;
+
+  // Auth gate (T08): a signed-in visitor is required for everything that
+  // is not public. The exact redirect target is locale-aware.
+  if (!auth().userId) {
     return context.redirect(getSignInPath(pathname));
   }
+
+  // Paywall gate (T12): a paid role is required for chapter routes
+  // (`/libro/[year]/[cycle]/[chapter]` and the EN mirror). Other
+  // non-public routes (e.g. /cuenta) only need auth.
+  const role = getRoleFromClaims(auth().sessionClaims);
+  const decision = evaluatePaywall({
+    pathname,
+    role,
+    isAuthenticated: true,
+  });
+
+  if (decision.allowed) return;
+
+  // tier_insufficient: signed in but no paid role. Send to the
+  // subscription page in the same locale, with `?next=` so we can come
+  // back to the original chapter after the role is provisioned.
+  const subscriptionPath = getSubscriptionPath(pathname);
+  const next = encodeURIComponent(pathname);
+  return context.redirect(`${subscriptionPath}?next=${next}`);
 });
