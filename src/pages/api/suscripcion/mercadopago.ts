@@ -34,7 +34,8 @@ function isPlanName(value: unknown): value is PlanName {
 /** Roles that must not subscribe to the (cheaper) lector plan. */
 const PAID_ROLES: readonly UserRole[] = ['colaborador', 'auditor'];
 
-export const POST: APIRoute = async ({ request, locals, url }) => {
+export const POST: APIRoute = async (context) => {
+  const { request, locals, url } = context;
   const auth = locals.auth?.();
   if (!auth?.userId) {
     return new Response('Unauthorized', { status: 401 });
@@ -65,7 +66,7 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
     );
   }
 
-  const client = await clerkClient();
+  const client = await clerkClient(context);
   const user = await client.users.getUser(auth.userId);
   const payerEmail = user.primaryEmailAddress?.emailAddress;
   if (!payerEmail) {

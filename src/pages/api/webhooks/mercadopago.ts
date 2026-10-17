@@ -36,7 +36,8 @@ type MPNotification = {
 /** Paid plan granted by every active MP subscription (doc maestro §Roles). */
 const PAID_PLAN = 'colaborador' as const;
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
+  const { request } = context;
   const secret = import.meta.env.MERCADOPAGO_WEBHOOK_SECRET;
   if (!secret) {
     return new Response('Webhook secret not configured', { status: 500 });
@@ -103,7 +104,7 @@ export const POST: APIRoute = async ({ request }) => {
             : undefined,
         });
 
-        const client = await clerkClient();
+        const client = await clerkClient(context);
         await client.users.updateUserMetadata(preapproval.external_reference, {
           publicMetadata: { role: PAID_PLAN },
         });
