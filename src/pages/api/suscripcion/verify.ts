@@ -30,16 +30,9 @@ export const POST: APIRoute = async (context) => {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const client = await clerkClient(context);
-  const user = await client.users.getUser(auth.userId);
-  const payerEmail = user.primaryEmailAddress?.emailAddress;
-  if (!payerEmail) {
-    return new Response('User has no primary email', { status: 400 });
-  }
-
   let preapproval: Preapproval | null = null;
   try {
-    preapproval = await findAuthorizedPreapproval(payerEmail, auth.userId);
+    preapproval = await findAuthorizedPreapproval(auth.userId);
   } catch (err) {
     console.error('[suscripcion] reconciliation search failed:', err);
     return new Response(JSON.stringify({ activated: false, error: 'mp_search_failed' }), {
@@ -69,6 +62,7 @@ export const POST: APIRoute = async (context) => {
         : undefined,
     });
 
+    const client = await clerkClient(context);
     await client.users.updateUserMetadata(auth.userId, {
       publicMetadata: { role: PAID_PLAN },
     });

@@ -221,15 +221,18 @@ export class PreapprovalNotFoundError extends Error {
 }
 
 /**
- * Search the payer's preapprovals and return the one matching our
+ * Search the application's preapprovals and return the one bound to our
  * external reference (Clerk user id) when it is authorized.
+ *
+ * Searches WITHOUT the payer_email filter: the binding is the
+ * external_reference alone, so it works regardless of which MP account
+ * paid or which email the Clerk account carries.
  *
  * Used by the reconciliation endpoint as a belt-and-braces for webhook
  * delivery: when the buyer returns from the MP checkout, we verify the
  * subscription server-side instead of trusting the webhook alone.
  */
 export async function findAuthorizedPreapproval(
-  payerEmail: string,
   externalReference: string,
   accessToken: string = getAccessToken() ?? '',
 ): Promise<Preapproval | null> {
@@ -237,7 +240,6 @@ export async function findAuthorizedPreapproval(
     throw new Error('MERCADOPAGO_ACCESS_TOKEN is not set');
   }
   const url = new URL('https://api.mercadopago.com/preapproval/search');
-  url.searchParams.set('payer_email', payerEmail);
   url.searchParams.set('limit', '50');
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${accessToken}` },
