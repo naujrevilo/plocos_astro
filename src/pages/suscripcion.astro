@@ -82,10 +82,10 @@ const isES = locale === 'es';
         </ul>
         <button
           type="button"
-          disabled
-          class="block w-full text-center rounded-full bg-text-secondary/30 px-5 py-3 text-sm font-semibold uppercase tracking-widest text-text-secondary/60 cursor-not-allowed"
+          data-mp-subscribe="lector"
+          class="block w-full text-center rounded-full bg-text-secondary/30 px-5 py-3 text-sm font-semibold uppercase tracking-widest !text-surface-base transition-colors duration-200 hover:bg-text-primary"
         >
-          {isES ? 'Pago disponible pronto' : 'Checkout coming soon'}
+          {isES ? 'Suscribirme al plan Lector' : 'Subscribe to the Reader plan'}
         </button>
       </section>
 
@@ -130,10 +130,10 @@ const isES = locale === 'es';
         </ul>
         <button
           type="button"
-          disabled
-          class="block w-full text-center rounded-full bg-accent/40 px-5 py-3 text-sm font-semibold uppercase tracking-widest !text-surface-base cursor-not-allowed"
+          data-mp-subscribe="colaborador"
+          class="block w-full text-center rounded-full bg-accent px-5 py-3 text-sm font-semibold uppercase tracking-widest !text-surface-base shadow-md transition-colors duration-200 hover:bg-text-primary"
         >
-          {isES ? 'Habeas Scriptum + pago disponibles pronto' : 'Habeas Scriptum + checkout coming soon'}
+          {isES ? 'Suscribirme como Colaborador' : 'Subscribe as Collaborator'}
         </button>
       </section>
     </div>
@@ -224,4 +224,44 @@ const isES = locale === 'es';
     select.addEventListener('change', update);
     update();
   })();
+</script>
+
+<script>
+  // MercadoPago subscription flow: click -> POST /api/suscripcion/mercadopago
+  // -> redirect to the MP-hosted checkout (init_point). Requires a signed-in
+  // session (the endpoint returns 401 otherwise, which we surface as a
+  // sign-in redirect).
+  document.querySelectorAll<HTMLButtonElement>('[data-mp-subscribe]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const plan = btn.dataset.mpSubscribe;
+      if (!plan) return;
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = btn.getAttribute('data-busy-label') ?? '...';
+      try {
+        const res = await fetch('/api/suscripcion/mercadopago', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ plan }),
+        });
+        if (res.status === 401) {
+          window.location.href = '/sign-in?redirectBack=/suscripcion';
+          return;
+        }
+        if (!res.ok) {
+          const text = await res.text();
+          alert(text || 'Error');
+          return;
+        }
+        const { init_point: initPoint } = (await res.json()) as { init_point: string };
+        window.location.href = initPoint;
+      } catch (err) {
+        console.error('[suscripcion] checkout failed:', err);
+        alert('Error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    });
+  });
 </script>

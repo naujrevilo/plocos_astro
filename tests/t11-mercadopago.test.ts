@@ -19,7 +19,13 @@ import { verifyMPSignature } from '../src/lib/mercadopago';
 
 vi.mock('@clerk/astro/server', () => ({
   clerkClient: vi.fn(async () => ({
-    users: { updateUserMetadata: vi.fn(async () => ({})) },
+    users: {
+      updateUserMetadata: vi.fn(async () => ({})),
+      getUser: vi.fn(async () => ({
+        id: 'user_123',
+        primaryEmailAddress: { emailAddress: 'buyer@test.plocos' },
+      })),
+    },
   })),
 }));
 
@@ -29,7 +35,11 @@ vi.mock('../src/lib/db/subscriptions', () => ({
 
 vi.mock('../src/lib/mercadopago', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../src/lib/mercadopago')>();
-  return { ...actual, fetchPreapproval: vi.fn() };
+  return {
+    ...actual,
+    fetchPreapproval: vi.fn(),
+    createPreapprovalSubscription: vi.fn(),
+  };
 });
 
 const SECRET = 'test-webhook-secret-12345';
@@ -341,5 +351,98 @@ describe('T11 - POST /api/webhooks/mercadopago', () => {
 
     const res = await callPost(buildRequest({ body: PANEL_PAYLOAD }));
     expect(res.status).toBe(500);
+  });
+});
+
+describe('T11 - POST /api/suscripcion/mercadopago (checkout flow)', () => {
+  const NOW_MS = 1_700_000_000_000;
+
+  beforeEach(() => {
+    vi.useFakeTimers({ now: NOW_MS });
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.resetModules();
+    vi.clearAllMocks();
+  });
+
+  function buildAuthedRequest(args: {
+    body: unknown;
+    role?: string | null;
+    userId?: string | null;
+  }): Request {
+    return new Request('http://localhost/api/suscripcion/mercadopago', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(args.body),
+    });
+  }
+
+  async function callEndpoint(request: Request, role: string | null, userId: string | null) {
+    const { POST } = await import('../src/pages/api/suscripcion/mercadopago');
+    return POST({
+      request,
+      locals: {
+        auth: () => ({
+          userId,
+          sessionClaims: role ? { metadata: { role } } : {},
+        }),
+      },
+      url: new URL('http://localhost/api/suscripcion/mercadopago'),
+    } as any);
+  }
+
+  it('returns 401 without a session', async () => {
+    const res = await callEndpoint(
+      buildAuthedRequest({ body: { plan: 'colaborador' } }),
+      null,
+      null,
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 400 for an unknown plan name', async () => {
+    const res = await callEndpoint(
+      buildAuthedRequest({ body: { plan: 'premium' } }),
+      'lector',
+      'user_123',
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 409 when a colaborador tries to subscribe to the lector plan (downgrade)', async () => {
+    const res = await callEndpoint(
+      buildAuthedRequest({ body: { plan: 'lector' } }),
+      'colaborador',
+      'user_123',
+    );
+    expect(res.status).toBe(409);
+  });
+
+  it('creates the preapproval with external_reference = clerk id and returns init_point', async () => {
+    vi.stubEnv('MERCADOPAGO_PLAN_COLABORADOR', 'plan-id-2c93');
+    const mp = await import('../src/lib/mercadopago');
+    (mp.createPreapprovalSubscription as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: '2c938084-preapproval',
+      init_point: 'https://www.mercadopago.com.co/subscriptions/checkout?preapproval_id=x',
+      status: 'pending',
+    });
+
+    const res = await callEndpoint(
+      buildAuthedRequest({ body: { plan: 'colaborador' } }),
+      'lector',
+      'user_123',
+    );
+    expect(res.status).toBe(200);
+    const json: any = await res.json();
+    expect(json.init_point).toContain('mercadopago.com.co');
+
+    expect(mp.createPreapprovalSubscription).toHaveBeenCalledWith(
+      expect.objectContaining({
+        planId: 'plan-id-2c93',
+        payerEmail: 'buyer@test.plocos',
+        externalReference: 'user_123',
+      }),
+    );
   });
 });

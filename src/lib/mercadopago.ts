@@ -138,6 +138,55 @@ export type Preapproval = {
 };
 
 /**
+ * Response subset of POST /preapproval (create a subscription from a
+ * plan). `init_point` is the MP-hosted checkout URL the user must be
+ * redirected to.
+ */
+export type PreapprovalCreation = {
+  id: string;
+  init_point: string;
+  status: string;
+};
+
+/**
+ * Create a subscription (preapproval) for a user from one of our MP
+ * plans. `externalReference` is our Clerk user id — it is the ONLY way
+ * the webhook can later map the subscription back to the subscriber,
+ * so it is mandatory here (raw plan payment links lose this binding).
+ */
+export async function createPreapprovalSubscription(input: {
+  planId: string;
+  payerEmail: string;
+  externalReference: string;
+  backUrl: string;
+  reason: string;
+  accessToken?: string;
+}): Promise<PreapprovalCreation> {
+  const accessToken = input.accessToken ?? getAccessToken() ?? '';
+  if (!accessToken) {
+    throw new Error('MERCADOPAGO_ACCESS_TOKEN is not set');
+  }
+  const res = await fetch('https://api.mercadopago.com/preapproval', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      preapproval_plan_id: input.planId,
+      payer_email: input.payerEmail,
+      external_reference: input.externalReference,
+      back_url: input.backUrl,
+      reason: input.reason,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`createPreapprovalSubscription failed: MP responded ${res.status}`);
+  }
+  return (await res.json()) as PreapprovalCreation;
+}
+
+/**
  * Thrown when MP answers 404 for a preapproval id: the resource was
  * deleted or never existed (e.g. the panel's simulated test id).
  * Permanent — the webhook handler must NOT ask MP to retry.
