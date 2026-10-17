@@ -125,7 +125,7 @@ const memberLinks = [
               const active = isActive(href);
               return (
                 <li>
-                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center rounded-full px-3.5 py-2 text-[0.95rem] text-text-primary transition-colors duration-200 hover:bg-text-primary hover:text-surface-base hover:shadow-contemplation ${active ? "bg-accent text-surface-base font-semibold" : ""}`}>{item.label}</a>
+                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center rounded-full px-3.5 py-2 text-[0.95rem] text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent ${active ? "text-accent font-semibold" : ""}`}>{item.label}</a>
                 </li>
               );
             })}
@@ -150,10 +150,7 @@ const memberLinks = [
           </div>
           <a
             href={suscripcionHref}
-            class="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-base font-extrabold uppercase tracking-widest text-surface-base shadow-md transition hover:bg-text-primary hover:text-surface-base"
-          >
-            href={suscripcionHref}
-            class="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-base font-extrabold uppercase tracking-widest text-surface-base shadow-md transition hover:bg-text-primary hover:text-surface-base"
+            class="inline-flex items-center justify-center rounded-full bg-accent px-4 py-2 text-sm font-semibold uppercase tracking-widest text-surface-base shadow-md transition hover:bg-text-primary hover:text-surface-base"
           >
             {ctaLabel}
           </a>
