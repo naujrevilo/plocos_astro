@@ -125,7 +125,7 @@ const memberLinks = [
               const active = isActive(href);
               return (
                 <li>
-                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center px-3.5 py-2 text-[0.95rem] text-text-secondary border-b-2 border-transparent transition-colors duration-200 hover:border-accent hover:text-accent ${active ? "border-accent text-accent font-semibold" : ""}`}>{item.label}</a>
+                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center px-3 py-2 text-base font-medium text-text-secondary rounded-lg transition-colors duration-200 hover:bg-accent/10 hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/40 ${active ? "bg-accent/10 text-accent font-semibold" : ""}`}>{item.label}</a>
                 </li>
               );
             })}
@@ -142,7 +142,7 @@ const memberLinks = [
                 rel="noopener noreferrer"
                 aria-label={social.label}
                 title={social.label}
-                class="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-all duration-200 hover:bg-surface-muted hover:text-accent hover:scale-110 hover:-translate-y-0.5"
+                class="inline-flex items-center justify-center w-9 h-9 text-text-secondary rounded-lg transition-colors duration-200 hover:bg-accent/10 hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/40"
               >
                 <SocialIcon name={social.id} class="h-4 w-4" />
               </a>
@@ -150,7 +150,7 @@ const memberLinks = [
           </div>
           <a
             href={suscripcionHref}
-            class="shrink-0 inline-flex items-center justify-center rounded-full bg-accent px-4 py-2 text-sm font-semibold uppercase tracking-widest text-surface-base shadow-md transition hover:bg-text-primary hover:text-surface-base"
+            class="shrink-0 inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold uppercase tracking-widest text-surface-base shadow-md transition-colors duration-200 hover:bg-text-primary focus:outline-none focus:ring-2 focus:ring-accent/50"
           >
             {ctaLabel}
           </a>
@@ -159,7 +159,7 @@ const memberLinks = [
               href={signInHref}
               aria-label={authLabels.signInLabel}
               title={authLabels.signInLabel}
-              class="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm font-medium text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/40"
             >
               <svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.1a7.5 7.5 0 0 1 15 0A17.9 17.9 0 0 1 12 21.75c-2.68 0-5.22-.58-7.5-1.65Z"/></svg>
               <span class="hidden lg:inline">{authLabels.signInLabel}</span>
@@ -169,7 +169,7 @@ const memberLinks = [
             {memberLinks.map((link) => (
               <a
                 href={link.href}
-                class="hidden lg:inline-flex items-center rounded-full px-3 py-2 text-sm font-medium text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent"
+                class="hidden lg:inline-flex items-center rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm font-medium text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/40"
               >
                 {link.label}
               </a>
@@ -178,11 +178,11 @@ const memberLinks = [
           </Show>
           <ThemeToggle />
           <div class="flex gap-1 ml-2">
-            <a href={languageOptions[0].href} aria-label="Español" class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'es' ? 'ring-2 ring-accent' : ''}`}>
-              <img src="/flags/co.svg" alt="Español" class="h-6 w-6" />
+            <a href={languageOptions[0].href} aria-label="Español" class={`inline-flex items-center justify-center w-9 h-9 rounded-lg border border-border-subtle bg-surface-elevated transition-colors duration-200 hover:bg-surface-muted hover:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 ${locale === 'es' ? 'ring-2 ring-accent border-accent' : ''}`}>
+              <img src="/flags/co.svg" alt="Español" class="h-5 w-5" />
             </a>
-            <a href={languageOptions[1].href} aria-label="English" class={`rounded-full border border-border-subtle bg-surface-elevated p-1 transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${locale === 'en' ? 'ring-2 ring-accent' : ''}`}>
-              <img src="/flags/us.svg" alt="English" class="h-6 w-6" />
+            <a href={languageOptions[1].href} aria-label="English" class={`inline-flex items-center justify-center w-9 h-9 rounded-lg border border-border-subtle bg-surface-elevated transition-colors duration-200 hover:bg-surface-muted hover:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 ${locale === 'en' ? 'ring-2 ring-accent border-accent' : ''}`}>
+              <img src="/flags/us.svg" alt="English" class="h-5 w-5" />
             </a>
           </div>
         </div>
@@ -191,12 +191,12 @@ const memberLinks = [
         <div class="flex md:hidden items-center gap-2">
           <a
             href={suscripcionHref}
-            class="inline-flex items-center justify-center rounded-full bg-accent px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-surface-base shadow-md"
+            class="inline-flex items-center justify-center rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-surface-base shadow-md focus:outline-none focus:ring-2 focus:ring-accent/50"
           >
             {ctaLabel}
           </a>
           <ThemeToggle />
-          <button data-collapse-toggle="mobile-nav" type="button" class="hamburger-btn flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle bg-surface-elevated text-text-primary transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2" aria-label="Abrir menú" aria-controls="mobile-nav" aria-expanded="false">
+          <button data-collapse-toggle="mobile-nav" type="button" class="hamburger-btn inline-flex items-center justify-center w-10 h-10 rounded-lg border border-border-subtle bg-surface-elevated text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40" aria-label="Abrir menú" aria-controls="mobile-nav" aria-expanded="false">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect y="5" width="24" height="2" rx="1" fill="currentColor" />
               <rect y="11" width="24" height="2" rx="1" fill="currentColor" />
@@ -214,7 +214,7 @@ const memberLinks = [
       aria-label={navAriaLabel}
     >
       <!-- Solo el botón de cerrar menú, no hamburguesa -->
-      <button type="button" aria-label="Cerrar menú" class="self-end mb-4 text-gray-500 hover:text-blue-600 focus:outline-none" data-close-mobile-nav>
+      <button type="button" aria-label="Cerrar menú" class="self-end mb-4 text-text-secondary hover:text-accent transition-colors focus:outline-none focus:ring-2 focus:ring-accent/40 rounded-lg p-1" data-close-mobile-nav>
         <svg aria-hidden="true" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <ul class="flex flex-col gap-4 text-lg font-medium w-full">
@@ -224,14 +224,14 @@ const memberLinks = [
             const active = isActive(href);
             return (
               <li class="w-full">
-                <a href={href} aria-current={active ? "page" : undefined} class={`block w-full rounded border px-4 py-3 transition ${active ? "border-accent bg-accent/10 text-accent font-bold" : "border-border-subtle bg-surface-elevated text-text-primary hover:border-accent hover:text-accent"}`}>{item.label}</a>
+                <a href={href} aria-current={active ? "page" : undefined} class={`block w-full rounded-lg border px-4 py-3 text-base font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent/40 ${active ? "border-accent bg-accent/10 text-accent font-semibold" : "border-border-subtle bg-surface-elevated text-text-primary hover:bg-surface-muted hover:text-accent"}`}>{item.label}</a>
               </li>
             );
           })
         }
         <Show when="signed-out">
           <li class="w-full">
-            <a href={signInHref} class="block w-full rounded border border-accent px-4 py-3 text-accent font-semibold transition hover:bg-accent/10">
+            <a href={signInHref} class="block w-full rounded-lg border border-border-subtle bg-surface-elevated px-4 py-3 text-text-primary font-medium transition-colors duration-200 hover:bg-surface-muted hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/40">
               {authLabels.signInLabel}
             </a>
           </li>
@@ -239,13 +239,13 @@ const memberLinks = [
         <Show when="signed-in">
           {memberLinks.map((link) => (
             <li class="w-full">
-              <a href={link.href} class="block w-full rounded border border-accent px-4 py-3 text-accent font-semibold transition hover:bg-accent/10">
+              <a href={link.href} class="block w-full rounded-lg border border-border-subtle bg-surface-elevated px-4 py-3 text-text-primary font-medium transition-colors duration-200 hover:bg-surface-muted hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/40">
                 {link.label}
               </a>
             </li>
           ))}
           <li class="w-full">
-            <a href={accountHref} class="block w-full rounded border border-border-subtle bg-surface-elevated px-4 py-3 text-text-primary transition hover:border-accent hover:text-accent">
+            <a href={accountHref} class="block w-full rounded-lg border border-border-subtle bg-surface-elevated px-4 py-3 text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/40">
               {authLabels.accountLabel}
             </a>
           </li>
