@@ -14,8 +14,23 @@
  * Replay protection: reject signatures older than 5 minutes.
  */
 import crypto from 'node:crypto';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { verifyMPSignature } from '../src/lib/mercadopago';
+
+vi.mock('@clerk/astro/server', () => ({
+  clerkClient: vi.fn(async () => ({
+    users: { updateUserMetadata: vi.fn(async () => ({})) },
+  })),
+}));
+
+vi.mock('../src/lib/db/subscriptions', () => ({
+  activateSubscription: vi.fn(async () => ({ id: 1 })),
+}));
+
+vi.mock('../src/lib/mercadopago', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/lib/mercadopago')>();
+  return { ...actual, fetchPreapproval: vi.fn() };
+});
 
 const SECRET = 'test-webhook-secret-12345';
 const MAX_AGE_SECONDS = 5 * 60;
@@ -149,5 +164,157 @@ describe('T11 - verifyMPSignature', () => {
       nowMs,
     });
     expect(result).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// T11 - POST /api/webhooks/mercadopago (handler)
+// ---------------------------------------------------------------------------
+
+function sign(dataId: string, xRequestId: string, ts: number, secret: string): string {
+  const manifest = `id=${dataId};request-id=${xRequestId};ts=${ts};`;
+  const v1 = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
+  return `ts=${ts},v1=${v1}`;
+}
+
+function buildRequest(args: {
+  body: unknown;
+  dataId?: string;
+  xRequestId?: string;
+  xSignature?: string | null;
+}): Request {
+  const headers = new Headers({ 'content-type': 'application/json' });
+  if (args.xSignature !== null) {
+    headers.set('x-signature', args.xSignature ?? sign(args.dataId ?? '123456', args.xRequestId ?? 'req-1', 1_700_000_000, SECRET));
+  }
+  if (args.xRequestId !== null) {
+    headers.set('x-request-id', args.xRequestId ?? 'req-1');
+  }
+  return new Request('http://localhost/api/webhooks/mercadopago', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(args.body),
+  });
+}
+
+const PANEL_PAYLOAD = {
+  action: 'updated',
+  application_id: '5052374470578601',
+  data: { id: '123456' },
+  date: '2021-11-01T02:02:02Z',
+  entity: 'preapproval',
+  id: '123456',
+  type: 'subscription_preapproval',
+  version: 8,
+};
+
+async function callPost(request: Request) {
+  const { POST } = await import('../src/pages/api/webhooks/mercadopago');
+  return POST({ request } as any);
+}
+
+describe('T11 - POST /api/webhooks/mercadopago', () => {
+  const NOW_MS = 1_700_000_000_000;
+
+  beforeEach(() => {
+    vi.stubEnv('MERCADOPAGO_WEBHOOK_SECRET', SECRET);
+    vi.useFakeTimers({ now: NOW_MS });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+    vi.resetModules();
+    vi.clearAllMocks();
+  });
+
+  it('returns 500 when the webhook secret is not configured', async () => {
+    vi.stubEnv('MERCADOPAGO_WEBHOOK_SECRET', '');
+    const res = await callPost(buildRequest({ body: PANEL_PAYLOAD }));
+    expect(res.status).toBe(500);
+  });
+
+  it('returns 400 when x-signature header is missing', async () => {
+    const res = await callPost(buildRequest({ body: PANEL_PAYLOAD, xSignature: null }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when x-request-id header is missing', async () => {
+    const res = await callPost(buildRequest({ body: PANEL_PAYLOAD, xRequestId: null }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 on an invalid signature', async () => {
+    const res = await callPost(
+      buildRequest({ body: PANEL_PAYLOAD, xSignature: 'ts=1,v1=deadbeef' }),
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 200 and upgrades the role when the preapproval is authorized', async () => {
+    const mp = await import('../src/lib/mercadopago');
+    (mp.fetchPreapproval as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: '123456',
+      status: 'authorized',
+      external_reference: 'user_clerk_123',
+      start_date: '2026-01-01T00:00:00Z',
+      next_payment_date: '2026-02-01T00:00:00Z',
+    });
+
+    const res = await callPost(buildRequest({ body: PANEL_PAYLOAD }));
+    expect(res.status).toBe(200);
+
+    const { activateSubscription } = await import('../src/lib/db/subscriptions');
+    expect(activateSubscription).toHaveBeenCalledWith(
+      expect.objectContaining({
+        clerkUserId: 'user_clerk_123',
+        provider: 'mercadopago',
+        providerSubscriptionId: '123456',
+        plan: 'colaborador',
+      }),
+    );
+
+    const { clerkClient } = await import('@clerk/astro/server');
+    expect(clerkClient).toHaveBeenCalled();
+  });
+
+  it('returns 200 without any role change when the preapproval is cancelled', async () => {
+    const mp = await import('../src/lib/mercadopago');
+    (mp.fetchPreapproval as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: '123456',
+      status: 'cancelled',
+      external_reference: 'user_clerk_123',
+    });
+
+    const res = await callPost(buildRequest({ body: PANEL_PAYLOAD }));
+    expect(res.status).toBe(200);
+
+    const { activateSubscription } = await import('../src/lib/db/subscriptions');
+    expect(activateSubscription).not.toHaveBeenCalled();
+  });
+
+  it('returns 200 silently for unknown event types (no retry loop)', async () => {
+    const res = await callPost(
+      buildRequest({ body: { ...PANEL_PAYLOAD, type: 'something_else' } }),
+    );
+    expect(res.status).toBe(200);
+    const mp = await import('../src/lib/mercadopago');
+    expect(mp.fetchPreapproval).not.toHaveBeenCalled();
+  });
+
+  it('returns 500 when the DB or Clerk write fails (so MP retries)', async () => {
+    const mp = await import('../src/lib/mercadopago');
+    (mp.fetchPreapproval as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: '123456',
+      status: 'authorized',
+      external_reference: 'user_clerk_123',
+    });
+    const { activateSubscription } = await import('../src/lib/db/subscriptions');
+    (activateSubscription as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('db down'),
+    );
+
+    const res = await callPost(buildRequest({ body: PANEL_PAYLOAD }));
+    expect(res.status).toBe(500);
   });
 });

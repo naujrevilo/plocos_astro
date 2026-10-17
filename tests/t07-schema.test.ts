@@ -198,9 +198,12 @@ describe('T07 — Schema DB redesign (NQLV platform)', () => {
       expect(col.primary).toBe(true);
     });
 
-    it('has provider enum paypal/wompi', () => {
+    it('has provider enum paypal/wompi(legacy)/mercadopago', () => {
       const col = getColumn(table(), 'provider');
-      expect(col.enumValues).toEqual(['paypal', 'wompi']);
+      // T11: mercadopago added as the Colombia gateway. wompi stays in
+      // the enum for data safety (no rows exist yet, but removing an
+      // enum member is a migration decision, not a code edit).
+      expect(col.enumValues).toEqual(['paypal', 'wompi', 'mercadopago']);
     });
 
     it('has plan enum lector/colaborador', () => {

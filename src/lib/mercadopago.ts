@@ -107,3 +107,37 @@ export function createMercadoPagoClient(): MercadoPagoConfig {
 }
 
 export { Payment, Preference };
+
+/**
+ * Shape of the subset of the MP preapproval (Suscripciones) object the
+ * webhook handler needs. Fetched from GET /preapproval/{id}.
+ */
+export type Preapproval = {
+  id: string;
+  status: 'pending' | 'authorized' | 'paused' | 'cancelled';
+  /** Our own Clerk user id, set when creating the subscription. */
+  external_reference?: string;
+  start_date?: string;
+  next_payment_date?: string;
+};
+
+/**
+ * Fetch the full preapproval object from the MP Subscriptions API.
+ * The webhook notification only carries the id; the status and our
+ * external_reference (Clerk user id) live here.
+ */
+export async function fetchPreapproval(
+  id: string,
+  accessToken: string = process.env.MERCADOPAGO_ACCESS_TOKEN ?? '',
+): Promise<Preapproval> {
+  if (!accessToken) {
+    throw new Error('MERCADOPAGO_ACCESS_TOKEN is not set');
+  }
+  const res = await fetch(`https://api.mercadopago.com/preapproval/${encodeURIComponent(id)}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) {
+    throw new Error(`fetchPreapproval failed: MP responded ${res.status}`);
+  }
+  return (await res.json()) as Preapproval;
+}

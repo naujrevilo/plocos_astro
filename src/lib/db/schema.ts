@@ -58,7 +58,7 @@ const updatedAtColumn = () =>
 export const USER_ROLES = ['lector', 'colaborador', 'auditor'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
-export const PAYMENT_PROVIDERS = ['paypal', 'wompi'] as const;
+export const PAYMENT_PROVIDERS = ['paypal', 'wompi', 'mercadopago'] as const;
 export type PaymentProvider = (typeof PAYMENT_PROVIDERS)[number];
 
 export const SUBSCRIPTION_PLANS = ['lector', 'colaborador'] as const;
