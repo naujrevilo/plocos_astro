@@ -67,3 +67,12 @@ bun.lock
 sesion.txt
 .backups/
 private/
+
+# Claude Code local data (sqlite, plans, session metadata)
+.claude/
+
+# Dev server log files (transient)
+dev-*.log
+
+# Session log dumps
+session-*.md
