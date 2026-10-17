@@ -49,6 +49,13 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      // Dev-only: permite que cloudflared (trycloudflare.com) tunnee al
+      // dev server para probar webhooks de MercadoPago. El prefijo con
+      // punto acepta cualquier subdominio porque la URL del quick tunnel
+      // cambia en cada reinicio. No afecta producción.
+      allowedHosts: ['.trycloudflare.com'],
+    },
   },
 
   i18n: {
