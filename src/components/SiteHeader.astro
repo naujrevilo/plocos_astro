@@ -125,7 +125,7 @@ const memberLinks = [
               const active = isActive(href);
               return (
                 <li>
-                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center rounded-full px-3.5 py-2 text-[0.95rem] text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent ${active ? "text-accent font-semibold" : ""}`}>{item.label}</a>
+                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center rounded-full px-3.5 py-2 text-[0.95rem] text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent ${active ? "bg-accent/10 text-accent font-semibold ring-1 ring-inset ring-accent/40" : ""}`}>{item.label}</a>
                 </li>
               );
             })}
@@ -142,7 +142,7 @@ const memberLinks = [
                 rel="noopener noreferrer"
                 aria-label={social.label}
                 title={social.label}
-                class="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-all duration-200 hover:bg-surface-muted hover:text-accent hover:scale-110 hover:-translate-y-0.5"
+                class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-transparent text-text-secondary transition-all duration-200 hover:border-accent hover:bg-accent hover:text-surface-base hover:shadow-contemplation hover:scale-110 hover:-translate-y-0.5"
               >
                 <SocialIcon name={social.id} class="h-4 w-4" />
               </a>
