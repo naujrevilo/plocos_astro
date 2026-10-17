@@ -1,229 +1,222 @@
-# Arquitectura de PLOCOS
+# Arquitectura de PLOCOS — Plataforma Nomás que la Vida (NQLV)
 
-> Documento vivo: describe la arquitectura actual del proyecto y los patrones que rigen su evolución.
+> Documento vivo: describe la arquitectura actual del proyecto tras el pivote
+> de blog-archivo a plataforma de suscripciones para el libro interactivo
+> **Nomás que la Vida** (doc maestro del cliente en `requerimientos-cliente.md`).
 
 ## Stack
 
 | Capa | Tecnología | Versión |
 |---|---|---|
-| Framework | Astro (output: `server`) | 5.16.0 |
-| Adapter | `@astrojs/netlify` | 6.6.2 |
+| Framework | Astro (output: `server`) | 7.3.1 |
+| Adapter | `@astrojs/netlify` | 8.2.5 |
+| Auth | Clerk (`@clerk/astro`) | 4.1.9 |
 | DB | libSQL (Turso) + Drizzle ORM | @libsql/client 0.7 |
-| Estilos | Tailwind CSS + Flowbite | 3.4 + 4.0 |
-| UI islands | Vue + React + Preact | mixto |
-| i18n | Astro nativo (es-CO primary, en fallback) | builtin |
-| Env vars | `.env.local` → `import.meta.env` | Vite 6 |
-| Tests | manual + `astro check` + `verify:pacto` SHA-256 | — |
+| Pagos | MercadoPago SDK (`mercadopago`) + Suscripciones (preapproval) | 3.6.1 |
+| Estilos | Tailwind CSS 4 + Flowbite | 4.3.3 + 4.0.2 |
+| i18n | Astro nativo (es default, en mirror) | builtin |
+| Env vars | `.env.local` → `import.meta.env` | Vite |
+| Tests | Vitest (`tests/**/*.test.ts`) | 5.0.3 |
 
-## Vista de alto nivel
+## Modelo de roles y acceso
 
-```mermaid
-graph LR
-    Visitor[Visitante] -->|navegador| Pages[Pages .astro]
-    Moderator[Moderador] -->|/admin/login + token| Auth[Cookie Auth]
-    Pages -->|SSR| Netlify[Netlify Adapter]
-    Netlify --> Lib[Lib: i18n, routes]
-    Netlify --> DB[(Turso/libSQL)]
-    Pages --> Content[Content Collections]
-    Auth --> DB
-    Pages --> Robots[robots.txt + meta noai]
-    Pages --> Splash[Sensitive Content Splash]
-    Pages --> Consent[Cookie Consent Banner]
-```
+Tres roles globales (doc maestro §Roles). El rol vive en Clerk
+`publicMetadata.role` y viaja en el JWT de sesión como `metadata.role`
+(Clerk Dashboard → Sessions → Customize session token:
+`{"metadata": "{{user.public_metadata}}"}`).
 
-## Estructura del proyecto
+| Rol | Cómo se obtiene | Derechos |
+|---|---|---|
+| `lector` | Suscripción al plan Lector | Lectura del canon + Repositorio (solo lectura) |
+| `colaborador` | Suscripción al plan Colaborador | Todo lo anterior + enviar aportes (firma Habeas Scriptum) |
+| `auditor` | Ascenso: 4+ aportes Nivel 3 lifetime (T22) | Todo lo anterior + rango honorífico |
 
-```mermaid
-graph TD
-    Root[plocos_astro/] --> Src[src/]
-    Root --> Public[public/]
-    Root --> Openspec[openspec/]
-    Root --> Docs[docs/]
-    Root --> Scripts[scripts/]
+Sin rol (`null`): solo contenido público. Lógica en `src/lib/access.ts`,
+tests en `tests/t26-access.test.ts`.
 
-    Src --> Layouts[layouts/]
-    Src --> Pages[pages/]
-    Src --> Components[components/]
-    Src --> Lib[lib/]
-    Src --> Content[content/]
-    Src --> PagesApi[pages/api/]
-    Src --> PagesAdmin[pages/admin/]
-
-    Layouts --> BaseLayout[BaseLayout.astro<br/>shell + cookie banner + splash]
-    Pages --> PáginasEstáticas[/terminos, /privacidad, etc.]
-    Pages --> PagesEn[en/* mirror]
-    Pages --> PagesBlog[blog/[slug]]
-    Pages --> PagesCategorias[categorias/[slug]]
-    PagesAdmin --> Login[login.astro]
-    PagesAdmin --> Comments[comments.astro]
-    PagesApi --> CommentsAPI[/api/comments]
-    PagesApi --> ModerateAPI[/api/comments/moderate]
-    PagesApi --> SavePostAPI[/api/save-post]
-
-    Lib --> i18n[lib/i18n.ts<br/>es-CO + en bundles]
-    Lib --> db[lib/db.ts<br/>Drizzle + libSQL]
-    Lib --> routes[lib/routes.ts]
-
-    Content --> Categories[6 categories]
-    Content --> Posts[~150 posts]
-    Content --> PactoData[_data/pacto.{es,en}.json]
-
-    Public --> Logo[logo.svg + flags/]
-    Public --> Robots[robots.txt]
-
-    Openspec --> Specs[specs/<br/>7 active capabilities]
-    Openspec --> Changes[changes/<br/>archived changes]
-
-    Docs --> DocsGuides[guias + diagramas]
-
-    Scripts --> Verifier[verify-pacto-body.mjs<br/>SHA-256 pacto]
-    Scripts --> PactoFixture[__fixtures__/pacto-canonical.json]
-```
-
-## Pipeline de build y deploy
-
-```mermaid
-flowchart LR
-    Dev[git push origin main] --> Netlify[Netlify Build]
-    Netlify --> Prebuild1[pnpm install]
-    Prebuild1 --> Prebuild2[pnpm verify:pacto<br/>prebuild hook]
-    Prebuild2 --> Build[astro build --remote]
-    Build --> Deploy[Deploy to Netlify Edge]
-    Deploy --> Live[plocos.netlify.app]
-
-    Prebuild2 -->|SHA-256 mismatch| Fail[Build fails: pacto drift]
-    Build -->|astro check errors >0| Warn[Block PR if new errors]
-
-    Dev -.->|local| DevServer[pnpm dev<br/>localhost:4321]
-    DevServer -.->|Vite HMR| Dev
-```
-
-## Variables de entorno (lección Vite 6)
-
-> **Regla crítica**: en Astro 5 + Vite 6, las vars de `.env.local` **NO** se exponen en `process.env`. Solo en `import.meta.env`.
+## Capas de acceso (dos puertas)
 
 ```mermaid
 flowchart TD
-    EnvLocal[.env.local] -->|gitignored| ViteLoader[Vite loadEnv]
-    EnvExample[.env.example] -->|tracked| ViteLoader
-    ViteLoader -->|import.meta.env| CodeServer[server-side code<br/>.astro / .ts en pages/api]
-    ViteLoader -->|import.meta.env.X_PUBLIC| CodeClient[client-side code<br/>con prefijo PUBLIC_]
-    ShellVars[Shell env vars<br/>NODE_ENV, PATH, USERPROFILE] --> ProcessEnv[process.env]
-    EnvLocal -.->|NO se popula| ProcessEnv
-
-    CodeServer -->|process.env.X| Broken[undefined<br/>build/runtime fails]
-    CodeServer -->|import.meta.env.X| Working[valor real cargado]
-
-    Broken -->|Fix: usar import.meta.env| Working
+    Req[Request] --> MW{src/middleware.ts}
+    MW -->|ruta pública<br/>/, /libro, /auditores, /repositorio,<br/>/contacto, /suscripcion, /terminos, /en/*| Pass1[Pasa]
+    MW -->|no pública, sin sesión| SignIn[302 → /sign-in o /en/sign-in]
+    MW -->|autenticado| PW{src/lib/paywall.ts<br/>T12}
+    PW -->|/libro/año/ciclo/capítulo| Role{rol lector/<br/>colaborador/auditor?}
+    Role -->|sí| Pass2[Pasa]
+    Role -->|no| Sub[302 → /suscripcion?next=path]
+    PW -->|otras rutas: /cuenta, /api/*| Pass3[Pasa con sesión]
 ```
 
-## Flujo de moderación de comentarios
+- **Puerta 1 (auth, T08):** `src/middleware.ts` — la lista pública está en
+  `isPublicRoute`. El webhook `/api/webhooks/mercadopago.ts` también redirige
+  pero Clerk es la fuente de sesión.
+- **Puerta 2 (paywall, T12):** `src/lib/paywall.ts` — patrón
+  `/libro/<year>/<cycle>/<chapter>` exige rol pago. Los índices de año y ciclo
+  quedan públicos para que el visitante explore el archivo antes de pagar.
+
+## Flujo de suscripción (MercadoPago, T11)
 
 ```mermaid
 sequenceDiagram
-    participant U as Usuario/Moderador
-    participant L as /admin/login
-    participant C as /admin/comments
-    participant A as /api/comments/moderate
-    participant DB as Turso (libSQL)
+    participant U as Usuario (navegador)
+    participant App as Plocos (localhost:4321)
+    participant MP as MercadoPago API
+    participant WH as MP Webhook → Plocos
 
-    U->>L: GET /admin/login?redirect=/admin/comments
-    L->>L: Lee COMMENTS_MODERATION_TOKEN (import.meta.env)
-    U->>L: POST token en form
-    alt token correcto
-        L->>U: Set-Cookie: plocos-comments-token (httpOnly)
-        L->>U: 302 → /admin/comments
-    else token incorrecto
-        L->>U: Re-render login
-    end
-
-    U->>C: GET /admin/comments (con cookie)
-    C->>C: Verifica cookie === moderationToken
-    alt cookie válida
-        C->>DB: SELECT * FROM comments ORDER BY createdAt DESC
-        DB-->>C: rows (pending + approved)
-        C->>U: HTML con UI de moderación
-    else cookie inválida/ausente
-        C->>U: 302 → /admin/login?redirect=/admin/comments
-    end
-
-    U->>A: POST { id, action } (approve/delete)
-    A->>A: Verifica cookie === moderationToken
-    alt cookie válida
-        A->>DB: UPDATE/DELETE comments WHERE id=?
-        DB-->>A: ok
-        A->>U: 200 { success: true }
-    else cookie inválida
-        A->>U: 401 { error: "Unauthorized" }
-    end
+    U->>App: POST /api/suscripcion/mercadopago { plan }
+    App->>MP: POST /preapproval (auto_recurring inline,<br/>status: pending, external_reference = clerkUserId)
+    MP-->>App: { id, init_point }
+    App-->>U: { init_point }
+    U->>MP: Autoriza en el checkout hospedado
+    MP->>WH: subscription_preapproval (updated)
+    WH->>MP: GET /preapproval/{id}
+    MP-->>WH: status authorized + external_reference
+    WH->>WH: activateSubscription (Turso) +<br/>clerkClient.users.updateUserMetadata(role)
+    U->>App: GET /suscripcion?status=success
+    U->>App: POST /api/suscripcion/verify (reconciliación)
+    App->>MP: GET /preapproval/search (match por external_reference)
+    App-->>U: { activated: true } → reload con JWT nuevo
 ```
 
-## Routing i18n
+**Doble vía de activación (lección de producción):** el webhook es el camino
+primario, pero la reconciliación en el retorno cubre su falta (túnel muerto,
+reintentos agotados). Ambos caminos son idempotentes:
+`activateSubscription` hace upsert por `(provider, providerSubscriptionId)`.
+
+### Modelo elegido: suscripciones SIN plan asociado
+
+Los planes creados desde el panel de MP quedan atados a débito automático:
+crear un preapproval asociado a ellos exige `card_token_id` (tokenización de
+tarjeta en el cliente). El modelo sin plan (`auto_recurring` inline +
+`status: "pending"`) devuelve `init_point` sin tokenización y conserva
+`external_reference` — el único binding que asocia la suscripción con el
+usuario. Ver `docs/diagramas/dev/suscripcion-mercadopago.md` para el catálogo
+completo de gotchas.
+
+### Política de respuestas del webhook
+
+| Escenario | Respuesta | Por qué |
+|---|---|---|
+| Prueba simulada del panel (sin firma) | 200, no procesa | Un payload sin firmar jamás toca la DB |
+| Firma inválida | 400 | Evento real manipulado |
+| Preapproval inexistente (MP 404) | 200 + warn | Permanente: reintentar no arregla nada y los 500 sostenidos hacen que MP **desactive el webhook** |
+| Preapproval `authorized` | 200 | Activa suscripción + rol |
+| `pending`/`paused`/`cancelled` | 200 | Sin cambio de rol (aún) |
+| Error transitorio (red, MP 5xx, DB) | 500 | MP reintenta con backoff |
+
+### Verificación de firma
+
+`verifyMPSignature` (T11): HMAC-SHA256 con la **clave secreta del panel**.
+Manifest con **dos puntos** (artículo de soporte MP 51017):
+`id:<dataId>;request-id:<xRequestId>;ts:<ts>;`. Ventana anti-replay de 5
+minutos. Comparación en tiempo constante.
+
+## Ascenso a Auditor (T22)
+
+`src/lib/auditor.ts` — lógica pura, la consume el cron (T23, pendiente):
+
+- `ASCENTION_THRESHOLD = 4`: aportes que alteraron el canon (Nivel 3) en
+  toda la vida → promoción de `colaborador` a `auditor`.
+- `RENEWAL_THRESHOLD = 2`: aportes por año calendario para mantener el rango.
+
+## Estructura del proyecto (núcleo NQLV)
 
 ```mermaid
-flowchart LR
-    Request[Request] --> Check[Astro.currentLocale]
-    Check -->|es| Spanish[Routes /terminos, /privacidad, /politica-de-cookies]
-    Check -->|en| English[Routes /en/terms, /en/privacy, /en/cookie-policy]
-    Check -->|otro| Fallback[Rewrite a /es/*]
-    Spanish --> Render[Render con getTranslations es]
-    English --> RenderEn[Render con getTranslations en]
-    Fallback --> Spanish
+graph TD
+    Src[src/] --> Pages[pages/]
+    Src --> Lib[lib/]
+    Src --> Comp[components/]
+    Src --> MW[middleware.ts]
+
+    Pages --> Pub[/libro, /auditores, /repositorio,<br/>/contacto, /suscripcion + mirrors /en/*]
+    Pages --> Legal[/terminos/*, /privacidad,<br/>/politica-de-cookies]
+    Pages --> AuthUI[/sign-in, /sign-up, /cuenta]
+    Pages --> API[api/]
+    API --> MPWebhook[api/webhooks/mercadopago.ts]
+    API --> ClerkWebhook[api/webhooks/clerk.ts]
+    API --> Books[api/books/year/cycle.pdf<br/>T14a: PDF bajo rol]
+    API --> Checkout[api/suscripcion/mercadopago.ts]
+    API --> Verify[api/suscripcion/verify.ts]
+
+    Lib --> Access[lib/access.ts<br/>roles desde claims]
+    Lib --> Paywall[lib/paywall.ts]
+    Lib --> MP[lib/mercadopago.ts]
+    Lib --> Auditor[lib/auditor.ts]
+    Lib --> DB[lib/db/<br/>schema, users, subscriptions, books]
+    Lib --> Routes[lib/routes.ts, lib/i18n.ts,<br/>lib/routeMatcher.ts]
+
+    Tests[tests/*.test.ts<br/>Vitest — 307 tests]
 ```
 
-## Ciclo de Spec-Driven Development (SDD)
+## Variables de entorno
 
-Este proyecto sigue SDD. Toda propuesta de cambio pasa por 6 fases antes de merge.
+> **Regla crítica (seguirá siendo cierta en cualquier Vite):** las vars de
+> `.env.local` están en `import.meta.env`, **no** en `process.env`. Única
+> excepción tolerada: fallback en `src/lib/mercadopago.ts` para contextos
+> Node puros.
 
-```mermaid
-flowchart TD
-    Idea[Idea del cliente o del equipo] --> Preflight[Session Preflight<br/>modo + artifacts + PRs + review]
-    Preflight --> Propose[sdd-propose<br/>proposal.md]
-    Propose --> Spec[sdd-spec<br/>4 delta specs]
-    Spec --> Design[sdd-design<br/>design.md]
-    Design --> Tasks[sdd-tasks<br/>tasks.md con WUs + PRs]
-    Tasks --> Apply[sdd-apply<br/>6 PRs stacked-to-main]
-    Apply --> Verify[sdd-verify<br/>manual 18-step checklist]
-    Verify --> Archive[sdd-archive<br/>specs synced + change archivado]
+```bash
+# Clerk
+PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+CLERK_WEBHOOK_SIGNING_SECRET=whsec_...
 
-    Propose -.->|blocked| Gatekeeper[Gatekeeper valida]
-    Spec -.->|blocked| Gatekeeper
-    Design -.->|blocked| Gatekeeper
-    Tasks -.->|blocked| Gatekeeper
-    Apply -.->|blocked| Gatekeeper
-    Verify -.->|blocked| Gatekeeper
+# MercadoPago (credenciales de TEST para desarrollo)
+MERCADOPAGO_PUBLIC_KEY=APP_USR-...
+MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
+MERCADOPAGO_WEBHOOK_SECRET=<Clave secreta del panel de webhooks>
+MERCADOPAGO_PRICE_LECTOR=9900        # COP/mes, mínimo 1600
+MERCADOPAGO_PRICE_COLABORADOR=20000  # COP/mes
 
-    Apply -->|auto-chain forecast >400| ChainedPR[PRs encadenados<br/>stacked-to-main]
+# Turso
+ASTRO_DB_REMOTE_URL=libsql://...
+ASTRO_DB_APP_TOKEN=...
+```
+
+Lista canónica y completa en `.env.example`.
+
+## Pipeline de build y deploy
+
+```bash
+pnpm verify:pacto   # prebuild hook: SHA-256 del texto literal del pacto
+pnpm build --remote # astro build --remote (Netlify)
+pnpm test           # vitest run — 307 tests
 ```
 
 ## Decisiones arquitectónicas vigentes
 
-| Decisión | Razón | Cambio | Archivo |
-|---|---|---|---|
-| `import.meta.env` para `.env.local` | Vite 6 no popula `process.env` | `7783e76` | `src/lib/db.ts`, `src/pages/admin/comments.astro`, `src/pages/api/comments/moderate.ts` |
-| Pacto body en `src/content/_data/pacto.{es,en}.json` | Permite CMS futuro sin tocar i18n.ts | `8dc7f6c` | `src/content/_data/` |
-| Verifier SHA-256 byte-level del pacto | Garantiza que el texto literal del cliente no mute | `27aee9f` | `scripts/verify-pacto-body.mjs` |
-| `*.json text eol=lf` en `.gitattributes` | Evita que `core.autocrlf=true` rompa el SHA-256 | `27aee9f` | `.gitattributes` |
-| 8 secciones en pacto (I–VIII) | Texto literal del cliente 2026-09-02 | `8dc7f6c` | `openspec/specs/pacto-lectura/spec.md` |
-| Netlify Adapter (no Node server) | Deploy serverless, scaling automático | `f4074a9` | `astro.config.mjs` |
-| Cookie httpOnly para auth de moderación | Evita token en URL, previene XSS | `a2e5b8e` | `src/pages/admin/login.astro` |
+| Decisión | Razón | Commit |
+|---|---|---|
+| Clerk con `publicMetadata.role` (NO Organizations) | Roles globales de 3 niveles; Organizations es multi-tenant | T26 |
+| Rol en el JWT de sesión | Header y redirects sin query a DB por request | T26 |
+| Paywall separado del gate de auth (T12) | El auth gate decide sesión; el paywall decide tier | `f93cdff` |
+| Suscripciones MP sin plan asociado | Los planes del panel exigen `card_token_id`; sin plan devuelve `init_point` | `6870bec` |
+| Reconciliación además del webhook | El webhook solo no sobrevive a túneles muertos ni reintentos agotados | `e17539d` |
+| Webhook: 404 de MP → 200 | Los 500 sostenidos hacen que MP desactive el webhook | `aa82f5c` |
+| Manifest HMAC con dos puntos | Especificación oficial MP (artículo 51017) | `a9236af` |
+| `!text-surface-base` en CTAs `<a>` | La regla global `a{color:var(--accent)}` pisaba el color; fix puntual pendiente de refactor a scoping `.prose a` | `3de6fd8` |
+| Flowbite v4 patterns en botones/nav | Consistencia de hovers en light/dark tras iteración con el cliente | `65ffabf` |
+| `import.meta.env` para `.env.local` | Vite no popula `process.env` | pre-pivote |
+| Verifier SHA-256 byte-level del pacto | El texto literal del cliente no muta | `27aee9f` |
 
-## Próximos pasos arquitectónicos (no iniciados)
+## Estado de tareas (feature doc `odd/tasks/plataforma-nomas-que-la-vida.md`)
 
-- **Item 4 del cliente** (autonomía editorial + audiovisual + CMS): punteado a change separado.
-- **Limpiar `av` y `editor` interfaces** en `Translation`: declaradas en PR1 pero sin UI consumer (cruft).
-- **Migrar 24 errores pre-existentes** en `src/pages/blog/[...slug].astro` (ya reducidos a 0 en `f9ef662`).
-- **8 markers `[EN: TODO legal review]`**: pendiente revisión de abogado colombiano.
-- **Home.tags pills** (Ensayos Lumínicos / Poética Visual / Bitácora Crítica): sin decisión.
+- **Hechas:** T01, T03-T08, T11, T12, T13-T17, T14a, T22, T25, T26, T27.
+- **Pendientes:** T02 (verificar robots-anti-ia), T10 (PayPal — extranjeros),
+  T14 (capítulos completos), T18 (i18n extension), T19 (triaje Gemini),
+  T20 (aprobación por correo), T21 (Habeas Scriptum clickwrap),
+  T23 (cron ciclo 60 días), T24 (Netlify storage PDFs).
 
 ## Ver también
 
-- `docs/diagramas/dev/` — diagramas técnicos detallados
-- `docs/diagramas/user/` — diagramas para el cliente y usuario final
-- `openspec/specs/` — fuente de verdad de las capacidades activas
-- `openspec/changes/archived/` — historial completo de cambios
+- `docs/guia-desarrollo-local.md` — cómo levantar todo en local (Clerk + MP + túnel)
+- `docs/diagramas/dev/suscripcion-mercadopago.md` — diagrama de secuencia completo + catálogo de gotchas de la integración
+- `docs/diagramas/dev/` — diagramas técnicos
+- `odd/tasks/plataforma-nomas-que-la-vida.md` — feature document con el estado tarea por tarea
+- `requerimientos-cliente.md` — doc maestro del cliente (fuente de verdad del producto)
 
 ---
 
-Última actualización: 2026-09-05
-Versión del proyecto: 0.1.45
+Última actualización: 2026-10-17
+Rama: `feature/pr-2-auth-legal`

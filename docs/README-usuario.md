@@ -1,49 +1,93 @@
-# Guía de usuario PLOCOS
+# Guía de usuario PLOCOS — Plataforma Nomás que la Vida
 
-> **Documento vivo.** Si quieres ver cómo funciona el panel de moderación, consulta [`docs/diagramas/user/como-comentar.md`](diagramas/user/como-comentar.md).
+> **Documento vivo.** Cómo usar la plataforma desde la perspectiva del
+> lector/suscriptor. Para la arquitectura técnica, ver
+> [`docs/arquitectura.md`](arquitectura.md).
 
-## Cambios recientes (v0.1.45)
+## Qué es Plocos
 
-- Nuevo pacto de lectura: 8 secciones (I–VIII) con texto literal del cliente, fecha 2 de septiembre de 2026.
-- Sección I: Pacto Cognitivo (manifiesto editorial + taxonomía).
-- Sección II: Naturaleza Transaccional (ánimo de lucro directo, mayoría de edad 18 años).
-- Sección III: Propiedad Intelectual (Ley 23/1982, Decisión Andina 486, Convenio de Berna, licencia de consumo, obras en desarrollo).
-- Sección IV: Protección Anti-IA (prohibición de minería de datos, finetuning, datasets).
-- Sección V: Pagos, retracto y reembolsos (Ley 1480/2011).
-- Sección VI: Limitaciones éticas y expulsión.
-- Sección VII: Soberanía digital y privacidad (Ley 1581/2012, derechos ARCO).
-- Sección VIII: Ley aplicable y jurisdicción (Cartagena de Indias).
-- 8 nuevos markers `[EN: TODO legal review by Colombian attorney]` en la traducción al inglés.
-- 14 markers pre-existentes preservados.
-- Header rediseñado: logo más grande (h-32 w-32), margen inferior (mb-4).
-- Sección "Nuestra razón de ser" con margen inferior ajustado.
+Plocos es la casa digital de **Nomás que la Vida**, el libro interactivo de
+Michel Saer Daccarett. No es un PDF estático: es un ecosistema de dialéctica
+de doble núcleo donde el canon (el libro, inamovible por 60 días) convive con
+una periferia de aportes de los suscriptores que puede alterar la obra en cada
+iteración.
 
-Para detalles técnicos del cambio, ver [`openspec/changes/archived/pacto-cliente-y-autonomia-contenido/archive-report.md`](../openspec/changes/archived/pacto-cliente-y-autonomia-contenido/archive-report.md).
-- El header móvil y escritorio ahora se distribuye horizontalmente y es totalmente responsive.
-- El drawer de búsqueda en móvil funciona igual que el buscador de escritorio, mostrando resultados en tiempo real.
-- Se agregaron logs de depuración para facilitar el diagnóstico de problemas en la búsqueda móvil.
-- Mejoras de accesibilidad y usabilidad en todos los breakpoints.
-- Mejoras en la moderación de comentarios.
-- Panel de búsqueda más rápido.
-- Corrección de errores menores.
+## Recorrer el sitio (sin cuenta)
 
-## Cómo usar la búsqueda
-- En escritorio: usa el campo de búsqueda en la barra superior para filtrar artículos y etiquetas.
-- En móvil: pulsa el ícono de lupa para abrir el drawer, escribe tu consulta y verás los resultados en tiempo real.
+Estas secciones son públicas y no requieren registro:
 
-## Navegación y cabecera
-- El menú y los controles de idioma/theme se distribuyen horizontalmente y se adaptan al tamaño de pantalla.
-- El menú hamburguesa solo aparece en móvil.
+| Sección | Contenido |
+|---|---|
+| **Inicio** | El manifiesto del Ploco y las categorías de suscripción |
+| **No más que la Vida** | La mecánica del ecosistema: canon, iteraciones, ciclo de 60 días |
+| **Auditores** | Salón de la fama intelectual: los CVs de quienes conquistaron el rango |
+| **Repositorio** | La marginalia digital: aportes indexados por año e iteración, con el motor de triaje de 3 niveles |
+| **Contacto** | Canal formal ARCO (Ley 1581/2012) y consultas generales |
+| **Términos / Privacidad / Cookies** | El blindaje jurídico completo, incluyendo el Habeas Scriptum |
 
-## Notas
-- Si tienes problemas con la búsqueda en móvil, revisa la consola del navegador para ver logs de depuración.
-- Para reportar errores, contacta al equipo técnico.
+El archivo del canon (años e iteraciones) también es navegable sin cuenta.
+
+## Crear tu cuenta
+
+1. Click en el ícono de usuario o en "Suscríbete" → **Sign up**.
+2. Registrás **email + username + contraseña** (el username es tu identidad
+   pública en el Repositorio).
+3. Verificás tu email con el código que te llega.
+
+## Suscribirse
+
+1. Con sesión iniciada, andá a **Suscripción**.
+2. Elegí tu plan:
+   - **Lector** (base): acceso completo al canon itinerante y lectura del
+     Repositorio. No podés enviar aportes.
+   - **Colaborador** (con voz): todo lo anterior + enviar aportes al
+     Repositorio. Al aceptar firmás digitalmente el **Habeas Scriptum**.
+3. Te redirigimos al checkout seguro de **MercadoPago** (Colombia) o
+   **PayPal** (internacional). Los cobros son recurrentes mensuales y podés
+   cancelar cuando quieras.
+4. Al aprobar el pago volvés automáticamente a Plocos: tu rol se activa solo y
+   el menú muestra **"Leer el libro"** y **"Aportar"**.
+
+## Leer el libro
+
+- Con cualquier suscripción activa entrás al **archivo del canon**:
+  `/libro` → año → iteración → capítulo.
+- Cada año despliega sus iteraciones (ciclos de 60 días); la última de cada
+  ciclo es la versión definitiva.
+- El contenido de los capítulos está bajo muro de pago: sin suscripción ves la
+  intro, con suscripción ves todo.
+
+## Aportar (solo Colaboradores)
+
+1. Desde el Repositorio, elegí el capítulo y párrafo exacto al que refutás
+   (topografía exacta: año, iteración, capítulo, párrafo).
+2. Escribí tu aporte con estructura silogística (premisas → conclusión). Las
+   opiniones sin formulación lógica son rechazadas por el motor de triaje.
+3. Tu aporte pasa por el **motor de triaje de 3 niveles**:
+   - **Nivel 1 (Guillotina de Plocos):** rechazo automático por falacia,
+     falta de silogismo o topografía incompleta.
+   - **Nivel 2:** se publica en el Repositorio como crítica complementaria.
+   - **Nivel 3:** tu argumento amenaza un nodo raíz del canon → se eleva al
+     autor durante la veda dialéctica.
+4. Los aportes que obliguen a reescribir la obra se incluyen en la próxima
+   iteración (cada 60 días), consignando fecha, usuario y capítulo.
+
+**Ascenso a Auditor:** 4+ aportes que alteren el canon → rango honorífico por
+un año (CV y foto en la sección Auditores, mención en las notas del PDF y
+suscripción gratuita). Se mantiene con 2+ aportes por año.
+
+## Tu cuenta
+
+- **Manage account** (menú del avatar): cambiás email, username, contraseña o
+  eliminás tu cuenta (derecho ARCO — el borrado es en cascada).
+- La suscripción se administra desde MercadoPago (cancelar cuando quieras).
+
+## Soporte
+
+- Consultas generales y peticiones ARCO: formulario en
+  [Contacto](https://plocos.netlify.app/contacto).
+- Términos completos: [Términos del Sitio](https://plocos.netlify.app/terminos).
 
 ---
-Actualizado: 2026-09-05
-Versión: 0.1.45
 
-## Ver también
-
-- [`arquitectura.md`](arquitectura.md) — Vista técnica del proyecto
-- [`diagramas/user/como-comentar.md`](diagramas/user/como-comentar.md) — Flujo de moderación para ti
+Última actualización: 2026-10-17
