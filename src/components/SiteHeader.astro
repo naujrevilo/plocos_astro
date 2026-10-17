@@ -125,7 +125,7 @@ const memberLinks = [
               const active = isActive(href);
               return (
                 <li>
-                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center rounded-full px-3.5 py-2 text-[0.95rem] text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent ${active ? "text-accent font-semibold" : ""}`}>{item.label}</a>
+                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center rounded-full px-3.5 py-2 text-[0.95rem] text-text-primary transition-colors duration-200 hover:bg-text-primary hover:text-surface-base hover:shadow-contemplation ${active ? "bg-accent text-surface-base font-semibold" : ""}`}>{item.label}</a>
                 </li>
               );
             })}
@@ -149,14 +149,9 @@ const memberLinks = [
             ))}
           </div>
           <a
-            href={blogLegacyHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="hidden lg:inline-block text-xs uppercase tracking-widest text-text-secondary/80 hover:text-accent transition px-2 py-1"
+            href={suscripcionHref}
+            class="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-base font-extrabold uppercase tracking-widest text-surface-base shadow-md transition hover:bg-text-primary hover:text-surface-base"
           >
-            {blogLegacyLabel}
-          </a>
-          <a
             href={suscripcionHref}
             class="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-base font-extrabold uppercase tracking-widest text-surface-base shadow-md transition hover:bg-text-primary hover:text-surface-base"
           >
@@ -237,16 +232,6 @@ const memberLinks = [
             );
           })
         }
-        <li class="w-full">
-          <a
-            href={blogLegacyHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="block w-full rounded border border-border-subtle bg-surface-muted text-text-secondary px-4 py-3 transition hover:border-accent"
-          >
-            {blogLegacyLabel} ↗
-          </a>
-        </li>
         <Show when="signed-out">
           <li class="w-full">
             <a href={signInHref} class="block w-full rounded border border-accent px-4 py-3 text-accent font-semibold transition hover:bg-accent/10">

@@ -33,6 +33,8 @@ const { rights, follow, manageCookies } = translations.footer;
 const contactData = rawContactData as ContactData;
 
 const isES = locale === 'es';
+const blogLegacyHref = "https://plocos.blogspot.com";
+const blogLegacyLabel = isES ? "Blog (archivo) ↗" : "Blog (archive) ↗";
 
 // URLs to the three legal sub-pages. The parent segment comes from the i18n
 // `paths.terms` registry (ES `terminos`, EN `terms`); the sub-page slugs are
@@ -88,6 +90,12 @@ const socialAnchorClass =
           </button>
         </div>
       </nav>
+
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end text-xs">
+        <a href={blogLegacyHref} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent">
+          {blogLegacyLabel}
+        </a>
+      </div>
 
       <script is:inline>
         document.addEventListener("click", function (e) {
