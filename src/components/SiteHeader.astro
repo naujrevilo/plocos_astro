@@ -125,7 +125,7 @@ const memberLinks = [
               const active = isActive(href);
               return (
                 <li>
-                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center rounded-full px-3.5 py-2 text-[0.95rem] text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent ${active ? "bg-accent/10 text-accent font-semibold ring-1 ring-inset ring-accent/40" : ""}`}>{item.label}</a>
+                  <a href={href} aria-current={active ? "page" : undefined} class={`inline-flex items-center rounded-full px-3.5 py-2 text-[0.95rem] text-text-primary transition-colors duration-200 hover:bg-surface-muted hover:text-accent ${active ? "text-accent font-semibold" : ""}`}>{item.label}</a>
                 </li>
               );
             })}
