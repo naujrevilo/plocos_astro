@@ -163,6 +163,9 @@ CLERK_SECRET_KEY=sk_test_...
 CLERK_WEBHOOK_SIGNING_SECRET=whsec_...
 
 # MercadoPago (credenciales de TEST para desarrollo)
+# MercadoPago (credenciales de TEST para desarrollo)
+# OJO: las de prueba TAMBIÉN usan prefijo APP_USR- (ya no TEST-);
+# se distinguen por la sección del panel, no por el prefijo.
 MERCADOPAGO_PUBLIC_KEY=APP_USR-...
 MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
 MERCADOPAGO_WEBHOOK_SECRET=<Clave secreta del panel de webhooks>
@@ -207,6 +210,18 @@ pnpm test           # vitest run — 307 tests
   T14 (capítulos completos), T18 (i18n extension), T19 (triaje Gemini),
   T20 (aprobación por correo), T21 (Habeas Scriptum clickwrap),
   T23 (cron ciclo 60 días), T24 (Netlify storage PDFs).
+
+## Entornos
+
+| Entorno | Dominio | Estado |
+|---|---|---|
+| Desarrollo | `localhost:4321` + túnel para webhooks | Activo |
+| Staging (dev de Netlify) | `plocos.netlify.app` | **Branch `main` desplegado ahí; el PR 2 aún sin merge** |
+| Producción | `plocos.com` (por definir DNS + Clerk prod + credenciales MP productivas) | Futuro |
+
+Decisión del cliente (2026-10-17): Netlify queda como staging de avances;
+`plocos.com` será producción. El merge del PR 2 a `main` está esperando esa
+decisión.
 
 ## Ver también
 

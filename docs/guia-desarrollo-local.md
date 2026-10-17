@@ -57,6 +57,10 @@ arrancar.
 
 1. **App:** panel → Tus integraciones → app de Suscripciones.
 2. **Credenciales de prueba:** copiá `PUBLIC_KEY` y `ACCESS_TOKEN`.
+   > **Ojo:** las credenciales de prueba de MP **también** usan el prefijo
+   > `APP_USR-` (ya no `TEST-`). El prefijo NO distingue el entorno —
+   > distinguilas por la sección del panel ("Credenciales de prueba" vs
+   > "Credenciales de producción").
 3. **Webhook:** Notificaciones → Webhooks (pestaña *Modo de prueba*) →
    URL del túnel + `/api/webhooks/mercadopago`, evento **"Planes y
    suscripciones"**. Copiá la **Clave secreta** a `.env.local`.
