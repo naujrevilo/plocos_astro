@@ -181,7 +181,12 @@ export async function createPreapprovalSubscription(input: {
     }),
   });
   if (!res.ok) {
-    throw new Error(`createPreapprovalSubscription failed: MP responded ${res.status}`);
+    // Surface MP's error body: 400s here carry the real reason
+    // (e.g. payer_email must be a test user in TEST mode).
+    const errorBody = await res.text();
+    throw new Error(
+      `createPreapprovalSubscription failed: MP responded ${res.status}: ${errorBody}`,
+    );
   }
   return (await res.json()) as PreapprovalCreation;
 }

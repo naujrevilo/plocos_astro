@@ -76,16 +76,25 @@ export const POST: APIRoute = async (context) => {
   const isEN = url.pathname.startsWith('/en');
   const backUrl = new URL(isEN ? '/en/subscription?status=success' : '/suscripcion?status=success', url.origin).toString();
 
-  const creation = await createPreapprovalSubscription({
-    planId,
-    payerEmail,
-    externalReference: auth.userId,
-    backUrl,
-    reason: isEN ? `Plocos ${body.plan} subscription` : `Suscripción ${body.plan} Plocos`,
-  });
-
-  return new Response(JSON.stringify({ init_point: creation.init_point }), {
-    status: 200,
-    headers: { 'content-type': 'application/json' },
-  });
+  try {
+    const creation = await createPreapprovalSubscription({
+      planId,
+      payerEmail,
+      externalReference: auth.userId,
+      backUrl,
+      reason: isEN ? `Plocos ${body.plan} subscription` : `Suscripción ${body.plan} Plocos`,
+    });
+    return new Response(JSON.stringify({ init_point: creation.init_point }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  } catch (err) {
+    // Surface the MP error body to the client alert: a 400 here carries
+    // the actionable reason (e.g. payer_email must be a test user).
+    console.error('[suscripcion] preapproval creation failed:', err);
+    return new Response(err instanceof Error ? err.message : 'Checkout error', {
+      status: 502,
+      headers: { 'content-type': 'text/plain' },
+    });
+  }
 };
