@@ -318,4 +318,28 @@ describe('T11 - POST /api/webhooks/mercadopago', () => {
     const res = await callPost(buildRequest({ body: PANEL_PAYLOAD }));
     expect(res.status).toBe(500);
   });
+
+  it('returns 200 without processing when MP answers 404 (permanent: no retry)', async () => {
+    const mp = await import('../src/lib/mercadopago');
+    const { PreapprovalNotFoundError } = await import('../src/lib/mercadopago');
+    (mp.fetchPreapproval as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new PreapprovalNotFoundError('123456'),
+    );
+
+    const res = await callPost(buildRequest({ body: PANEL_PAYLOAD }));
+    expect(res.status).toBe(200);
+
+    const { activateSubscription } = await import('../src/lib/db/subscriptions');
+    expect(activateSubscription).not.toHaveBeenCalled();
+  });
+
+  it('returns 500 when the MP API itself fails transiently (5xx) so MP retries', async () => {
+    const mp = await import('../src/lib/mercadopago');
+    (mp.fetchPreapproval as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('fetchPreapproval failed: MP responded 503'),
+    );
+
+    const res = await callPost(buildRequest({ body: PANEL_PAYLOAD }));
+    expect(res.status).toBe(500);
+  });
 });

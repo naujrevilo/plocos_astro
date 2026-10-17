@@ -138,6 +138,18 @@ export type Preapproval = {
 };
 
 /**
+ * Thrown when MP answers 404 for a preapproval id: the resource was
+ * deleted or never existed (e.g. the panel's simulated test id).
+ * Permanent — the webhook handler must NOT ask MP to retry.
+ */
+export class PreapprovalNotFoundError extends Error {
+  constructor(public readonly preapprovalId: string) {
+    super(`Preapproval ${preapprovalId} not found (MP responded 404)`);
+    this.name = 'PreapprovalNotFoundError';
+  }
+}
+
+/**
  * Fetch the full preapproval object from the MP Subscriptions API.
  * The webhook notification only carries the id; the status and our
  * external_reference (Clerk user id) live here.
@@ -152,6 +164,9 @@ export async function fetchPreapproval(
   const res = await fetch(`https://api.mercadopago.com/preapproval/${encodeURIComponent(id)}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
+  if (res.status === 404) {
+    throw new PreapprovalNotFoundError(id);
+  }
   if (!res.ok) {
     throw new Error(`fetchPreapproval failed: MP responded ${res.status}`);
   }

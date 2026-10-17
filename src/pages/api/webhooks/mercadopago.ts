@@ -21,6 +21,7 @@ import type { APIRoute } from 'astro';
 import { clerkClient } from '@clerk/astro/server';
 import {
   fetchPreapproval,
+  PreapprovalNotFoundError,
   signatureFailureReason,
   verifyMPSignature,
 } from '../../../lib/mercadopago';
@@ -73,7 +74,20 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     if (evt.type === 'subscription_preapproval') {
-      const preapproval = await fetchPreapproval(dataId);
+      let preapproval;
+      try {
+        preapproval = await fetchPreapproval(dataId);
+      } catch (err) {
+        if (err instanceof PreapprovalNotFoundError) {
+          // Permanent: the resource does not exist (deleted, or MP's
+          // simulated panel-test id). Retrying never fixes this, and
+          // sustained 500s make MP disable the webhook. Acknowledge
+          // and move on.
+          console.warn(`[mp webhook] ${err.message} — acknowledged without processing`);
+          return new Response('OK (resource not found)', { status: 200 });
+        }
+        throw err; // transient (network, MP 5xx): 500 so MP retries
+      }
 
       if (preapproval.status === 'authorized' && preapproval.external_reference) {
         await activateSubscription({
