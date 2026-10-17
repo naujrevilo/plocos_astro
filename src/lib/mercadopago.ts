@@ -221,6 +221,40 @@ export class PreapprovalNotFoundError extends Error {
 }
 
 /**
+ * Search the payer's preapprovals and return the one matching our
+ * external reference (Clerk user id) when it is authorized.
+ *
+ * Used by the reconciliation endpoint as a belt-and-braces for webhook
+ * delivery: when the buyer returns from the MP checkout, we verify the
+ * subscription server-side instead of trusting the webhook alone.
+ */
+export async function findAuthorizedPreapproval(
+  payerEmail: string,
+  externalReference: string,
+  accessToken: string = getAccessToken() ?? '',
+): Promise<Preapproval | null> {
+  if (!accessToken) {
+    throw new Error('MERCADOPAGO_ACCESS_TOKEN is not set');
+  }
+  const url = new URL('https://api.mercadopago.com/preapproval/search');
+  url.searchParams.set('payer_email', payerEmail);
+  url.searchParams.set('limit', '50');
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) {
+    throw new Error(`findAuthorizedPreapproval failed: MP responded ${res.status}`);
+  }
+  const json = (await res.json()) as { results?: Preapproval[] };
+  const results = json.results ?? [];
+  return (
+    results.find(
+      (p) => p.external_reference === externalReference && p.status === 'authorized',
+    ) ?? null
+  );
+}
+
+/**
  * Fetch the full preapproval object from the MP Subscriptions API.
  * The webhook notification only carries the id; the status and our
  * external_reference (Clerk user id) live here.

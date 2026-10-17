@@ -227,6 +227,25 @@ const isES = locale === 'es';
 </script>
 
 <script>
+  // Reconciliation after returning from the MP checkout: if the back_url
+  // carried ?status=success, ask the server to verify the subscription
+  // server-side (webhook may have missed). On success, reload so the
+  // fresh session JWT carries the upgraded role.
+  (async () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('status') !== 'success') return;
+    try {
+      const res = await fetch('/api/suscripcion/verify', { method: 'POST' });
+      if (!res.ok) return;
+      const json = (await res.json()) as { activated?: boolean };
+      if (json.activated) {
+        window.location.replace('/suscripcion?status=activated');
+      }
+    } catch (err) {
+      console.error('[suscripcion] reconciliation failed:', err);
+    }
+  })();
+
   // MercadoPago subscription flow: click -> POST /api/suscripcion/mercadopago
   // -> redirect to the MP-hosted checkout (init_point). Requires a signed-in
   // session (the endpoint returns 401 otherwise, which we surface as a
