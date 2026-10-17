@@ -102,11 +102,24 @@ function parseSignatureHeader(
  * handler and in any server-side preference / payment call.
  */
 export function createMercadoPagoClient(): MercadoPagoConfig {
-  const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+  const accessToken = getAccessToken();
   if (!accessToken) {
     throw new Error('MERCADOPAGO_ACCESS_TOKEN is not set');
   }
   return new MercadoPagoConfig({ accessToken, options: { timeout: 5000 } });
+}
+
+/**
+ * Read the MP access token the Astro way: `import.meta.env` (Vite loads
+ * `.env.local` there) with a `process.env` fallback for Node-only
+ * contexts like Netlify Functions at runtime.
+ */
+function getAccessToken(): string | undefined {
+  return (
+    import.meta.env.MERCADOPAGO_ACCESS_TOKEN ??
+    process.env.MERCADOPAGO_ACCESS_TOKEN ??
+    undefined
+  );
 }
 
 export { Payment, Preference };
@@ -131,7 +144,7 @@ export type Preapproval = {
  */
 export async function fetchPreapproval(
   id: string,
-  accessToken: string = process.env.MERCADOPAGO_ACCESS_TOKEN ?? '',
+  accessToken: string = getAccessToken() ?? '',
 ): Promise<Preapproval> {
   if (!accessToken) {
     throw new Error('MERCADOPAGO_ACCESS_TOKEN is not set');
