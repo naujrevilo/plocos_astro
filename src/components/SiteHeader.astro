@@ -114,7 +114,7 @@ const memberLinks = [
       <div class="w-full flex flex-row flex-nowrap items-center justify-between p-4 gap-4">
         <!-- Logo a la izquierda -->
         <a href={homeHref} class="logo-link flex items-center shrink-0" aria-label="Logo de Plocos">
-          <img src="/logo.svg" alt="Logo de Plocos" class="logo-mark h-16 w-16 md:h-20 md:w-20" />
+          <img src="/logo.svg" alt="Logo de Plocos" class="logo-mark h-20 w-20 md:h-24 md:w-24" />
         </a>
 
         <!-- Menú de navegación Desktop (centrado) -->
@@ -142,7 +142,7 @@ const memberLinks = [
                 rel="noopener noreferrer"
                 aria-label={social.label}
                 title={social.label}
-                class="inline-flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition-colors duration-200 hover:bg-surface-muted hover:text-accent"
+                class="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-all duration-200 hover:bg-surface-muted hover:text-accent hover:scale-110 hover:-translate-y-0.5"
               >
                 <SocialIcon name={social.id} class="h-4 w-4" />
               </a>
@@ -323,8 +323,8 @@ const memberLinks = [
       }
     }
   .site-header {
-    /* Logo desktop = 5rem (80px) + 2 * p-4 (16px) = 7rem (112px) */
-    --header-height: 7rem;
+    /* Logo desktop = 6rem (96px) + 2 * p-4 (16px) = 8rem (128px) */
+    --header-height: 8rem;
   }
 
   .site-header .header-spacer {
@@ -357,8 +357,8 @@ const memberLinks = [
 
   @media (max-width: 767px) {
     .site-header {
-      /* Logo mobile = 4rem (64px) + 2 * p-4 (16px) = 6rem (96px) */
-      --header-height: 6rem;
+      /* Logo mobile = 5rem (80px) + 2 * p-4 (16px) = 7rem (112px) */
+      --header-height: 7rem;
     }
   }
 </style>
