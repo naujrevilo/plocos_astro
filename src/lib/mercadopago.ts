@@ -22,7 +22,10 @@ const FIVE_MINUTES_SECONDS = 5 * 60;
  *   - `x-request-id`: arbitrary string
  *
  * The v1 HMAC is `HMAC-SHA256(MERCADOPAGO_WEBHOOK_SECRET, manifest)`
- * where `manifest = "id=<dataId>;request-id=<xRequestId>;ts=<ts>;"`.
+ * where `manifest = "id:<dataId>;request-id:<xRequestId>;ts:<ts>;"` — colons, per MP's official docs (support article 51017):
+ *
+ *   echo -n "id:$payment_id;request-id:$request_id;ts:$ts;" \
+ *     | openssl dgst -sha256 -hmac 'secret_panel_webhooks'
  *
  * `dataId` is the resource id from the webhook payload (the payment
  * id, subscription id, etc). The function takes it explicitly so the
@@ -43,7 +46,7 @@ export function verifyMPSignature(input: {
   const ageSeconds = Math.abs(now / 1000 - parsed.ts);
   if (ageSeconds > FIVE_MINUTES_SECONDS) return false;
 
-  const manifest = `id=${input.dataId};request-id=${input.xRequestId};ts=${parsed.ts};`;
+  const manifest = `id:${input.dataId};request-id:${input.xRequestId};ts:${parsed.ts};`;
   const expected = crypto
     .createHmac('sha256', input.secret)
     .update(manifest)

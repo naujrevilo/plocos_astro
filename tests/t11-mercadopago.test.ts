@@ -41,7 +41,7 @@ function computeExpectedSignature(args: {
   ts: number;
   secret: string;
 }): string {
-  const manifest = `id=${args.dataId};request-id=${args.xRequestId};ts=${args.ts};`;
+  const manifest = `id:${args.dataId};request-id:${args.xRequestId};ts:${args.ts};`;
   return crypto.createHmac('sha256', args.secret).update(manifest).digest('hex');
 }
 
@@ -172,7 +172,7 @@ describe('T11 - verifyMPSignature', () => {
 // ---------------------------------------------------------------------------
 
 function sign(dataId: string, xRequestId: string, ts: number, secret: string): string {
-  const manifest = `id=${dataId};request-id=${xRequestId};ts=${ts};`;
+  const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
   const v1 = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
   return `ts=${ts},v1=${v1}`;
 }
