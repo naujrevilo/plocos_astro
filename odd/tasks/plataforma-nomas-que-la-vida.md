@@ -108,17 +108,23 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - Webhook `/api/webhooks/paypal` para `BILLING.SUBSCRIPTION.CREATED`, `.CANCELLED`, `.PAYMENT.FAILED`. Verificación de signature.
   - **Acceptance**: subscription se crea en checkout; webhook actualiza `subscriptions.status`; tests RED para verificación de signature.
 
-- [ ] **T11** Integración Wompi (~400 líneas, TDD para webhook integrity).
-  - **Bloqueada (2026-10-04): decisión del cliente sobre el modelo de cobro.** Investigación (docs.wompi.co: fuentes-de-pago, eventos, ambientes-y-llaves): Wompi NO tiene suscripciones nativas; lo recurrente son fuentes de pago (`/v1/tokens/*` → `POST /v1/payment_sources` → cada cobro lo dispara el comercio con `POST /v1/transactions` + `payment_source_id`; cancelar `PUT /v1/payment_sources/{id}/void`). Opciones: A) recurrente propio (scheduler mensual, reintentos, cobros fallidos); B) periodos prepagados vía Web Checkout (incluye PSE, renovación manual con recordatorio por email). Recomendación: B para lanzar. Mientras: sandbox con cuenta propia; las llaves del cliente reemplazan solo env vars.
+- [x] **T11** Integración MercadoPago (reemplaza a Wompi; TDD para firma del webhook y reconciliación). — commits: b96d3f2, 1c0fae7, 56ef58b, a9236af, 4c8afda, aa82f5c, 6b57119, 4c649a8, e24d110, 8bc6d4a, 6870bec, e17539d, a10461e (+ 17ad58a túnel dev, 7bfa0b5 dependencia `mercadopago`, 5a59dd7/e5faf43 docs)
+  - Suscripciones **sin plan asociado**: `auto_recurring` en línea + `status: "pending"` → `init_point` (los planes del panel exigen tokenizar la tarjeta en el cliente: `card_token_id is required`). Monto mínimo COP 1600.
+  - Webhook `/api/webhooks/mercadopago`: firma HMAC-SHA256 de `x-signature` con el manifest `id:…;request-id:…;ts:…;` (dos puntos); prueba sin firma del panel → 200 sin procesar; 404 de MercadoPago → 200 + log (los 500 sostenidos desactivan el webhook).
+  - Checkout `/api/suscripcion/mercadopago` + reconciliación al volver `/api/suscripcion/verify`: busca la suscripción autorizada solo por `external_reference`, sin depender del email; activa la suscripción (idempotente) y el rol sin esperar al webhook.
+  - Wrapper `src/lib/mercadopago.ts`; tests `tests/t11-mercadopago.test.ts`. Catálogo de gotchas en `docs/diagramas/dev/suscripcion-mercadopago.md`.
+  - **Verificado en vivo (2026-10-17, según Engram #230):** pago de prueba de COP 20.000 autorizado, `external_reference` correcto, webhook con firma validada y reconciliación operativa. Supuesto: no re-ejecutado en esta sesión.
+  - Pendiente fuera de alcance: política de cancelaciones/downgrades (hoy el webhook ignora `cancelled`).
+  - *Historial (Wompi, 2026-10-04):* **Bloqueada (2026-10-04): decisión del cliente sobre el modelo de cobro.** Investigación (docs.wompi.co: fuentes-de-pago, eventos, ambientes-y-llaves): Wompi NO tiene suscripciones nativas; lo recurrente son fuentes de pago (`/v1/tokens/*` → `POST /v1/payment_sources` → cada cobro lo dispara el comercio con `POST /v1/transactions` + `payment_source_id`; cancelar `PUT /v1/payment_sources/{id}/void`). Opciones: A) recurrente propio (scheduler mensual, reintentos, cobros fallidos); B) periodos prepagados vía Web Checkout (incluye PSE, renovación manual con recordatorio por email). Recomendación: B para lanzar. Mientras: sandbox con cuenta propia; las llaves del cliente reemplazan solo env vars.
   - **Alternativas evaluadas (2026-10-04, enviadas al cliente; la pasarela de CO puede cambiar):** Mercado Pago (suscripciones nativas `preapproval_plan`, cobro automático, reintentos, sin cuenta MP obligatoria, webhooks HMAC `x-signature`; PSE/Efecty listados pero probablemente con aprobación del usuario; Checkout 3.29%/2.99%/2.79% + $800 + IVA según plazo) — recomendada 1ª. Openpay (planes con `retry_times`/`status_after_retry`, solo tarjeta, webhooks sin firma → verificar consultando la API) — 2ª. ePayco (ApiFy Producción: solo tokenización + `POST /payment/process` con `cardTokenId`, sin planes ni scheduler; crear customers exige plan ePayco contratado; su página comercial anuncia suscripciones — contradicción sin resolver). Wompi: sin suscripciones nativas. Esperando decisión del cliente (pasarela + comisiones).
-  - Configurar `WOMPI_PUBLIC_KEY` + `WOMPI_PRIVATE_KEY` + `WOMPI_INTEGRITY_SECRET` + `WOMPI_EVENTS_SECRET` env vars (prefijos sandbox `pub_test_`/`prv_test_`/`test_integrity_`/`test_events_`; base `sandbox.wompi.co/v1` vs `production.wompi.co/v1`).
-  - Endpoint `/api/payments/wompi/checkout` (diseño según la decisión A/B).
-  - Webhook `/api/webhooks/wompi` para `transaction.updated`. Verificación con el **events secret**: `SHA256(valores de signature.properties + timestamp + events secret)` vs header `X-Event-Checksum`. Wompi espera 200 y reintenta solo 3 veces en 24 h.
-  - **Acceptance**: subscription se crea; webhook actualiza `subscriptions.status`; tests RED para integrity verification.
+  - *(Plan original de Wompi, ya no aplica:)* Configurar `WOMPI_PUBLIC_KEY` + `WOMPI_PRIVATE_KEY` + `WOMPI_INTEGRITY_SECRET` + `WOMPI_EVENTS_SECRET` env vars (prefijos sandbox `pub_test_`/`prv_test_`/`test_integrity_`/`test_events_`; base `sandbox.wompi.co/v1` vs `production.wompi.co/v1`).
+    - Endpoint `/api/payments/wompi/checkout` (diseño según la decisión A/B).
+    - Webhook `/api/webhooks/wompi` para `transaction.updated`. Verificación con el **events secret**: `SHA256(valores de signature.properties + timestamp + events secret)` vs header `X-Event-Checksum`. Wompi espera 200 y reintenta solo 3 veces en 24 h.
+  - **Acceptance (MercadoPago)**: la suscripción se crea en checkout; webhook y reconciliación actualizan `subscriptions.status` y el rol; tests RED para la firma del webhook. Cumplido según los commits listados y `tests/t11-mercadopago.test.ts`.
 
 ### PR 4 — Book section + paywall
 
-- [ ] **T12** Paywall middleware (~200 líneas, TDD para enforcement).
+- [x] **T12** Paywall middleware (~200 líneas, TDD para enforcement). — commit: f93cdff (`src/lib/paywall.ts` + `src/middleware.ts`, tests `tests/t12-paywall.test.ts`; verificado por el usuario según Engram #230: libro visible con sesión, bloqueado sin ella)
   - Middleware `src/middleware/paywall.ts` chequea: auth (Clerk), subscription activa, iteración/capítulo permitido por plan.
   - Si no pasa: redirige a paywall con CTA de suscripción.
   - **Acceptance**: rutas `/libro/[year]/[iteration]/[chapter]` redirigen a paywall si usuario no es Lector+Colaborador+Auditor con subscription activa.
@@ -195,7 +201,7 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - Crear `src/pages/suscripcion.astro` y `src/pages/en/subscription.astro`: página donde el visitante elige Lector vs Colaborador e inicia el flujo de pago (decide PayPal o Wompi según geografía, con selector manual).
   - Reescribir `src/components/SiteFooter.astro` (ES+EN): añadir enlaces a `/habeas-scriptum`, `/terminos/auditoria`, `/terminos/simbiosis-algoritmica` además de los actuales.
   - **Acceptance**: el header enlaza las 5 secciones + Blog + Suscripción + redes; el footer enlaza los sub-documentos legales; `/suscripcion` muestra opciones de plan con pre-selección geográfica o selector manual.
-  - **Decisión 2026-10-04 (afecta T10/T11)**: desde Colombia (geo-IP) se muestra SOLO Wompi; fuera de Colombia SOLO PayPal. Clerk Billing descartado (solo Stripe). País desconocido → fallback a definir en T10/T11.
+  - **Decisión 2026-10-04 (afecta T10/T11)**: desde Colombia (geo-IP) se muestra SOLO Wompi; fuera de Colombia SOLO PayPal. Clerk Billing descartado (solo Stripe). País desconocido → fallback a definir en T10/T11. *(Para Colombia, reemplazada por MercadoPago el 2026-10-17; ver Log L2.)*
 
 - [x] **T26** Acceso por rol al iniciar sesión (~250 líneas, TDD para `src/lib/access.ts`). Ruta: inline guiado (el usuario pidió guía y aporta la regla de negocio). — commits: cf97738 (header sign-in/UserButton), ba5b0d3 (access + /auth/continue + member links)
   - Opción A elegida: el rol se replica en `publicMetadata` de Clerk y viaja en el session token (`metadata.role`); Turso sigue siendo la fuente de verdad (los webhooks de pago escribirán ambos en T10/T11).
@@ -213,7 +219,7 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - Añadir a `src/lib/i18n.ts` (interface `Translation`): `subscription`, `auditores`, `repositorio`, `bookChapter`, `annotation`, `paywall`, `auth`, `habeasScriptum`, `terminosAuditoria`, `simbiosisAlgoritmica`. Versiones EN con marcadores TODO legales en secciones legales.
   - **Acceptance**: `astro check` verde; parity compile-time enforced; sin secciones top-level nuevas sin design review (REQ-i18n-7).
 
-- [ ] **T22** Auditor ascention logic (~200 líneas, TDD para counting).
+- [ ] **T22** Auditor ascention logic (~200 líneas, TDD para counting). — **Parcial.** Lógica hecha en 3586a59 (`src/lib/auditor.ts`, umbrales 4+ / 2+, tests `tests/t22-auditor.test.ts`). **Falta** (verificado 2026-10-20): el endpoint `/api/cron/auditor-check` no existe (no hay `src/pages/api/cron`) y `src/lib/auditor.ts` solo lo importa `tests/t22-auditor.test.ts`. Pendiente crear el endpoint cron y conectarlo, junto con T23.
   - Endpoint `/api/cron/auditor-check` (Netlify Scheduled Function) corre diariamente: cuenta aportes del usuario con `status = 'elevated'` y `triajeLevel = 3`; si >= 4 y no es Auditor, ascender; si es Auditor y pasó 1 año, renovar solo si >= 2 nuevos aportes.
   - **Acceptance**: logic funciona, role updates correctamente, renewal con gracia de 30 días.
 
@@ -334,20 +340,36 @@ notificationQueue: {
 | PR 6 | (vacío — T13, T15, T16, T17, T25 se entregaron en PR 2) | — | — | — |
 | PR 7 | T18, T22, T23 | ~1000 | main | `feature/pr-7-i18n-automation` |
 
+**Desvío (2026-10-17):** T11, T12 y la lógica de T22 (`3586a59`) se entregaron en `feature/pr-2-auth-legal` (commits b96d3f2…e5faf43), no en los PR 3, 4 y 7 previstos. PR 3 queda con T10; PR 4 con T14 y T24; PR 7 con T18, T23 y el resto de T22 (endpoint cron `/api/cron/auditor-check` y su conexión). PR 2 sigue sin merge a `main` por decisión del usuario (`plocos.netlify.app` = staging).
+
 **Total**: ~6.860 líneas (con TDD + i18n + tests). Por encima del trigger 400 de ODD — por eso se particiona en 7 PRs stacked-to-main.
 
 ## Verification Evidence
 
 - 2026-10-04: `npx vitest run` → 5 files, 175/175 PASS. `pnpm build` → Complete.
+- 2026-10-17 (según Engram #230, no re-ejecutado): 307/307 PASS, build verde.
+- 2026-10-20: `npx vitest run` (Vitest 5.0.3) → 11 files, 307/307 PASS, 1.82 s. `pnpm build` no ejecutado en esta sesión.
 
 ## Progress
 
 - **PR 1** (#10, `feature/pr-1-foundation`): T01, T07 hechas. T02 (verificación `robots-anti-ia`) sin evidencia registrada — pendiente.
 - **PR 2** (#11, `feature/pr-2-auth-legal`, apilado sobre PR 1): T03, T04, T05, T06, T08 + T13, T15, T16, T17, T25. Fixes: middleware allow-list (`75dcee7`), netlify edge-functions dev (`51e8b8f`), header UI (`b4cacbe`).
 - **PR 2 audit cleanup** (2026-10-04): remanentes del blog eliminados (Algolia, scripts de posts, colecciones de contenido `posts/authors/categories`, `/about`, `public/api/posts.json`, deps sin uso), bundle i18n reducido a la superficie del producto, links legales del footer por locale, sign-in EN, rutas EN de auth públicas, `/api/comments` fuera del allow-list. `src/content/categories/nomas-que-la-vida.md` se conserva por decisión T01. Test: `tests/pr2-cleanup.test.ts`.
+- **PR 2, 2026-10-17** (adelantadas de PR 3/4/7): T11 MercadoPago, T12 paywall; T22 parcial (solo la lógica de `src/lib/auditor.ts`, sin endpoint cron); migración de botones/nav a Flowbite (`65ffabf`); Prettier (`5ec6d40`); documentación del pivote (`5a59dd7`, `e5faf43`). Último commit `e5faf43`.
+- **Abiertas**: T02, T10, T14, T18, T19, T20, T21, T22 (parcial: falta el endpoint cron), T23, T24.
 
 ## Next Step
 
-**Webhook Clerk en dev: funcionando** (ver T27). Para repetir: `pnpm dev --allowed-hosts .trycloudflare.com` + `cloudflared tunnel --url http://localhost:4321`; la URL del túnel cambia en cada arranque → actualizar el endpoint en Clerk (con la ruta `/api/webhooks/clerk`); reiniciar dev tras cambiar `CLERK_WEBHOOK_SIGNING_SECRET`. Cerrado: alta, actualización y borrado verificados; el usuario real ya está en `users`.
+1. Confirmar con el usuario el flujo final por `localhost:4321`: verify → enlaces de miembro → metadata de Clerk con el rol.
+2. Antes del merge a `main`: env vars en Netlify (Clerk, MercadoPago, Turso); webhooks apuntando a `plocos.netlify.app`; cambiar la URL del webhook de MercadoPago (hoy apunta al túnel) y su secret; Clerk de producción exige dominio propio (`plocos.com`). Pendientes previos: `netlify link` + `netlify blobs:set` del PDF y limpiar `netlify.toml` (`build --remote`, `included_files db/**`) — supuesto: no verificado si siguen vigentes.
+3. Después: T10 PayPal (extranjeros, mismo patrón que T11), T14 capítulos, T18 i18n, T19 triaje con Gemini, T20 correo, T21 clickwrap de Habeas Scriptum, T22 endpoint `/api/cron/auditor-check` + T23 cron, T24 storage, T02 verificación de robots.
+4. Sin decidir: política de cancelaciones y downgrades de MercadoPago (hoy el webhook ignora `cancelled`).
+5. Refactor: acotar la regla global `a { color: var(--accent) }` a `.prose a` y quitar el `!important` (`3de6fd8`).
 
-Siguiente sesión: T10 PayPal con sandbox propio (developer.paypal.com; las credenciales del cliente se cambian luego solo en env vars — el usuario no sabe si tiene los datos PayPal del cliente); T11 (pasarela CO) bloqueada por decisión del cliente, se puede adelantar la parte común (`subscriptions` + rol en Turso y Clerk). Después: resto de T14 + T12; antes del merge a `main`: env vars en Netlify, `netlify link` + `netlify blobs:set` del PDF, limpiar `netlify.toml` (`build --remote`, `included_files db/**`).
+Operación (Engram #227): ningún agente levanta servidores ni mata procesos; el usuario maneja los servidores y prueba en su navegador. El túnel de Cloudflare es solo para webhooks entrantes.
+
+## Log
+
+- **L1 (2026-10-04, T25):** decisión registrada: desde Colombia (geo-IP) solo Wompi; fuera de Colombia solo PayPal. Se conserva sin cambios en T25.
+- **L2 (2026-10-17):** la decisión L1 para Colombia quedó **reemplazada por MercadoPago**. Motivo: Wompi no tiene suscripciones nativas (investigación del 2026-10-04 en T11) y MercadoPago, la alternativa recomendada en primer lugar, sí permite cobro recurrente automático. Fecha tomada del primer commit de MercadoPago (`b96d3f2`, 2026-10-17); supuesto: la fecha exacta y la aprobación del cliente no constan en git ni en Engram #230. La regla para fuera de Colombia (PayPal, T10) sigue igual.
+- **L3 (2026-10-20):** documento reconciliado con `git log` y Engram #230: T11 y T12 hechas; T22 queda abierta y parcial (lógica en `3586a59` con pruebas; el endpoint `/api/cron/auditor-check` no existe y `src/lib/auditor.ts` solo lo importan las pruebas, verificado por el usuario y en esta sesión); desvío de PR anotado; Progress y Next Step reescritos; suite 307/307.
