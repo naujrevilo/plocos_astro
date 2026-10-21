@@ -1,6 +1,6 @@
 /**
  * @module db/subscriptions
- * @description Subscription lifecycle helpers (T11).
+ * @description Subscription lifecycle helpers (T11, T10c).
  *
  * `activateSubscription` is the single entry point used by the
  * MercadoPago webhook when a preapproval reaches `authorized`. It:
@@ -22,6 +22,47 @@ export type ActivateSubscriptionInput = {
   currentPeriodStart?: Date;
   currentPeriodEnd?: Date;
 };
+
+export type UpdateSubscriptionStatusInput = {
+  clerkUserId: string;
+  provider: (typeof PAYMENT_PROVIDERS)[number];
+  providerSubscriptionId: string;
+  status: 'past_due' | 'canceled';
+  /** Clear the mirrored user's role (SUSPENDED / EXPIRED, Log L6-L7). */
+  revokeRole: boolean;
+};
+
+/**
+ * Set the status of an existing subscription row and, when asked, clear the
+ * mirrored user's role. A missing row is not an error: the role is still
+ * revoked, so a SUSPENDED/EXPIRED event never leaves paid access behind.
+ *
+ * `past_due` covers two cases with different access (Log L12): a failed
+ * payment on an ACTIVE subscription keeps the role, SUSPENDED revokes it.
+ * Decide access from the role, never from this status.
+ */
+export async function updateSubscriptionStatus(
+  input: UpdateSubscriptionStatusInput,
+  database: Database = appDb,
+): Promise<void> {
+  const now = new Date();
+  await database
+    .update(subscriptions)
+    .set({ status: input.status, updatedAt: now })
+    .where(
+      and(
+        eq(subscriptions.provider, input.provider),
+        eq(subscriptions.providerSubscriptionId, input.providerSubscriptionId),
+      ),
+    );
+
+  if (input.revokeRole) {
+    await database
+      .update(users)
+      .set({ role: null, updatedAt: now })
+      .where(eq(users.clerkUserId, input.clerkUserId));
+  }
+}
 
 /**
  * Upsert the subscription and promote the mirrored user's role.

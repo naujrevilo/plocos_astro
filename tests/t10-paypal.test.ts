@@ -18,7 +18,11 @@ import zlib from 'node:zlib';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   buildSignedMessage,
+  CERT_FETCH_TIMEOUT_MS,
+  CertificateUnavailableError,
   getAccessToken,
+  getSubscription,
+  SubscriptionNotFoundError,
   getPayPalConfig,
   isAllowedCertUrl,
   paypalRequest,
@@ -69,6 +73,8 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 
 describe('T10b — buildSignedMessage', () => {
@@ -298,4 +304,155 @@ describe('T10b — getPayPalConfig', () => {
       expect(() => getPayPalConfig()).toThrow(`${name} is not set`);
     },
   );
+});
+
+// ----------------------------------------------------------------------------
+// T10c — certificate download (default `fetchCert`)
+//
+// PayPal's docs only say the certificate "should automatically be downloaded
+// and cached for future use" and that a non-2xx answer is retried "up to 25
+// times over 3 days". They say nothing about timeouts or redirects, so:
+//   - the download gives up after CERT_FETCH_TIMEOUT_MS (below Netlify's 10 s
+//     function limit),
+//   - redirects are refused (`redirect: 'error'`): the allow-list checks the
+//     URL PayPal sent, and a redirect would bypass it,
+//   - every failure surfaces as CertificateUnavailableError, which the webhook
+//     answers with 5xx so PayPal retries.
+// ----------------------------------------------------------------------------
+
+describe('T10c — certificate download', () => {
+  it('downloads the certificate without following redirects and with an abort signal', async () => {
+    const fetch = vi.fn(async () => new Response(PUBLIC_PEM, { status: 200 }));
+    vi.stubGlobal('fetch', fetch);
+
+    await expect(
+      verifyWebhookSignature({ rawBody: RAW_BODY, headers: webhookHeaders() }),
+    ).resolves.toBe('valid');
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const [url, init] = fetch.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe(CERT_URL);
+    expect(init.redirect).toBe('error');
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('keeps the download timeout below the 10 s Netlify function limit', () => {
+    expect(CERT_FETCH_TIMEOUT_MS).toBeGreaterThan(0);
+    expect(CERT_FETCH_TIMEOUT_MS).toBeLessThan(10_000);
+  });
+
+  it('fails with CertificateUnavailableError when the download times out', async () => {
+    vi.useFakeTimers();
+    const fetch = vi.fn(
+      (_url: string, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+        }),
+    );
+    vi.stubGlobal('fetch', fetch);
+
+    const pending = verifyWebhookSignature({ rawBody: RAW_BODY, headers: webhookHeaders() });
+    const outcome = expect(pending).rejects.toBeInstanceOf(CertificateUnavailableError);
+    await vi.advanceTimersByTimeAsync(CERT_FETCH_TIMEOUT_MS);
+    await outcome;
+  });
+
+  it('fails with CertificateUnavailableError on a non-2xx answer', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 503 })));
+    await expect(
+      verifyWebhookSignature({ rawBody: RAW_BODY, headers: webhookHeaders() }),
+    ).rejects.toBeInstanceOf(CertificateUnavailableError);
+  });
+
+  it('fails with CertificateUnavailableError on a network error or refused redirect', async () => {
+    // With `redirect: 'error'`, fetch rejects with a TypeError on any 3xx.
+    vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new TypeError('fetch failed'))));
+    await expect(
+      verifyWebhookSignature({ rawBody: RAW_BODY, headers: webhookHeaders() }),
+    ).rejects.toBeInstanceOf(CertificateUnavailableError);
+  });
+
+  it('does not cache a failed download', async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('', { status: 503 }))
+      .mockResolvedValueOnce(new Response(PUBLIC_PEM, { status: 200 }));
+    vi.stubGlobal('fetch', fetch);
+
+    await expect(
+      verifyWebhookSignature({ rawBody: RAW_BODY, headers: webhookHeaders() }),
+    ).rejects.toBeInstanceOf(CertificateUnavailableError);
+    await expect(
+      verifyWebhookSignature({ rawBody: RAW_BODY, headers: webhookHeaders() }),
+    ).resolves.toBe('valid');
+  });
+});
+
+// ----------------------------------------------------------------------------
+// T10c — read a subscription (moved from T10d; creating one stays in T10d)
+// ----------------------------------------------------------------------------
+
+const SUBSCRIPTION = {
+  id: 'I-BW452GLLEP1G',
+  status: 'ACTIVE',
+  plan_id: 'P-5ML4271244454362WXNWU5NQ',
+  custom_id: 'user_123',
+  billing_info: { next_billing_time: '2026-11-21T10:00:00Z', failed_payments_count: 0 },
+};
+
+describe('T10c — getSubscription', () => {
+  it('GETs /v1/billing/subscriptions/{id} with a Bearer token and returns the subscription', async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(tokenResponse('token-1'))
+      .mockResolvedValueOnce(new Response(JSON.stringify(SUBSCRIPTION), { status: 200 }));
+
+    await expect(getSubscription('I-BW452GLLEP1G', { fetch, now: () => 0 })).resolves.toEqual(
+      SUBSCRIPTION,
+    );
+
+    const [url, init] = fetch.mock.calls[1] as [string, RequestInit];
+    expect(url).toBe('https://api-m.sandbox.paypal.com/v1/billing/subscriptions/I-BW452GLLEP1G');
+    expect(init.method).toBe('GET');
+    expect(new Headers(init.headers).get('authorization')).toBe('Bearer token-1');
+  });
+
+  it('encodes the id so it cannot change the request path', async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(tokenResponse('token-1'))
+      .mockResolvedValueOnce(new Response(JSON.stringify(SUBSCRIPTION), { status: 200 }));
+
+    await getSubscription('I-1/../../v1/oauth2', { fetch, now: () => 0 });
+
+    const [url] = fetch.mock.calls[1] as [string, RequestInit];
+    expect(url).toBe(
+      'https://api-m.sandbox.paypal.com/v1/billing/subscriptions/I-1%2F..%2F..%2Fv1%2Foauth2',
+    );
+  });
+
+  it('throws SubscriptionNotFoundError when PayPal answers 404', async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(tokenResponse('token-1'))
+      .mockResolvedValueOnce(
+        new Response('{"name":"RESOURCE_NOT_FOUND"}', { status: 404 }),
+      );
+
+    const error = await getSubscription('I-MISSING', { fetch, now: () => 0 }).catch((e) => e);
+    expect(error).toBeInstanceOf(SubscriptionNotFoundError);
+    expect(error.subscriptionId).toBe('I-MISSING');
+  });
+
+  it('throws a plain error (retryable) on any other non-2xx answer', async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(tokenResponse('token-1'))
+      .mockResolvedValueOnce(new Response('', { status: 500 }));
+
+    const error = await getSubscription('I-1', { fetch, now: () => 0 }).catch((e) => e);
+    expect(error).toBeInstanceOf(Error);
+    expect(error).not.toBeInstanceOf(SubscriptionNotFoundError);
+    expect(error.message).toBe('PayPal subscription request failed: 500');
+  });
 });

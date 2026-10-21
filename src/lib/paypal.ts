@@ -1,7 +1,7 @@
 /**
  * @module paypal
  * @description PayPal REST wrapper (T10b): config, OAuth token and webhook
- * signature self-verification. Plain REST over `fetch`, no SDK
+ * signature self-verification; reading a subscription (T10c). Plain REST over `fetch`, no SDK
  * (`@paypal/checkout-server-sdk` is deprecated and `@paypal/paypal-server-sdk`
  * covers neither catalog products nor webhook verification).
  *
@@ -109,14 +109,44 @@ export function isAllowedCertUrl(url: string): boolean {
   );
 }
 
+/** Give up on the certificate download after this long (below Netlify's 10 s limit). */
+export const CERT_FETCH_TIMEOUT_MS = 5_000;
+
+/**
+ * The signing certificate could not be downloaded (network, timeout,
+ * redirect or non-2xx). Transient: the webhook answers 5xx so PayPal retries.
+ */
+export class CertificateUnavailableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CertificateUnavailableError';
+  }
+}
+
 const certCache = new Map<string, string>();
 
+/**
+ * Download the certificate with a timeout and without following redirects:
+ * the allow-list checks the URL PayPal sent, and a redirect would bypass it.
+ * PayPal's docs only ask to cache the certificate; they say nothing about
+ * timeouts or redirects.
+ */
 async function defaultFetchCert(url: string): Promise<string> {
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`PayPal certificate download failed: ${res.status}`);
+  // A plain setTimeout (not AbortSignal.timeout) so tests can fake the clock.
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error(`timed out after ${CERT_FETCH_TIMEOUT_MS} ms`)),
+    CERT_FETCH_TIMEOUT_MS,
+  );
+  try {
+    const res = await fetch(url, { redirect: 'error', signal: controller.signal });
+    if (!res.ok) {
+      throw new Error(`PayPal certificate download failed: ${res.status}`);
+    }
+    return await res.text();
+  } finally {
+    clearTimeout(timer);
   }
-  return res.text();
 }
 
 async function getCertificate(
@@ -126,7 +156,13 @@ async function getCertificate(
   const cached = certCache.get(url);
   if (cached !== undefined) return cached;
   // Failures are not cached: a transient download error must not stick.
-  const pem = await fetchCert(url);
+  let pem: string;
+  try {
+    pem = await fetchCert(url);
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err);
+    throw new CertificateUnavailableError(`PayPal certificate download failed: ${reason}`);
+  }
   certCache.set(url, pem);
   return pem;
 }
@@ -234,6 +270,56 @@ export async function paypalRequest(
   if (res.status !== 401) return res;
   cachedToken = undefined;
   return send();
+}
+
+// ----------------------------------------------------------------------------
+// Subscriptions (T10c: read; T10d: create)
+// ----------------------------------------------------------------------------
+
+export type PayPalSubscriptionStatus =
+  | 'APPROVAL_PENDING'
+  | 'APPROVED'
+  | 'ACTIVE'
+  | 'SUSPENDED'
+  | 'CANCELLED'
+  | 'EXPIRED';
+
+export interface PayPalSubscription {
+  id: string;
+  status: PayPalSubscriptionStatus;
+  plan_id: string;
+  custom_id?: string;
+  billing_info?: {
+    next_billing_time?: string;
+    failed_payments_count?: number;
+  };
+}
+
+/** PayPal answered 404 for a subscription id. Permanent: never retried. */
+export class SubscriptionNotFoundError extends Error {
+  constructor(public readonly subscriptionId: string) {
+    super(`PayPal subscription ${subscriptionId} not found (PayPal responded 404)`);
+    this.name = 'SubscriptionNotFoundError';
+  }
+}
+
+/** Read a subscription: GET /v1/billing/subscriptions/{id}. */
+export async function getSubscription(
+  id: string,
+  deps: PayPalDeps = {},
+): Promise<PayPalSubscription> {
+  const res = await paypalRequest(
+    `/v1/billing/subscriptions/${encodeURIComponent(id)}`,
+    { method: 'GET' },
+    deps,
+  );
+  if (res.status === 404) {
+    throw new SubscriptionNotFoundError(id);
+  }
+  if (!res.ok) {
+    throw new Error(`PayPal subscription request failed: ${res.status}`);
+  }
+  return (await res.json()) as PayPalSubscription;
 }
 
 /** Clear the certificate and token caches (tests only). */
