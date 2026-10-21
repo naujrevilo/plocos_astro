@@ -359,9 +359,16 @@ notificationQueue: {
 
 ## Next Step
 
+**Siguiente paso (próxima sesión): T10c — webhook `/api/webhooks/paypal`** (T10a `487d746` y T10b `9f4ea9d` ya están en `feature/pr-3-payments`). Pendientes del usuario para esa sesión:
+- Corregir .env.local: PAYPAL_API_BASE=https://api-m.sandbox.paypal.com (sandbox.paypal.com es el sitio web, no la API) y PAYPAL_PLAN_* vacías (son IDs de plan, no precios).
+- Decidir dónde apunta el webhook de PayPal: túnel, plocos.netlify.app o ambos (PayPal admite varios por app).
+- Crear el webhook en PayPal y poner PAYPAL_WEBHOOK_ID en .env.local.
+- Netlify: plocos.netlify.app publica main; para ver feature/pr-3-payments hace falta activar branch deploys o hacer el merge. Revisar las env vars (Clerk, MercadoPago, PayPal sandbox; Turso probablemente ya está, por los comentarios).
+- Agregar el dominio de Netlify en Clerk y actualizar los webhooks de Clerk y MercadoPago.
+
 1. Confirmar con el usuario el flujo final por `localhost:4321`: verify → enlaces de miembro → metadata de Clerk con el rol.
 2. Antes del merge a `main`: env vars en Netlify (Clerk, MercadoPago, Turso); webhooks apuntando a `plocos.netlify.app`; cambiar la URL del webhook de MercadoPago (hoy apunta al túnel) y su secret; Clerk de producción exige dominio propio (`plocos.com`). Pendientes previos: `netlify link` + `netlify blobs:set` del PDF y limpiar `netlify.toml` (`build --remote`, `included_files db/**`) — supuesto: no verificado si siguen vigentes.
-3. Después: T10 PayPal (extranjeros, mismo patrón que T11), T14 capítulos, T18 i18n, T19 triaje con Gemini, T20 correo, T21 clickwrap de Habeas Scriptum, T22 endpoint `/api/cron/auditor-check` + T23 cron, T24 storage, T02 verificación de robots.
+3. Después: resto de T10 (T10c webhook, T10d checkout + reconciliación), T14 capítulos, T18 i18n, T19 triaje con Gemini, T20 correo, T21 clickwrap de Habeas Scriptum, T22 endpoint `/api/cron/auditor-check` + T23 cron, T24 storage, T02 verificación de robots.
 4. Implementar la política de cancelación de L6/L7 en MercadoPago y PayPal: `accessUntil` en Clerk (webhooks y `verify` de ambas pasarelas), paywall por fecha; cron de limpieza en T23.
 5. Refactor: acotar la regla global `a { color: var(--accent) }` a `.prose a` y quitar el `!important` (`3de6fd8`).
 
