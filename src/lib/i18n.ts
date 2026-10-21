@@ -207,7 +207,7 @@ export const translations: Record<Locale, Translation> = {
         {
           heading: 'Encargados del tratamiento',
           body:
-            'Para operar la plataforma de suscripción al libro digital «No más que la Vida», Plocos contrata los siguientes encargados, quienes tratan datos personales exclusivamente según las finalidades descritas en esta política y bajo cláusulas contractuales que exigen garantías equivalentes o superiores a la legislación colombiana: (a) Clerk (autenticación y sesión); (b) PayPal y Wompi (procesamiento de pagos, dual según geografía del suscriptor); (c) Netlify (hosting y funciones serverless); (d) Resend (envío de correos transaccionales, aprobaciones, notificaciones de iteración); (e) Google Cloud Platform, donde Google Gemini procesa las anotaciones de los Colaboradores en el motor de triaje algorítmico. El detalle técnico de cada cookie y transferencia se publica en la Política de Cookies.',
+            'Para operar la plataforma de suscripción al libro digital «No más que la Vida», Plocos contrata los siguientes encargados, quienes tratan datos personales exclusivamente según las finalidades descritas en esta política y bajo cláusulas contractuales que exigen garantías equivalentes o superiores a la legislación colombiana: (a) Clerk (autenticación y sesión); (b) PayPal y MercadoPago (procesamiento de pagos, dual según geografía del suscriptor); (c) Netlify (hosting y funciones serverless); (d) Resend (envío de correos transaccionales, aprobaciones, notificaciones de iteración); (e) Google Cloud Platform, donde Google Gemini procesa las anotaciones de los Colaboradores en el motor de triaje algorítmico. El detalle técnico de cada cookie y transferencia se publica en la Política de Cookies.',
         },
         {
           heading: 'Datos que tratamos',
@@ -266,7 +266,7 @@ export const translations: Record<Locale, Translation> = {
         },
         {
           category: 'Datos de facturación',
-          period: 'Los retiene la pasarela de pago (PayPal o Wompi) según su propia política. Plocos conserva únicamente identificadores de transacción para cumplimiento fiscal (cinco años).',
+          period: 'Los retiene la pasarela de pago (PayPal o MercadoPago) según su propia política. Plocos conserva únicamente identificadores de transacción para cumplimiento fiscal (cinco años).',
         },
         {
           category: 'Mensajes de contacto',
@@ -510,7 +510,7 @@ export const translations: Record<Locale, Translation> = {
         {
           heading: 'Data processors',
           body:
-            'To operate the subscription platform for the digital book “No más que la Vida”, Plocos engages the following processors, who treat personal data exclusively for the purposes described in this policy and under contractual clauses that require guarantees equivalent to or stronger than Colombian law: (a) Clerk (authentication and session); (b) PayPal and Wompi (payment processing, dual depending on the subscriber’s geography); (c) Netlify (hosting and serverless functions); (d) Resend (transactional email: approvals, notifications, iteration reminders); (e) Google Cloud Platform, where Google Gemini processes collaborator annotations through the algorithmic triage engine. Detailed cookie and transfer mechanics are published in the Cookie Policy. [EN: TODO legal review by Colombian attorney]',
+            'To operate the subscription platform for the digital book “No más que la Vida”, Plocos engages the following processors, who treat personal data exclusively for the purposes described in this policy and under contractual clauses that require guarantees equivalent to or stronger than Colombian law: (a) Clerk (authentication and session); (b) PayPal and MercadoPago (payment processing, dual depending on the subscriber’s geography); (c) Netlify (hosting and serverless functions); (d) Resend (transactional email: approvals, notifications, iteration reminders); (e) Google Cloud Platform, where Google Gemini processes collaborator annotations through the algorithmic triage engine. Detailed cookie and transfer mechanics are published in the Cookie Policy. [EN: TODO legal review by Colombian attorney]',
         },
         {
           heading: 'Data we process',
@@ -569,7 +569,7 @@ export const translations: Record<Locale, Translation> = {
         },
         {
           category: 'Billing data',
-          period: 'Retained by the payment gateway (PayPal or Wompi) under their own policy. Plocos keeps only transaction identifiers for tax compliance (five years).',
+          period: 'Retained by the payment gateway (PayPal or MercadoPago) under their own policy. Plocos keeps only transaction identifiers for tax compliance (five years).',
         },
         {
           category: 'Contact messages',

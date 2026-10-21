@@ -8,16 +8,9 @@ const translations = getTranslations(locale);
 
 // País por defecto: Colombia (COP). El selector manual permite cambiar.
 const COUNTRIES = [
-  { code: 'CO', label: 'Colombia (COP)', currency: 'COP', provider: 'wompi' },
-  { code: 'MX', label: 'México (MXN)', currency: 'MXN', provider: 'wompi' },
-  { code: 'AR', label: 'Argentina (ARS)', currency: 'ARS', provider: 'wompi' },
-  { code: 'BR', label: 'Brasil (BRL)', currency: 'BRL', provider: 'wompi' },
-  { code: 'CL', label: 'Chile (CLP)', currency: 'CLP', provider: 'wompi' },
-  { code: 'PE', label: 'Perú (PEN)', currency: 'PEN', provider: 'wompi' },
+  { code: 'CO', label: 'Colombia (COP)', currency: 'COP', provider: 'mercadopago' },
   { code: 'US', label: 'United States (USD)', currency: 'USD', provider: 'paypal' },
-  { code: 'CA', label: 'Canada (CAD)', currency: 'CAD', provider: 'paypal' },
-  { code: 'GB', label: 'United Kingdom (GBP)', currency: 'GBP', provider: 'paypal' },
-  { code: 'OTHER', label: 'Otro / Other', currency: 'USD', provider: 'paypal' },
+  { code: 'OTHER', label: 'Otro / Other (USD)', currency: 'USD', provider: 'paypal' },
 ];
 
 const isES = locale === 'es';
@@ -25,8 +18,8 @@ const isES = locale === 'es';
 <BaseLayout
   title={isES ? 'Suscripción · Plocos' : 'Subscription · Plocos'}
   description={isES
-    ? 'Elige tu categoría de suscripción: Lector o Colaborador. Pago seguro vía PayPal (internacional) o Wompi (Colombia).'
-    : 'Choose your subscription tier: Reader or Collaborator. Secure payment via PayPal (international) or Wompi (Colombia).'}
+    ? 'Elige tu categoría de suscripción: Lector o Colaborador. Pago seguro vía PayPal (internacional) o MercadoPago (Colombia).'
+    : 'Choose your subscription tier: Reader or Collaborator. Secure payment via PayPal (international) or MercadoPago (Colombia).'}
 >
   <article class="mx-auto max-w-4xl space-y-12 px-4 py-16 text-text-secondary">
     <header class="space-y-4 text-center">
@@ -145,8 +138,8 @@ const isES = locale === 'es';
       </h2>
       <p class="text-sm leading-relaxed text-text-secondary/90">
         {isES
-          ? 'Elegimos la pasarela de pago según tu geografía. PayPal para pagos internacionales (USD/EUR/GBP). Wompi para Colombia y LatAm con tarjeta local, PSE, Nequi y Daviplata.'
-          : 'We pick the payment gateway based on your geography. PayPal for international payments (USD/EUR/GBP). Wompi for Colombia and LatAm with local card, PSE, Nequi, and Daviplata.'}
+          ? 'Elegimos la pasarela de pago según tu geografía. MercadoPago para Colombia (COP). PayPal para el resto del mundo (USD/EUR).'
+          : 'We pick the payment gateway based on your geography. MercadoPago for Colombia (COP). PayPal for the rest of the world (USD/EUR).'}
       </p>
       <label for="country" class="block text-xs font-semibold uppercase tracking-widest text-text-secondary/80">
         {isES ? 'País' : 'Country'}
@@ -165,8 +158,8 @@ const isES = locale === 'es';
       <p class="text-xs text-text-secondary/70">
         <span id="payment-provider-hint">
           {isES
-            ? 'Pasarela de pago: Wompi (COP, Colombia)'
-            : 'Payment gateway: Wompi (COP, Colombia)'}
+            ? 'Pasarela de pago: MercadoPago (COP, Colombia)'
+            : 'Payment gateway: MercadoPago (COP, Colombia)'}
         </span>
       </p>
     </section>
@@ -178,8 +171,8 @@ const isES = locale === 'es';
       <ol class="list-decimal space-y-2 pl-6 text-sm leading-relaxed text-text-secondary/90 sm:text-base">
         <li>
           {isES
-            ? 'Seleccionas país y plan. Te redirigimos a la pasarela (PayPal o Wompi).'
-            : 'You select country and plan. We redirect you to the gateway (PayPal or Wompi).'}
+            ? 'Seleccionas país y plan. Te redirigimos a la pasarela (PayPal o MercadoPago).'
+            : 'You select country and plan. We redirect you to the gateway (PayPal or MercadoPago).'}
         </li>
         <li>
           {isES
@@ -207,18 +200,18 @@ const isES = locale === 'es';
     var hint = document.getElementById('payment-provider-hint');
     if (!select || !hint) return;
     var HINTS_ES = {
-      Wompi: 'Pasarela de pago: Wompi (COP, Colombia)',
-      PayPal: 'Pasarela de pago: PayPal (internacional, USD/EUR/GBP)',
+      mercadopago: 'Pasarela de pago: MercadoPago (COP, Colombia)',
+      paypal: 'Pasarela de pago: PayPal (internacional, USD/EUR)',
     };
     var HINTS_EN = {
-      Wompi: 'Payment gateway: Wompi (COP, Colombia)',
-      PayPal: 'Payment gateway: PayPal (international, USD/EUR/GBP)',
+      mercadopago: 'Payment gateway: MercadoPago (COP, Colombia)',
+      paypal: 'Payment gateway: PayPal (international, USD/EUR)',
     };
     var isES = (document.documentElement.lang || 'es').startsWith('es');
     var HINTS = isES ? HINTS_ES : HINTS_EN;
     function update() {
       var opt = select.options[select.selectedIndex];
-      var provider = opt.getAttribute('data-provider') || 'Wompi';
+      var provider = opt.getAttribute('data-provider') || 'mercadopago';
       hint.textContent = HINTS[provider] || '';
     }
     select.addEventListener('change', update);

@@ -116,7 +116,7 @@ describe('T27 — libsql database + Clerk user mirror', () => {
     await upsertUserFromClerk(clerkPayload(), db);
     await db.insert(subscriptions).values({
       userId: 'user_123',
-      provider: 'wompi',
+      provider: 'mercadopago',
       providerSubscriptionId: 'sub_1',
       plan: 'lector',
     });

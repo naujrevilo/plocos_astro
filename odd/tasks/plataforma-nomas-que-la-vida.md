@@ -13,7 +13,7 @@ Pivot completo de Plocos de "archivo histórico de blog con comentarios moderado
 
 ## Problem
 
-El cliente (Michel Saer) cambió el modelo de negocio y el producto entero. La nueva spec elimina blog/categorías/posts y agrega 3 roles (Lector/Colaborador/Auditor), integración de pagos duales (PayPal + Wompi), auth (Clerk), DB relacional (Turso), motor LLM (Google Gemini), cumplimiento de Ley 1581/2012 (Habeas Data) y protección de propiedad intelectual vía Habeas Scriptum.
+El cliente (Michel Saer) cambió el modelo de negocio y el producto entero. La nueva spec elimina blog/categorías/posts y agrega 3 roles (Lector/Colaborador/Auditor), integración de pagos duales (PayPal + MercadoPago), auth (Clerk), DB relacional (Turso), motor LLM (Google Gemini), cumplimiento de Ley 1581/2012 (Habeas Data) y protección de propiedad intelectual vía Habeas Scriptum.
 
 ## Why
 
@@ -28,7 +28,7 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
 - **Habeas Scriptum clickwrap**: ninguna interfaz de Colaborador se habilita sin aceptación explícita.
 - **SHA-256 verified**: `pnpm verify:pacto` corre en prebuild. Cuidado al reescribir `pacto.es.json`.
 - **drizzle.config.ts**: actualizar de `driver: 'turso'` (obsoleto) a `dialect: 'turso'`.
-- **Stack fijo**: Clerk (auth) + Turso (DB) + PayPal+Wompi (pagos) + Gemini Pro/Flash (LLM) + Netlify Blobs (PDF) + Resend (email) + bundle monolítico `src/lib/i18n.ts` con parity compile-time.
+- **Stack fijo**: Clerk (auth) + Turso (DB) + PayPal+MercadoPago (pagos) + Gemini Pro/Flash (LLM) + Netlify Blobs (PDF) + Resend (email) + bundle monolítico `src/lib/i18n.ts` con parity compile-time.
 - **Spec `robots-anti-ia` REUSE íntegra**: cerco anti-IA ratificado por el cliente. 8 user-agents bloqueados + meta `noai, noimageai`.
 - **Splash de Pacto de Ingreso**: texto verbatim "Los textos y obras aquí expuestos transitan sin censura con contenido sensible. Si decide continuar, asume los términos de nuestros <Términos del Sitio>."
 
@@ -82,7 +82,7 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - **Acceptance**: SHA-256 del cuerpo del pacto actualiza; `pnpm verify:pacto` verde; las 3 nuevas páginas muestran el contenido legal; enlaces cruzados entre pacto y sub-secciones funcionan.
 
 - [x] **T05** Spec politica-privacidad update (~150 líneas). — commits: b6502a5
-  - Reescribir `src/pages/privacidad/index.astro` y `src/pages/en/privacy/index.astro`: añadir finalidades de suscriptores/colaboradores/auditores, datos del Repositorio público, mención al responsable (Plocos) y encargados (PayPal, Wompi, Netlify, Resend, Clerk).
+  - Reescribir `src/pages/privacidad/index.astro` y `src/pages/en/privacy/index.astro`: añadir finalidades de suscriptores/colaboradores/auditores, datos del Repositorio público, mención al responsable (Plocos) y encargados (PayPal, MercadoPago, Netlify, Resend, Clerk).
   - **Acceptance**: cubre Ley 1581/2012 + Decreto 1377/2013 + datos del Repositorio + ARCO + delegado de protección de datos.
 
 - [x] **T06** Spec politica-cookies update (~100 líneas). — commits: b6502a5
@@ -108,18 +108,13 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - Webhook `/api/webhooks/paypal` para `BILLING.SUBSCRIPTION.CREATED`, `.CANCELLED`, `.PAYMENT.FAILED`. Verificación de signature.
   - **Acceptance**: subscription se crea en checkout; webhook actualiza `subscriptions.status`; tests RED para verificación de signature.
 
-- [x] **T11** Integración MercadoPago (reemplaza a Wompi; TDD para firma del webhook y reconciliación). — commits: b96d3f2, 1c0fae7, 56ef58b, a9236af, 4c8afda, aa82f5c, 6b57119, 4c649a8, e24d110, 8bc6d4a, 6870bec, e17539d, a10461e (+ 17ad58a túnel dev, 7bfa0b5 dependencia `mercadopago`, 5a59dd7/e5faf43 docs)
+- [x] **T11** Integración MercadoPago (Colombia, COP; TDD para firma del webhook y reconciliación). — commits: b96d3f2, 1c0fae7, 56ef58b, a9236af, 4c8afda, aa82f5c, 6b57119, 4c649a8, e24d110, 8bc6d4a, 6870bec, e17539d, a10461e (+ 17ad58a túnel dev, 7bfa0b5 dependencia `mercadopago`, 5a59dd7/e5faf43 docs)
   - Suscripciones **sin plan asociado**: `auto_recurring` en línea + `status: "pending"` → `init_point` (los planes del panel exigen tokenizar la tarjeta en el cliente: `card_token_id is required`). Monto mínimo COP 1600.
   - Webhook `/api/webhooks/mercadopago`: firma HMAC-SHA256 de `x-signature` con el manifest `id:…;request-id:…;ts:…;` (dos puntos); prueba sin firma del panel → 200 sin procesar; 404 de MercadoPago → 200 + log (los 500 sostenidos desactivan el webhook).
   - Checkout `/api/suscripcion/mercadopago` + reconciliación al volver `/api/suscripcion/verify`: busca la suscripción autorizada solo por `external_reference`, sin depender del email; activa la suscripción (idempotente) y el rol sin esperar al webhook.
   - Wrapper `src/lib/mercadopago.ts`; tests `tests/t11-mercadopago.test.ts`. Catálogo de gotchas en `docs/diagramas/dev/suscripcion-mercadopago.md`.
   - **Verificado en vivo (2026-10-17, según Engram #230):** pago de prueba de COP 20.000 autorizado, `external_reference` correcto, webhook con firma validada y reconciliación operativa. Supuesto: no re-ejecutado en esta sesión.
   - Pendiente fuera de alcance: política de cancelaciones/downgrades (hoy el webhook ignora `cancelled`).
-  - *Historial (Wompi, 2026-10-04):* **Bloqueada (2026-10-04): decisión del cliente sobre el modelo de cobro.** Investigación (docs.wompi.co: fuentes-de-pago, eventos, ambientes-y-llaves): Wompi NO tiene suscripciones nativas; lo recurrente son fuentes de pago (`/v1/tokens/*` → `POST /v1/payment_sources` → cada cobro lo dispara el comercio con `POST /v1/transactions` + `payment_source_id`; cancelar `PUT /v1/payment_sources/{id}/void`). Opciones: A) recurrente propio (scheduler mensual, reintentos, cobros fallidos); B) periodos prepagados vía Web Checkout (incluye PSE, renovación manual con recordatorio por email). Recomendación: B para lanzar. Mientras: sandbox con cuenta propia; las llaves del cliente reemplazan solo env vars.
-  - **Alternativas evaluadas (2026-10-04, enviadas al cliente; la pasarela de CO puede cambiar):** Mercado Pago (suscripciones nativas `preapproval_plan`, cobro automático, reintentos, sin cuenta MP obligatoria, webhooks HMAC `x-signature`; PSE/Efecty listados pero probablemente con aprobación del usuario; Checkout 3.29%/2.99%/2.79% + $800 + IVA según plazo) — recomendada 1ª. Openpay (planes con `retry_times`/`status_after_retry`, solo tarjeta, webhooks sin firma → verificar consultando la API) — 2ª. ePayco (ApiFy Producción: solo tokenización + `POST /payment/process` con `cardTokenId`, sin planes ni scheduler; crear customers exige plan ePayco contratado; su página comercial anuncia suscripciones — contradicción sin resolver). Wompi: sin suscripciones nativas. Esperando decisión del cliente (pasarela + comisiones).
-  - *(Plan original de Wompi, ya no aplica:)* Configurar `WOMPI_PUBLIC_KEY` + `WOMPI_PRIVATE_KEY` + `WOMPI_INTEGRITY_SECRET` + `WOMPI_EVENTS_SECRET` env vars (prefijos sandbox `pub_test_`/`prv_test_`/`test_integrity_`/`test_events_`; base `sandbox.wompi.co/v1` vs `production.wompi.co/v1`).
-    - Endpoint `/api/payments/wompi/checkout` (diseño según la decisión A/B).
-    - Webhook `/api/webhooks/wompi` para `transaction.updated`. Verificación con el **events secret**: `SHA256(valores de signature.properties + timestamp + events secret)` vs header `X-Event-Checksum`. Wompi espera 200 y reintenta solo 3 veces en 24 h.
   - **Acceptance (MercadoPago)**: la suscripción se crea en checkout; webhook y reconciliación actualizan `subscriptions.status` y el rol; tests RED para la firma del webhook. Cumplido según los commits listados y `tests/t11-mercadopago.test.ts`.
 
 ### PR 4 — Book section + paywall
@@ -198,10 +193,10 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
 
 - [x] **T25** Header, Suscripción y Footer legales (~400 líneas, TDD para route assembly). — commits: e126073, b4cacbe
   - Reescribir `src/components/SiteHeader.astro` (ES+EN): navegación a las 5 secciones (Inicio / Nomás Que La Vida / Auditores / Repositorio / Contacto) + link a Blog legacy (`plocos.blogspot.com`) + CTA "Suscripción" + íconos de redes (`src/data/contact.json`).
-  - Crear `src/pages/suscripcion.astro` y `src/pages/en/subscription.astro`: página donde el visitante elige Lector vs Colaborador e inicia el flujo de pago (decide PayPal o Wompi según geografía, con selector manual).
+  - Crear `src/pages/suscripcion.astro` y `src/pages/en/subscription.astro`: página donde el visitante elige Lector vs Colaborador e inicia el flujo de pago (decide PayPal o MercadoPago según geografía, con selector manual).
   - Reescribir `src/components/SiteFooter.astro` (ES+EN): añadir enlaces a `/habeas-scriptum`, `/terminos/auditoria`, `/terminos/simbiosis-algoritmica` además de los actuales.
   - **Acceptance**: el header enlaza las 5 secciones + Blog + Suscripción + redes; el footer enlaza los sub-documentos legales; `/suscripcion` muestra opciones de plan con pre-selección geográfica o selector manual.
-  - **Decisión 2026-10-04 (afecta T10/T11)**: desde Colombia (geo-IP) se muestra SOLO Wompi; fuera de Colombia SOLO PayPal. Clerk Billing descartado (solo Stripe). País desconocido → fallback a definir en T10/T11. *(Para Colombia, reemplazada por MercadoPago el 2026-10-17; ver Log L2.)*
+  - **Decisión 2026-10-04 (afecta T10/T11)**: la pasarela de Colombia (geo-IP) es MercadoPago; fuera de Colombia, PayPal. Clerk Billing descartado (solo Stripe). País desconocido → fallback a definir en T10.
 
 - [x] **T26** Acceso por rol al iniciar sesión (~250 líneas, TDD para `src/lib/access.ts`). Ruta: inline guiado (el usuario pidió guía y aporta la regla de negocio). — commits: cf97738 (header sign-in/UserButton), ba5b0d3 (access + /auth/continue + member links)
   - Opción A elegida: el rol se replica en `publicMetadata` de Clerk y viaja en el session token (`metadata.role`); Turso sigue siendo la fuente de verdad (los webhooks de pago escribirán ambos en T10/T11).
@@ -241,11 +236,11 @@ users: {
   updatedAt: timestamp NOT NULL
 }
 
-// subscriptions (PayPal o Wompi)
+// subscriptions (PayPal o MercadoPago)
 subscriptions: {
   id: integer PRIMARY KEY AUTOINCREMENT,
   userId: text REFERENCES users(clerkUserId),
-  provider: text ENUM('paypal' | 'wompi'),
+  provider: text ENUM('paypal' | 'mercadopago'),
   providerSubscriptionId: text,
   plan: text ENUM('lector' | 'colaborador'),
   status: text ENUM('active' | 'past_due' | 'canceled' | 'pending') NOT NULL DEFAULT 'pending',
@@ -370,6 +365,7 @@ Operación (Engram #227): ningún agente levanta servidores ni mata procesos; el
 
 ## Log
 
-- **L1 (2026-10-04, T25):** decisión registrada: desde Colombia (geo-IP) solo Wompi; fuera de Colombia solo PayPal. Se conserva sin cambios en T25.
-- **L2 (2026-10-17):** la decisión L1 para Colombia quedó **reemplazada por MercadoPago**. Motivo: Wompi no tiene suscripciones nativas (investigación del 2026-10-04 en T11) y MercadoPago, la alternativa recomendada en primer lugar, sí permite cobro recurrente automático. Fecha tomada del primer commit de MercadoPago (`b96d3f2`, 2026-10-17); supuesto: la fecha exacta y la aprobación del cliente no constan en git ni en Engram #230. La regla para fuera de Colombia (PayPal, T10) sigue igual.
+- **L1 (2026-10-04, T25):** decisión de pasarelas por geografía (ver T25).
+- **L2 (2026-10-17):** la pasarela de Colombia es MercadoPago (suscripciones con cobro recurrente automático); fuera de Colombia, PayPal (T10). Fecha tomada del primer commit de MercadoPago (`b96d3f2`); supuesto: la aprobación del cliente no consta en git ni en Engram #230.
 - **L3 (2026-10-20):** documento reconciliado con `git log` y Engram #230: T11 y T12 hechas; T22 queda abierta y parcial (lógica en `3586a59` con pruebas; el endpoint `/api/cron/auditor-check` no existe y `src/lib/auditor.ts` solo lo importan las pruebas, verificado por el usuario y en esta sesión); desvío de PR anotado; Progress y Next Step reescritos; suite 307/307.
+- **L4 (2026-10-20):** instrucción del usuario: "Elimina Wompi también de la bitácora, incluido el historial." Se quitaron de este documento la investigación, el plan original y la comparación de alternativas de T11; T25, L1 y L2 se reescribieron sin esa pasarela. En el código se quitó de `/suscripcion`, `/en/subscription`, `src/lib/i18n.ts`, `src/lib/db/schema.ts` y las pruebas t07/t27 (ver el commit de limpieza).

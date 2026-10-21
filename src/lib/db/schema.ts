@@ -8,7 +8,7 @@ import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 //
 // Tables:
 //   - users:            mirror of Clerk; webhook sync
-//   - subscriptions:    PayPal + Wompi dual
+//   - subscriptions:    PayPal (international) + MercadoPago (Colombia)
 //   - iterations:       60-day cycles (6 per year)
 //   - bookChapters:     book content per iteration
 //   - bookParagraphs:   topographic anchors for PDF deep-linking
@@ -58,7 +58,7 @@ const updatedAtColumn = () =>
 export const USER_ROLES = ['lector', 'colaborador', 'auditor'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
-export const PAYMENT_PROVIDERS = ['paypal', 'wompi', 'mercadopago'] as const;
+export const PAYMENT_PROVIDERS = ['paypal', 'mercadopago'] as const;
 export type PaymentProvider = (typeof PAYMENT_PROVIDERS)[number];
 
 export const SUBSCRIPTION_PLANS = ['lector', 'colaborador'] as const;
