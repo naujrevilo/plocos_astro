@@ -22,6 +22,7 @@ import {
   CertificateUnavailableError,
   getAccessToken,
   getSubscription,
+  PAYPAL_API_TIMEOUT_MS,
   SubscriptionNotFoundError,
   getPayPalConfig,
   isAllowedCertUrl,
@@ -312,8 +313,9 @@ describe('T10b — getPayPalConfig', () => {
 // PayPal's docs only say the certificate "should automatically be downloaded
 // and cached for future use" and that a non-2xx answer is retried "up to 25
 // times over 3 days". They say nothing about timeouts or redirects, so:
-//   - the download gives up after CERT_FETCH_TIMEOUT_MS (below Netlify's 10 s
-//     function limit),
+//   - the download gives up after CERT_FETCH_TIMEOUT_MS; Netlify's synchronous
+//     function limit is 60 s and cannot be configured
+//     (https://docs.netlify.com/build/functions/configuration/),
 //   - redirects are refused (`redirect: 'error'`): the allow-list checks the
 //     URL PayPal sent, and a redirect would bypass it,
 //   - every failure surfaces as CertificateUnavailableError, which the webhook
@@ -336,9 +338,11 @@ describe('T10c — certificate download', () => {
     expect(init.signal).toBeInstanceOf(AbortSignal);
   });
 
-  it('keeps the download timeout below the 10 s Netlify function limit', () => {
-    expect(CERT_FETCH_TIMEOUT_MS).toBeGreaterThan(0);
-    expect(CERT_FETCH_TIMEOUT_MS).toBeLessThan(10_000);
+  it('keeps the worst-case PayPal network time below the 60 s Netlify limit', () => {
+    expect(CERT_FETCH_TIMEOUT_MS).toBe(5_000);
+    expect(PAYPAL_API_TIMEOUT_MS).toBe(8_000);
+    // Certificate + (token + GET) twice when paypalRequest retries after a 401.
+    expect(CERT_FETCH_TIMEOUT_MS + 4 * PAYPAL_API_TIMEOUT_MS).toBeLessThan(60_000);
   });
 
   it('fails with CertificateUnavailableError when the download times out', async () => {
@@ -454,5 +458,57 @@ describe('T10c — getSubscription', () => {
     expect(error).toBeInstanceOf(Error);
     expect(error).not.toBeInstanceOf(SubscriptionNotFoundError);
     expect(error.message).toBe('PayPal subscription request failed: 500');
+  });
+});
+
+// ----------------------------------------------------------------------------
+// T10c — PayPal API timeout (PAYPAL_API_TIMEOUT_MS)
+// ----------------------------------------------------------------------------
+
+/** A fetch that never answers and rejects with the abort reason. */
+function hangingFetch() {
+  return vi.fn(
+    (_url: string | URL | Request, init?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+      }),
+  );
+}
+
+describe('T10c — PayPal API timeout', () => {
+  it('the OAuth token request gives up after PAYPAL_API_TIMEOUT_MS', async () => {
+    vi.useFakeTimers();
+    const fetch = hangingFetch();
+
+    const pending = getAccessToken({ fetch, now: () => 0 });
+    const outcome = expect(pending).rejects.toThrow('timed out');
+    await vi.advanceTimersByTimeAsync(PAYPAL_API_TIMEOUT_MS);
+    await outcome;
+
+    const [, init] = fetch.mock.calls[0] as [string, RequestInit];
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('paypalRequest gives up after PAYPAL_API_TIMEOUT_MS', async () => {
+    vi.useFakeTimers();
+    const fetch = vi.fn();
+    fetch.mockResolvedValueOnce(tokenResponse('token-1'));
+    fetch.mockImplementationOnce(hangingFetch());
+
+    const pending = paypalRequest('/v1/billing/subscriptions/I-1', { method: 'GET' }, { fetch, now: () => 0 });
+    const outcome = expect(pending).rejects.toThrow('timed out');
+    await vi.advanceTimersByTimeAsync(PAYPAL_API_TIMEOUT_MS);
+    await outcome;
+
+    const [, init] = fetch.mock.calls[1] as [string, RequestInit];
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('does not time out a request that answers in time', async () => {
+    vi.useFakeTimers();
+    const fetch = vi.fn().mockResolvedValueOnce(tokenResponse('token-1'));
+
+    await expect(getAccessToken({ fetch, now: () => 0 })).resolves.toBe('token-1');
+    await vi.advanceTimersByTimeAsync(PAYPAL_API_TIMEOUT_MS);
   });
 });

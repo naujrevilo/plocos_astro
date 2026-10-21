@@ -10,13 +10,16 @@
  *      event type, so out-of-order and repeated deliveries converge.
  *      `custom_id` is the Clerk user id.
  *
- * Policy (Log L6, L7, L11, L12):
+ * Policy (Log L6, L7, L11, L12, L14):
  *   ACTIVE                          → active + role + accessUntil
  *   ACTIVE, failed_payments_count>0 → past_due, role kept
  *   CANCELLED                       → canceled, role kept until accessUntil
- *   SUSPENDED                       → past_due, role removed
+ *   SUSPENDED                       → suspended, role removed
  *   EXPIRED                         → canceled, role removed
  *   APPROVAL_PENDING / APPROVED     → nothing
+ * The role is per user: Clerk always gets the role and accessUntil returned
+ * by the DB helpers, which account for the user's other subscriptions
+ * (PayPal or MercadoPago). "Removed" means unless another one grants access.
  *
  * Responses:
  *   - 401 for a missing or invalid signature.
@@ -37,7 +40,11 @@ import {
   type PayPalSubscription,
   type WebhookVerification,
 } from '../../../lib/paypal';
-import { activateSubscription, updateSubscriptionStatus } from '../../../lib/db/subscriptions';
+import {
+  activateSubscription,
+  updateSubscriptionStatus,
+  type RemainingAccess,
+} from '../../../lib/db/subscriptions';
 
 type PayPalEvent = {
   event_type?: string;
@@ -156,12 +163,10 @@ async function applyState(
       }
       const plan = planFor(sub.plan_id);
       const next = sub.billing_info?.next_billing_time;
-      const periodEnd = next ? new Date(next) : undefined;
-      await activateSubscription({ ...base, plan, currentPeriodEnd: periodEnd });
-      const client = await clerkClient(context);
-      await client.users.updateUserMetadata(clerkUserId, {
-        publicMetadata: { role: plan, accessUntil: periodEnd?.toISOString() },
-      });
+      // null, not undefined: clears a previous (possibly expired) period end.
+      const periodEnd = next ? new Date(next) : null;
+      const access = await activateSubscription({ ...base, plan, currentPeriodEnd: periodEnd });
+      await writeAccess(context, clerkUserId, access);
       return;
     }
     case 'CANCELLED':
@@ -170,16 +175,31 @@ async function applyState(
       return;
     case 'SUSPENDED':
     case 'EXPIRED': {
-      const status = sub.status === 'SUSPENDED' ? 'past_due' : 'canceled';
-      await updateSubscriptionStatus({ ...base, status, revokeRole: true });
-      const client = await clerkClient(context);
-      await client.users.updateUserMetadata(clerkUserId, {
-        publicMetadata: { role: null, accessUntil: null },
-      });
+      const status = sub.status === 'SUSPENDED' ? 'suspended' : 'canceled';
+      const remaining = await updateSubscriptionStatus({ ...base, status, revokeRole: true });
+      await writeAccess(context, clerkUserId, remaining ?? { role: null, accessUntil: null });
       return;
     }
     default:
       // APPROVAL_PENDING / APPROVED: not paid yet, nothing to grant.
       console.info(`[paypal webhook] subscription ${sub.id} is ${sub.status} — no change`);
   }
+}
+
+/**
+ * Mirror the user's access in Clerk. `null` (never `undefined`) removes a
+ * key: Clerk deep-merges publicMetadata and JSON drops undefined values.
+ */
+async function writeAccess(
+  context: Parameters<APIRoute>[0],
+  clerkUserId: string,
+  access: RemainingAccess,
+): Promise<void> {
+  const client = await clerkClient(context);
+  await client.users.updateUserMetadata(clerkUserId, {
+    publicMetadata: {
+      role: access.role,
+      accessUntil: access.accessUntil ? access.accessUntil.toISOString() : null,
+    },
+  });
 }

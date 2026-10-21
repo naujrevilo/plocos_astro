@@ -15,8 +15,11 @@
  *   ACTIVE                         → active + role + accessUntil (idempotent)
  *   ACTIVE, failed_payments_count>0 → past_due, role kept
  *   CANCELLED                      → canceled, role kept until accessUntil
- *   SUSPENDED                      → past_due, role removed
+ *   SUSPENDED                      → suspended, role removed
  *   EXPIRED                        → canceled, role removed
+ * "Role removed" means: unless another subscription of the user still grants
+ * access; then Clerk gets the role and accessUntil the DB helpers return
+ * (Log L14).
  *   APPROVAL_PENDING / APPROVED    → nothing
  */
 import crypto from 'node:crypto';
@@ -32,8 +35,14 @@ vi.mock('@clerk/astro/server', () => ({
 }));
 
 vi.mock('../src/lib/db/subscriptions', () => ({
-  activateSubscription: vi.fn(async () => ({ id: 1 })),
-  updateSubscriptionStatus: vi.fn(async () => undefined),
+  activateSubscription: vi.fn(async (input: { plan: string; currentPeriodEnd?: Date | null }) => ({
+    id: 1,
+    role: input.plan,
+    accessUntil: input.currentPeriodEnd ?? null,
+  })),
+  updateSubscriptionStatus: vi.fn(async (input: { revokeRole: boolean }) =>
+    input.revokeRole ? { role: null, accessUntil: null } : undefined,
+  ),
 }));
 
 vi.mock('../src/lib/paypal', async (importOriginal) => {
@@ -382,7 +391,7 @@ describe('T10c — approved policy', () => {
   });
 
   it.each([
-    ['SUSPENDED', 'past_due'],
+    ['SUSPENDED', 'suspended'],
     ['EXPIRED', 'canceled'],
   ] as const)('%s → %s and removes the role in Turso and Clerk', async (status, dbStatus) => {
     mocked.getSubscription.mockResolvedValue(subscription({ status }));
@@ -401,6 +410,53 @@ describe('T10c — approved policy', () => {
       publicMetadata: { role: null, accessUntil: null },
     });
     expect(mocked.activateSubscription).not.toHaveBeenCalled();
+  });
+
+  it('SUSPENDED of A keeps the role in Clerk when another subscription still grants access', async () => {
+    mocked.getSubscription.mockResolvedValue(subscription({ status: 'SUSPENDED' }));
+    mocked.updateSubscriptionStatus.mockResolvedValueOnce({
+      role: 'colaborador',
+      accessUntil: new Date('2026-12-01T00:00:00Z'),
+    });
+
+    const res = await callPost(signedRequest(subscriptionEvent('SUSPENDED')));
+
+    expect(res.status).toBe(200);
+    expect(updateUserMetadata).toHaveBeenCalledWith('user_123', {
+      publicMetadata: { role: 'colaborador', accessUntil: '2026-12-01T00:00:00.000Z' },
+    });
+  });
+
+  it('a lector activation writes the role activateSubscription keeps (colaborador from MercadoPago)', async () => {
+    mocked.getSubscription.mockResolvedValue(subscription({ plan_id: PLAN_LECTOR_EUR }));
+    mocked.activateSubscription.mockResolvedValueOnce({
+      id: 1,
+      role: 'colaborador',
+      accessUntil: new Date('2026-12-01T00:00:00Z'),
+    });
+
+    await callPost(signedRequest(subscriptionEvent('ACTIVATED')));
+
+    expect(mocked.activateSubscription).toHaveBeenCalledWith(
+      expect.objectContaining({ plan: 'lector' }),
+    );
+    expect(updateUserMetadata).toHaveBeenCalledWith('user_123', {
+      publicMetadata: { role: 'colaborador', accessUntil: '2026-12-01T00:00:00.000Z' },
+    });
+  });
+
+  it('ACTIVE without next_billing_time clears accessUntil in Clerk and currentPeriodEnd in Turso', async () => {
+    mocked.getSubscription.mockResolvedValue(subscription({ billing_info: undefined }));
+
+    const res = await callPost(signedRequest(subscriptionEvent('ACTIVATED')));
+
+    expect(res.status).toBe(200);
+    expect(mocked.activateSubscription).toHaveBeenCalledWith(
+      expect.objectContaining({ currentPeriodEnd: null }),
+    );
+    expect(updateUserMetadata).toHaveBeenCalledWith('user_123', {
+      publicMetadata: { role: 'colaborador', accessUntil: null },
+    });
   });
 
   it('PAYMENT.FAILED (ACTIVE with failed payments) → past_due, keeps the role', async () => {

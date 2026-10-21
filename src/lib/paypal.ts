@@ -41,6 +41,9 @@ const CERT_HOSTS = new Set(['api.paypal.com', 'api.sandbox.paypal.com']);
 /** Path prefix of PayPal's signing certificates (`/v1/notifications/certs/CERT-…`). */
 const CERT_PATH_PREFIX = '/v1/notifications/certs/';
 
+/** Give up on a PayPal API call (OAuth token or REST request) after this long. */
+export const PAYPAL_API_TIMEOUT_MS = 8_000;
+
 /** Refresh the OAuth token this long before PayPal says it expires. */
 const TOKEN_REFRESH_MARGIN_MS = 60_000;
 
@@ -109,7 +112,12 @@ export function isAllowedCertUrl(url: string): boolean {
   );
 }
 
-/** Give up on the certificate download after this long (below Netlify's 10 s limit). */
+/**
+ * Give up on the certificate download after this long. Netlify's synchronous
+ * function limit is 60 s and cannot be configured
+ * (https://docs.netlify.com/build/functions/configuration/); the worst case
+ * here is this plus four PayPal API calls (token + GET, twice on a 401).
+ */
 export const CERT_FETCH_TIMEOUT_MS = 5_000;
 
 /**
@@ -219,6 +227,26 @@ export async function verifyWebhookSignature(args: {
 
 let cachedToken: { token: string; expiresAt: number } | undefined;
 
+/**
+ * Abort a PayPal API call after PAYPAL_API_TIMEOUT_MS. The timer is not
+ * cleared when headers arrive, so it also bounds reading the body; `unref`
+ * keeps it from holding the process open. A plain setTimeout (not
+ * AbortSignal.timeout) so tests can fake the clock.
+ */
+function fetchWithTimeout(
+  doFetch: typeof fetch,
+  url: string,
+  init: RequestInit,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error(`PayPal API request timed out after ${PAYPAL_API_TIMEOUT_MS} ms`)),
+    PAYPAL_API_TIMEOUT_MS,
+  );
+  (timer as { unref?: () => void }).unref?.();
+  return doFetch(url, { ...init, signal: controller.signal });
+}
+
 export async function getAccessToken(deps: PayPalDeps = {}): Promise<string> {
   const now = (deps.now ?? Date.now)();
   if (cachedToken && now < cachedToken.expiresAt - TOKEN_REFRESH_MARGIN_MS) {
@@ -227,7 +255,7 @@ export async function getAccessToken(deps: PayPalDeps = {}): Promise<string> {
 
   const { apiBase, clientId, clientSecret } = getPayPalConfig();
   const doFetch = deps.fetch ?? fetch;
-  const res = await doFetch(`${apiBase}/v1/oauth2/token`, {
+  const res = await fetchWithTimeout(doFetch, `${apiBase}/v1/oauth2/token`, {
     method: 'POST',
     headers: {
       authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
@@ -263,7 +291,7 @@ export async function paypalRequest(
     if (init.body !== undefined && !headers.has('content-type')) {
       headers.set('content-type', 'application/json');
     }
-    return doFetch(`${apiBase}${path}`, { ...init, headers });
+    return fetchWithTimeout(doFetch, `${apiBase}${path}`, { ...init, headers });
   };
 
   const res = await send();
