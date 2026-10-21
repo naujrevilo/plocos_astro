@@ -190,7 +190,7 @@ function sign(dataId: string, xRequestId: string, ts: number, secret: string): s
 function buildRequest(args: {
   body: unknown;
   dataId?: string;
-  xRequestId?: string;
+  xRequestId?: string | null;
   xSignature?: string | null;
 }): Request {
   const headers = new Headers({ 'content-type': 'application/json' });

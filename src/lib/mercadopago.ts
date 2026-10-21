@@ -82,13 +82,12 @@ function parseSignatureHeader(
   header: string,
 ): { ts: number; v1: string } | null {
   if (typeof header !== 'string' || header.length === 0) return null;
-  const parts = header.split(',').map((segment) => {
+  const map: Record<string, string> = {};
+  for (const segment of header.split(',')) {
     const idx = segment.indexOf('=');
     if (idx < 0) return null;
-    return { key: segment.slice(0, idx), value: segment.slice(idx + 1) };
-  });
-  if (parts.some((p) => p === null)) return null;
-  const map = Object.fromEntries(parts.map((p) => [p.key, p.value]));
+    map[segment.slice(0, idx)] = segment.slice(idx + 1);
+  }
   const ts = Number(map.ts);
   const v1 = map.v1;
   if (!Number.isFinite(ts) || !Number.isInteger(ts)) return null;
