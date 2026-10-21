@@ -101,12 +101,13 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
 
 ### PR 3 — Payments integration
 
-- [ ] **T10** Integración PayPal (~400 líneas, TDD para webhook signature verification).
-  - Añadir `@paypal/paypal-js` + `@paypal/checkout-server-sdk`.
-  - Crear plan de suscripción PayPal (price ID Lector + Colaborador; Auditor honorífico sin plan).
-  - Endpoint `/api/payments/paypal/checkout` redirige a PayPal.
-  - Webhook `/api/webhooks/paypal` para `BILLING.SUBSCRIPTION.CREATED`, `.CANCELLED`, `.PAYMENT.FAILED`. Verificación de signature.
-  - **Acceptance**: subscription se crea en checkout; webhook actualiza `subscriptions.status`; tests RED para verificación de signature.
+- [ ] **T10** Integración PayPal (TDD). Rama `feature/pr-3-payments` desde `feature/pr-2-auth-legal` (`301473b`). Propuesta aprobada por el usuario el 2026-10-20.
+  - **T10a — Ruteo (función pura `src/lib/payment-routing.ts`)** — GREEN 14/14 (Log L8). Fuera de Colombia, elegir MercadoPago a mano marca `warnOutsideColombia` (no bloquea). Colombia → MercadoPago (COP); zona euro (21 países desde el 2026-01-01: AT, BE, BG, CY, DE, EE, ES, FI, FR, GR, HR, IE, IT, LT, LU, LV, MT, NL, PT, SI, SK) → PayPal EUR; resto → PayPal USD. Detección: `Astro.locals.netlify?.context?.geo?.country?.code` → región de `Accept-Language` → USD. Selector manual se mantiene. Aviso aprobado si el país es CO y se elige PayPal: "Desde Colombia el pago es con MercadoPago (COP): PayPal no permite pagos entre cuentas colombianas. Si tu cuenta PayPal es de otro país, puedes continuar." + botón "Volver a MercadoPago"; no se bloquea. Supuesto: la restricción de PayPal en Colombia no tiene fuente oficial vigente encontrada. Tests: `tests/t10-payment-routing.test.ts`.
+  - **T10b — Wrapper REST `src/lib/paypal.ts`** (sin SDK: `@paypal/checkout-server-sdk` está deprecado; `@paypal/paypal-server-sdk` 2.5.0 no tiene productos ni verificación de webhooks): token OAuth, crear y leer suscripción, verificación propia de firma (`transmissionId|timeStamp|webhookId|crc32` del cuerpo crudo contra `paypal-transmission-sig`, certificado de `paypal-cert-url` solo si el host es de PayPal).
+  - **T10c — Webhook `/api/webhooks/paypal`**: `BILLING.SUBSCRIPTION.ACTIVATED` → `active` + rol; `PAYMENT.SALE.COMPLETED` → `active` + `currentPeriodEnd`; `BILLING.SUBSCRIPTION.PAYMENT.FAILED` → `past_due`, mantiene el rol; `CANCELLED`, `SUSPENDED`, `EXPIRED` según la política del Log L6. Eventos del simulador (firmados con `WEBHOOK_ID`) → 200 + log, nunca procesan; firma inválida → 401; errores permanentes → 200 + log.
+  - **T10d — Checkout + reconciliación**: `/api/suscripcion/paypal` crea la suscripción con `custom_id` = usuario de Clerk; al volver, `verify` lee la suscripción por su ID y activa si `custom_id` coincide y el estado es `ACTIVE` (reutiliza `activateSubscription`). Supuesto por confirmar: PayPal agrega `subscription_id` a la `return_url`.
+  - **Setup del usuario (developer.paypal.com, sandbox)**: cuentas Business y Personal; app REST (`PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` ya en `.env.local`); webhook con los 6 eventos (`PAYPAL_WEBHOOK_ID`); producto + 4 planes Lector/Colaborador × USD/EUR (`PAYPAL_PLAN_LECTOR_USD`, `PAYPAL_PLAN_LECTOR_EUR`, `PAYPAL_PLAN_COLABORADOR_USD`, `PAYPAL_PLAN_COLABORADOR_EUR`) — vacías hasta crearlos; `PAYPAL_API_BASE=https://api-m.sandbox.paypal.com`.
+  - **Acceptance**: ruteo con pruebas en RED → GREEN; suscripción se crea en checkout; webhook y reconciliación actualizan `subscriptions.status` y el rol; pruebas en RED para la firma y para el evento del simulador.
 
 - [x] **T11** Integración MercadoPago (Colombia, COP; TDD para firma del webhook y reconciliación). — commits: b96d3f2, 1c0fae7, 56ef58b, a9236af, 4c8afda, aa82f5c, 6b57119, 4c649a8, e24d110, 8bc6d4a, 6870bec, e17539d, a10461e (+ 17ad58a túnel dev, 7bfa0b5 dependencia `mercadopago`, 5a59dd7/e5faf43 docs)
   - Suscripciones **sin plan asociado**: `auto_recurring` en línea + `status: "pending"` → `init_point` (los planes del panel exigen tokenizar la tarjeta en el cliente: `card_token_id is required`). Monto mínimo COP 1600.
@@ -114,7 +115,7 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - Checkout `/api/suscripcion/mercadopago` + reconciliación al volver `/api/suscripcion/verify`: busca la suscripción autorizada solo por `external_reference`, sin depender del email; activa la suscripción (idempotente) y el rol sin esperar al webhook.
   - Wrapper `src/lib/mercadopago.ts`; tests `tests/t11-mercadopago.test.ts`. Catálogo de gotchas en `docs/diagramas/dev/suscripcion-mercadopago.md`.
   - **Verificado en vivo (2026-10-17, según Engram #230):** pago de prueba de COP 20.000 autorizado, `external_reference` correcto, webhook con firma validada y reconciliación operativa. Supuesto: no re-ejecutado en esta sesión.
-  - Pendiente fuera de alcance: política de cancelaciones/downgrades (hoy el webhook ignora `cancelled`).
+  - Política de cancelación decidida el 2026-10-20 (Log L6); implementación pendiente (hoy el webhook ignora `cancelled`).
   - **Acceptance (MercadoPago)**: la suscripción se crea en checkout; webhook y reconciliación actualizan `subscriptions.status` y el rol; tests RED para la firma del webhook. Cumplido según los commits listados y `tests/t11-mercadopago.test.ts`.
 
 ### PR 4 — Book section + paywall
@@ -219,6 +220,7 @@ El pivote sostiene un ecosistema dialéctico de doble núcleo donde los suscript
   - **Acceptance**: logic funciona, role updates correctamente, renewal con gracia de 30 días.
 
 - [ ] **T23** Iteration cycle automation (~200 líneas).
+  - Incluye el cron diario `/api/cron/subscription-expiry` (Log L7): quita el rol en Turso y Clerk a las suscripciones `canceled` cuyo `currentPeriodEnd` ya pasó.
   - Endpoint `/api/cron/iteration-transition` (Netlify Scheduled Function): cada 60 días cierra `iteration.status = 'open'` → `'closed'`, notifica al autor con los aportes Nivel 3 elevados, marca nueva iteración `status = 'open'` para el siguiente ciclo.
   - **Acceptance**: schedule dispara, state transitions correctamente, email al autor llega con resumen.
 
@@ -344,6 +346,7 @@ notificationQueue: {
 - 2026-10-04: `npx vitest run` → 5 files, 175/175 PASS. `pnpm build` → Complete.
 - 2026-10-17 (según Engram #230, no re-ejecutado): 307/307 PASS, build verde.
 - 2026-10-20: `npx vitest run` (Vitest 5.0.3) → 11 files, 307/307 PASS, 1.82 s. `pnpm build` no ejecutado en esta sesión.
+- 2026-10-20 (T10a, `feature/pr-3-payments`): `npx vitest run` → 12 files, 321/321 PASS; `npx tsc --noEmit` → 0 errores.
 
 ## Progress
 
@@ -358,7 +361,7 @@ notificationQueue: {
 1. Confirmar con el usuario el flujo final por `localhost:4321`: verify → enlaces de miembro → metadata de Clerk con el rol.
 2. Antes del merge a `main`: env vars en Netlify (Clerk, MercadoPago, Turso); webhooks apuntando a `plocos.netlify.app`; cambiar la URL del webhook de MercadoPago (hoy apunta al túnel) y su secret; Clerk de producción exige dominio propio (`plocos.com`). Pendientes previos: `netlify link` + `netlify blobs:set` del PDF y limpiar `netlify.toml` (`build --remote`, `included_files db/**`) — supuesto: no verificado si siguen vigentes.
 3. Después: T10 PayPal (extranjeros, mismo patrón que T11), T14 capítulos, T18 i18n, T19 triaje con Gemini, T20 correo, T21 clickwrap de Habeas Scriptum, T22 endpoint `/api/cron/auditor-check` + T23 cron, T24 storage, T02 verificación de robots.
-4. Sin decidir: política de cancelaciones y downgrades de MercadoPago (hoy el webhook ignora `cancelled`).
+4. Implementar la política de cancelación de L6/L7 en MercadoPago y PayPal: `accessUntil` en Clerk (webhooks y `verify` de ambas pasarelas), paywall por fecha; cron de limpieza en T23.
 5. Refactor: acotar la regla global `a { color: var(--accent) }` a `.prose a` y quitar el `!important` (`3de6fd8`).
 
 Operación (Engram #227): ningún agente levanta servidores ni mata procesos; el usuario maneja los servidores y prueba en su navegador. El túnel de Cloudflare es solo para webhooks entrantes.
@@ -369,3 +372,7 @@ Operación (Engram #227): ningún agente levanta servidores ni mata procesos; el
 - **L2 (2026-10-17):** la pasarela de Colombia es MercadoPago (suscripciones con cobro recurrente automático); fuera de Colombia, PayPal (T10). Fecha tomada del primer commit de MercadoPago (`b96d3f2`); supuesto: la aprobación del cliente no consta en git ni en Engram #230.
 - **L3 (2026-10-20):** documento reconciliado con `git log` y Engram #230: T11 y T12 hechas; T22 queda abierta y parcial (lógica en `3586a59` con pruebas; el endpoint `/api/cron/auditor-check` no existe y `src/lib/auditor.ts` solo lo importan las pruebas, verificado por el usuario y en esta sesión); desvío de PR anotado; Progress y Next Step reescritos; suite 307/307.
 - **L4 (2026-10-20):** instrucción del usuario: "Elimina Wompi también de la bitácora, incluido el historial." Se quitaron de este documento la investigación, el plan original y la comparación de alternativas de T11; T25, L1 y L2 se reescribieron sin esa pasarela. En el código se quitó de `/suscripcion`, `/en/subscription`, `src/lib/i18n.ts`, `src/lib/db/schema.ts` y las pruebas t07/t27 (ver el commit de limpieza).
+- **L5 (2026-10-20):** precios **de prueba**, no definitivos. MercadoPago (COP): Lector 9.900 y Colaborador 20.000 (en `MERCADOPAGO_PRICE_LECTOR` / `MERCADOPAGO_PRICE_COLABORADOR`; confirmado por el usuario). PayPal: Lector 5 y Colaborador 10, en USD y en EUR; provisionales (los define el cliente), van solo en el script de creación de planes y aquí. Dato del usuario sin verificar: MercadoPago tendría un tope de COP 30.000.
+- **L6 (2026-10-20):** política del rol al cancelar, para MercadoPago y PayPal: el rol se mantiene hasta `currentPeriodEnd`. `CANCELLED` marca la suscripción como `canceled` pero no quita el rol; el paywall compara la fecha en cada visita y, si ya venció, niega el acceso. `SUSPENDED` y `EXPIRED` quitan el acceso de inmediato. Con esto se cierra el pendiente de cancelaciones de MercadoPago. Limpieza del rol en Turso y Clerk: pendiente de aprobar la propuesta del agente.
+- **L7 (2026-10-20):** aprobada la limpieza del rol: `accessUntil` (= `currentPeriodEnd`) en el `publicMetadata` de Clerk junto al rol; el paywall compara la fecha en cada visita sin consultar la base; `SUSPENDED` y `EXPIRED` quitan el rol en el momento. El cron de limpieza (`/api/cron/subscription-expiry`) se registra en T23, no en T10. El webhook y `verify` de MercadoPago también tienen que escribir `accessUntil`.
+- **L8 (2026-10-20):** T10a: dos pruebas añadidas antes del GREEN: `Accept-Language` de la zona euro sin geo (`de-DE,de;q=0.9` → PayPal EUR, `language`) y MercadoPago elegido a mano fuera de Colombia (geo `US`) → marca propia `warnOutsideColombia` (supuesto del usuario: la cuenta colombiana de MercadoPago solo cobra a compradores en Colombia; no bloquea). RED 12/12 (stub `not implemented`) → GREEN 12/12. Corrección pedida por el usuario: `manualChoice` llega del formulario o la URL, y `MANUAL_ROUTES['toString']` devolvía la función heredada (ruta con `provider` y `currency` `undefined`); prueba en RED con `'toString'` y `'bitcoin'` (se ignoran, ruta detectada con `source: 'geo'`) → validación con `Object.hasOwn` → GREEN 14/14; suite 321/321; `tsc --noEmit` limpio.
