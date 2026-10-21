@@ -16,7 +16,7 @@
  *   ACTIVE, failed_payments_count>0 → past_due, role kept
  *   CANCELLED                      → canceled, role kept until accessUntil
  *   SUSPENDED                      → suspended, role removed
- *   EXPIRED                        → canceled, role removed
+ *   EXPIRED                        → expired, role removed
  * "Role removed" means: unless another subscription of the user still grants
  * access; then Clerk gets the role and accessUntil the DB helpers return
  * (Log L14).
@@ -392,7 +392,7 @@ describe('T10c — approved policy', () => {
 
   it.each([
     ['SUSPENDED', 'suspended'],
-    ['EXPIRED', 'canceled'],
+    ['EXPIRED', 'expired'],
   ] as const)('%s → %s and removes the role in Turso and Clerk', async (status, dbStatus) => {
     mocked.getSubscription.mockResolvedValue(subscription({ status }));
 

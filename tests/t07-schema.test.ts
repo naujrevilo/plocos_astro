@@ -211,7 +211,7 @@ describe('T07 — Schema DB redesign (NQLV platform)', () => {
       expect(col.enumValues).toEqual(['lector', 'colaborador']);
     });
 
-    it('has status enum active/past_due/canceled/pending/suspended defaulting to pending', () => {
+    it('has status enum active/past_due/canceled/pending/suspended/expired defaulting to pending', () => {
       const col = getColumn(table(), 'status');
       expect(col.enumValues).toEqual([
         'active',
@@ -219,6 +219,7 @@ describe('T07 — Schema DB redesign (NQLV platform)', () => {
         'canceled',
         'pending',
         'suspended',
+        'expired',
       ]);
       expect(col.hasDefault).toBe(true);
     });

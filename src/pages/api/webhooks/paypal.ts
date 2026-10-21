@@ -15,7 +15,7 @@
  *   ACTIVE, failed_payments_count>0 → past_due, role kept
  *   CANCELLED                       → canceled, role kept until accessUntil
  *   SUSPENDED                       → suspended, role removed
- *   EXPIRED                         → canceled, role removed
+ *   EXPIRED                         → expired, role removed
  *   APPROVAL_PENDING / APPROVED     → nothing
  * The role is per user: Clerk always gets the role and accessUntil returned
  * by the DB helpers, which account for the user's other subscriptions
@@ -175,7 +175,7 @@ async function applyState(
       return;
     case 'SUSPENDED':
     case 'EXPIRED': {
-      const status = sub.status === 'SUSPENDED' ? 'suspended' : 'canceled';
+      const status = sub.status === 'SUSPENDED' ? 'suspended' : 'expired';
       const remaining = await updateSubscriptionStatus({ ...base, status, revokeRole: true });
       await writeAccess(context, clerkUserId, remaining ?? { role: null, accessUntil: null });
       return;

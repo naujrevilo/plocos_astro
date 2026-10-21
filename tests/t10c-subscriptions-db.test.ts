@@ -168,10 +168,18 @@ describe('T10c — updateSubscriptionStatus', () => {
     expect(await roleOf()).toBe('colaborador');
   });
 
+  it('stores EXPIRED as "expired"', async () => {
+    await activate();
+
+    await revoke({ status: 'expired' });
+
+    expect((await rowFor('I-1'))?.status).toBe('expired');
+  });
+
   it('EXPIRED with no other subscription clears the role and returns no access', async () => {
     await activate();
 
-    const remaining = await revoke({ status: 'canceled' });
+    const remaining = await revoke({ status: 'expired' });
 
     expect(remaining).toEqual({ role: null, accessUntil: null });
     expect(await roleOf()).toBeNull();
@@ -204,6 +212,7 @@ describe('T10c — updateSubscriptionStatus', () => {
     ['canceled with a past period end', 'canceled', PAST, null],
     ['canceled without a period end', 'canceled', null, null],
     ['suspended', 'suspended', FUTURE, null],
+    ['expired with a future period end', 'expired', FUTURE, null],
     ['pending', 'pending', FUTURE, null],
   ])('another subscription that is %s: role kept only while it grants access', async (_, status, end, expectedRole) => {
     await activate('I-1');

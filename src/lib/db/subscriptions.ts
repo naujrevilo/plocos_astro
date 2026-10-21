@@ -36,7 +36,7 @@ export type UpdateSubscriptionStatusInput = {
   clerkUserId: string;
   provider: (typeof PAYMENT_PROVIDERS)[number];
   providerSubscriptionId: string;
-  status: 'past_due' | 'canceled' | 'suspended';
+  status: 'past_due' | 'canceled' | 'suspended' | 'expired';
   /** Revoke the role unless another subscription still grants access. */
   revokeRole: boolean;
 };

@@ -69,8 +69,10 @@ export const SUBSCRIPTION_STATUSES = [
   'past_due',
   'canceled',
   'pending',
-  // PayPal SUSPENDED (T10c, Log L14). No migration: the column has no CHECK.
+  // PayPal SUSPENDED and EXPIRED (T10c, Log L14-L15). No migration: the
+  // column has no CHECK.
   'suspended',
+  'expired',
 ] as const;
 export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
 
