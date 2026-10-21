@@ -7,10 +7,11 @@
  *   1. upserts the subscription row keyed by the provider subscription id,
  *   2. sets the mirrored user's role to the highest plan granting access.
  *
- * The role belongs to the user, not to one subscription (Log L14). A
- * subscription grants access when its status is `active` or `past_due`, or
- * `canceled` with `currentPeriodEnd` still in the future, whatever the
- * provider. The role is the highest plan among those (colaborador > lector).
+ * The role belongs to the user, not to one subscription (Log L14, L16). A
+ * subscription grants access when its status is `active` (no date limit),
+ * `past_due` with `currentPeriodEnd` null or in the future, or `canceled`
+ * with `currentPeriodEnd` in the future (a cancellation without an end date
+ * never grants access), whatever the provider. See `remainingAccess` for which one wins.
  *
  * Clerk's publicMetadata is updated by the webhook handler (needs the
  * Clerk backend client); this module only owns the Turso side and returns
@@ -52,9 +53,13 @@ type SubscriptionKey = { provider: string; providerSubscriptionId: string };
 const PLAN_RANK: Record<Plan, number> = { lector: 1, colaborador: 2 };
 
 /**
- * Highest plan among the user's subscriptions that grant access, excluding
- * `exclude`. Among equal plans, an unknown period end wins (access while the
- * role exists), then the latest one.
+ * Access the user keeps from their subscriptions that grant access, excluding
+ * `exclude` (Log L16). The winner is chosen by, in order:
+ *   1. rows whose end is null or in the future before rows whose end passed
+ *      (only `active` can grant access with a past end), so a stale row never
+ *      beats a freshly paid one;
+ *   2. the highest plan (colaborador > lector);
+ *   3. the end: null first (access while the role exists), then the latest.
  */
 async function remainingAccess(
   database: Database,
@@ -81,15 +86,18 @@ async function remainingAccess(
         row.providerSubscriptionId === exclude.providerSubscriptionId
       ) &&
       (row.status === 'active' ||
-        row.status === 'past_due' ||
+        (row.status === 'past_due' &&
+          (row.currentPeriodEnd === null || row.currentPeriodEnd > now)) ||
         (row.status === 'canceled' &&
           row.currentPeriodEnd !== null &&
           row.currentPeriodEnd > now)),
   );
 
+  const current = (end: Date | null) => (end === null || end > now ? 1 : 0);
   const endRank = (end: Date | null) => (end === null ? Infinity : end.getTime());
   const best = granting.sort(
     (a, b) =>
+      current(b.currentPeriodEnd) - current(a.currentPeriodEnd) ||
       PLAN_RANK[b.plan] - PLAN_RANK[a.plan] ||
       endRank(b.currentPeriodEnd) - endRank(a.currentPeriodEnd),
   )[0];

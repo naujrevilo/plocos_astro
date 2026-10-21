@@ -2,11 +2,14 @@
  * T10c — Turso side of the PayPal webhook policy (`src/lib/db/subscriptions.ts`).
  * Runs against an in-memory libsql database with the real migrations.
  *
- * The role belongs to the user, not to one subscription (Log L14). Another
- * subscription "grants access" when its status is `active` or `past_due`, or
+ * The role belongs to the user, not to one subscription (Log L14, L16).
+ * Another subscription "grants access" when its status is `active` (no date
+ * limit), `past_due` with `currentPeriodEnd` null or in the future, or
  * `canceled` with `currentPeriodEnd` in the future, for PayPal and MercadoPago
- * alike, excluding the subscription being changed. The role kept is the
- * highest plan among them (colaborador > lector).
+ * alike, excluding the subscription being
+ * changed. The winner: rows whose end is null or future first, then the
+ * highest plan (colaborador > lector), then the end (null first, then the
+ * latest).
  */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createClient } from '@libsql/client';
@@ -130,6 +133,24 @@ describe('T10c — activateSubscription', () => {
     expect((await rowFor('I-1'))?.plan).toBe('lector');
   });
 
+  it('c1: a stale past_due colaborador does not beat a freshly paid lector', async () => {
+    await seedOther({ provider: 'paypal', id: 'I-OLD', status: 'past_due', plan: 'colaborador', currentPeriodEnd: PAST });
+
+    const result = await activate('I-1', { plan: 'lector', currentPeriodEnd: FUTURE });
+
+    expect(result).toMatchObject({ role: 'lector', accessUntil: FUTURE });
+    expect(await roleOf()).toBe('lector');
+  });
+
+  it('c4: an active MercadoPago colaborador with a past end does not beat a fresh PayPal lector', async () => {
+    await seedOther({ status: 'active', plan: 'colaborador', currentPeriodEnd: PAST });
+
+    const result = await activate('I-1', { plan: 'lector', currentPeriodEnd: FUTURE });
+
+    expect(result).toMatchObject({ role: 'lector', accessUntil: FUTURE });
+    expect(await roleOf()).toBe('lector');
+  });
+
   it('currentPeriodEnd null clears the stored period end (ACTIVE without next_billing_time)', async () => {
     await activate('I-1');
 
@@ -207,7 +228,10 @@ describe('T10c — updateSubscriptionStatus', () => {
   });
 
   it.each<[string, SubscriptionStatus, Date | null, 'colaborador' | null]>([
-    ['past_due', 'past_due', FUTURE, 'colaborador'],
+    ['past_due with a future period end', 'past_due', FUTURE, 'colaborador'],
+    ['past_due without a period end', 'past_due', null, 'colaborador'],
+    ['past_due with a past period end (c2)', 'past_due', PAST, null],
+    ['active with a past period end (no date limit)', 'active', PAST, 'colaborador'],
     ['canceled with a future period end', 'canceled', FUTURE, 'colaborador'],
     ['canceled with a past period end', 'canceled', PAST, null],
     ['canceled without a period end', 'canceled', null, null],
@@ -222,6 +246,16 @@ describe('T10c — updateSubscriptionStatus', () => {
 
     expect(remaining?.role).toBe(expectedRole);
     expect(await roleOf()).toBe(expectedRole);
+  });
+
+  it('c2: suspending A while B is past_due with a past period end leaves no role', async () => {
+    await activate('I-1');
+    await seedOther({ status: 'past_due', plan: 'lector', currentPeriodEnd: PAST });
+
+    const remaining = await revoke();
+
+    expect(remaining).toEqual({ role: null, accessUntil: null });
+    expect(await roleOf()).toBeNull();
   });
 
   it('only changes the matching provider subscription', async () => {
