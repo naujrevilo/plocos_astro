@@ -3,3 +3,5 @@
 # which breaks the byte-level SHA-256 pacto verifier.
 *.json text eol=lf
 *.md   text eol=lf
+# PayPal webhook fixtures: exact bytes (the signature covers the raw body)
+tests/fixtures/paypal/** -text

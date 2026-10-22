@@ -76,3 +76,6 @@ dev-*.log
 
 # Session log dumps
 session-*.md
+
+# PayPal webhook captures for test fixtures (dev only, T10c)
+.captures/

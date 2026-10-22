@@ -243,9 +243,8 @@ describe('T10c — webhook signature', () => {
     expectNothingTouched();
   });
 
-  it.todo(
-    'verifies a real simulator event fixture (headers, raw body and X.509 certificate from paypal-cert-url) as "simulated" — closes the X.509 assumption of Log L9',
-  );
+  // The real simulator delivery (X.509 certificate, Log L9/L17) is covered by
+  // tests/t10c-paypal-fixture.test.ts.
 });
 
 // ----------------------------------------------------------------------------
