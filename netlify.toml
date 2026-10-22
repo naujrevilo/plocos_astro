@@ -7,9 +7,6 @@
   NODE_VERSION = "22.21.1"
   PNPM_VERSION = "10.22.0"
   NETLIFY_USE_PNPM = "true"
-  # T10c fixture: PayPal's PUBLIC webhook signing certificate (cert.pem), not a
-  # secret. Smart detection flags it as a false positive.
-  SECRETS_SCAN_OMIT_PATHS = "tests/fixtures/paypal/"
 
 [functions]
   included_files = ["db/**"]
