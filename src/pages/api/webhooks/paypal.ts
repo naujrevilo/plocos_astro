@@ -45,31 +45,17 @@ import {
   updateSubscriptionStatus,
   type RemainingAccess,
 } from '../../../lib/db/subscriptions';
+import { paypalPlanFromId, type PayPalPlan } from '../../../lib/paypal-plans';
 
 type PayPalEvent = {
   event_type?: string;
   resource?: { id?: string; billing_agreement_id?: string };
 };
 
-type Plan = 'lector' | 'colaborador';
-
-// Plan ids per plan and currency, read the Astro way (see src/lib/paypal.ts).
-const PLAN_IDS: Record<Plan, () => (string | undefined)[]> = {
-  lector: () => [
-    import.meta.env.PAYPAL_PLAN_LECTOR_USD ?? process.env.PAYPAL_PLAN_LECTOR_USD,
-    import.meta.env.PAYPAL_PLAN_LECTOR_EUR ?? process.env.PAYPAL_PLAN_LECTOR_EUR,
-  ],
-  colaborador: () => [
-    import.meta.env.PAYPAL_PLAN_COLABORADOR_USD ?? process.env.PAYPAL_PLAN_COLABORADOR_USD,
-    import.meta.env.PAYPAL_PLAN_COLABORADOR_EUR ?? process.env.PAYPAL_PLAN_COLABORADOR_EUR,
-  ],
-};
-
 /** An unknown plan id is a configuration error: 500, so PayPal retries. */
-function planFor(planId: string): Plan {
-  for (const plan of Object.keys(PLAN_IDS) as Plan[]) {
-    if (PLAN_IDS[plan]().some((id) => id && id === planId)) return plan;
-  }
+function planFor(planId: string): PayPalPlan {
+  const plan = paypalPlanFromId(planId);
+  if (plan) return plan;
   throw new Error(`PayPal plan_id ${planId} is not one of PAYPAL_PLAN_*`);
 }
 

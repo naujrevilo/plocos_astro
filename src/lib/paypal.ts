@@ -350,6 +350,71 @@ export async function getSubscription(
   return (await res.json()) as PayPalSubscription;
 }
 
+/**
+ * Create a subscription: POST /v1/billing/subscriptions (T10d).
+ *
+ * `custom_id` is the Clerk user id taken from the server session (never from
+ * the client), `application_context.user_action = 'SUBSCRIBE_NOW'` makes
+ * PayPal activate the subscription as soon as the buyer approves it, and the
+ * approval link is the `links` entry with `rel: 'approve'`.
+ */
+export interface CreateSubscriptionInput {
+  /** The `PAYPAL_PLAN_*` id of the plan and currency to subscribe to. */
+  planId: string;
+  /** The Clerk user id (server side only). */
+  customId: string;
+  /** Where PayPal returns the buyer after the approval. */
+  returnUrl: string;
+  /** Where PayPal returns the buyer when the buyer cancels. */
+  cancelUrl: string;
+  brandName?: string;
+  locale?: string;
+}
+
+export interface CreatedSubscription {
+  id: string;
+  status: PayPalSubscriptionStatus;
+  /** The `rel: 'approve'` link, or null when PayPal sends no approval link. */
+  approveUrl: string | null;
+}
+
+export async function createSubscription(
+  input: CreateSubscriptionInput,
+  deps: PayPalDeps = {},
+): Promise<CreatedSubscription> {
+  const res = await paypalRequest(
+    '/v1/billing/subscriptions',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        plan_id: input.planId,
+        custom_id: input.customId,
+        application_context: {
+          return_url: input.returnUrl,
+          cancel_url: input.cancelUrl,
+          user_action: 'SUBSCRIBE_NOW',
+          shipping_preference: 'NO_SHIPPING',
+          brand_name: input.brandName,
+          locale: input.locale,
+        },
+      }),
+    },
+    deps,
+  );
+  if (!res.ok) {
+    throw new Error(`PayPal subscription creation failed: ${res.status}`);
+  }
+
+  const created = (await res.json()) as {
+    id: string;
+    status: PayPalSubscriptionStatus;
+    links?: { rel?: string; href?: string }[];
+  };
+  const approveUrl = created.links?.find((link) => link.rel === 'approve')?.href ?? null;
+
+  return { id: created.id, status: created.status, approveUrl };
+}
+
 /** Clear the certificate and token caches (tests only). */
 export function resetPayPalCaches(): void {
   certCache.clear();
