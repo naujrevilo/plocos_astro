@@ -35,8 +35,14 @@ const CHECKOUT_COOKIE_MAX_AGE = 600;
 /** Where PayPal returns the buyer after the approval. */
 const RETURN_PATH = '/api/suscripcion/paypal/verify';
 
-/** Where PayPal returns the buyer when the buyer cancels. */
-const CANCEL_PATH = '/suscripcion?status=cancelled';
+/**
+ * Where PayPal returns the buyer when the buyer cancels: the subscription
+ * page of the locale the buyer chose, like the reconciliation route.
+ */
+const CANCEL_PATHS: Record<Locale, string> = {
+  es: '/suscripcion?status=cancelled',
+  en: '/en/subscription?status=cancelled',
+};
 
 /** The brand PayPal shows in the approval page. */
 const BRAND_NAME = 'Plocos';
@@ -93,7 +99,7 @@ export const GET: APIRoute = async (context) => {
       // query, never the body.
       customId: auth.userId,
       returnUrl: `${url.origin}${RETURN_PATH}`,
-      cancelUrl: `${url.origin}${CANCEL_PATH}`,
+      cancelUrl: `${url.origin}${CANCEL_PATHS[locale]}`,
       brandName: BRAND_NAME,
       locale,
     });

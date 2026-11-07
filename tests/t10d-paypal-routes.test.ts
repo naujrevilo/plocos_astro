@@ -265,7 +265,7 @@ describe('T10d.3 — GET /api/suscripcion/paypal', () => {
   it('sends the configured plan id and the return/cancel URLs of this origin', async () => {
     await callCheckout(
       createContext({
-        url: `${ORIGIN}/api/suscripcion/paypal?plan=lector&currency=USD`,
+        url: `${ORIGIN}/api/suscripcion/paypal?plan=lector&currency=USD&locale=es`,
         userId: 'user_session',
       }),
     );
@@ -275,6 +275,24 @@ describe('T10d.3 — GET /api/suscripcion/paypal', () => {
     expect(input.returnUrl).toBe(`${ORIGIN}/api/suscripcion/paypal/verify`);
     expect(input.cancelUrl).toBe(`${ORIGIN}/suscripcion?status=cancelled`);
   });
+
+  it.each([
+    ['en', '/en/subscription?status=cancelled'],
+    ['xx', '/suscripcion?status=cancelled'],
+  ])(
+    'sends the cancel URL of the "%s" locale to PayPal',
+    async (locale, expectedPath) => {
+      await callCheckout(
+        createContext({
+          url: `${ORIGIN}/api/suscripcion/paypal?plan=lector&currency=USD&locale=${encodeURIComponent(locale)}`,
+          userId: 'user_session',
+        }),
+      );
+
+      const input = vi.mocked(createSubscription).mock.calls[0]![0];
+      expect(input.cancelUrl).toBe(`${ORIGIN}${expectedPath}`);
+    },
+  );
 
   it('stores the subscription id in the paypal_checkout cookie', async () => {
     const cookies = createFakeCookies();
