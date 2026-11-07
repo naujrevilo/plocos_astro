@@ -2,18 +2,97 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { defaultLocale, getTranslations, type Locale } from '../lib/i18n';
 import { createLocaleHref } from '../lib/routes';
+import { gatewayForRoute, resolvePaymentRoute, type ManualChoice } from '../lib/payment-routing';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 
-// País por defecto: Colombia (COP). El selector manual permite cambiar.
-const COUNTRIES = [
-  { code: 'CO', label: 'Colombia (COP)', currency: 'COP', provider: 'mercadopago' },
-  { code: 'US', label: 'United States (USD)', currency: 'USD', provider: 'paypal' },
-  { code: 'OTHER', label: 'Otro / Other (USD)', currency: 'USD', provider: 'paypal' },
-];
-
 const isES = locale === 'es';
+
+/**
+ * T10d.5 — Ruteo de la pasarela de pago (T10a) resuelto en el servidor.
+ *
+ * El país sale del geo de Netlify; si no llega, de la región del
+ * `Accept-Language`; sin ninguno, la ruta por defecto (PayPal en USD). La
+ * elección manual del selector llega por la URL (`?gateway=…`) y siempre
+ * gana, pero levanta un aviso cuando contradice el país detectado.
+ */
+interface NetlifyGeoLocals {
+  netlify?: {
+    context?: {
+      geo?: { country?: { code?: string | null } | null } | null;
+    } | null;
+  } | null;
+}
+
+const geoCountry =
+  (Astro.locals as unknown as NetlifyGeoLocals)?.netlify?.context?.geo?.country?.code ?? null;
+const acceptLanguage = Astro.request.headers.get('accept-language');
+const manualChoice = Astro.url.searchParams.get('gateway') as ManualChoice | null;
+
+const route = resolvePaymentRoute({ geoCountry, acceptLanguage, manualChoice });
+const gateway = gatewayForRoute(route);
+
+// Selector manual: la elección viaja por la URL (`?gateway=…`).
+const GATEWAY_OPTIONS = [
+  { value: 'mercadopago', label: 'MercadoPago (COP)' },
+  { value: 'paypal-usd', label: 'PayPal (USD)' },
+  { value: 'paypal-eur', label: 'PayPal (EUR)' },
+] as const;
+
+const selectedGateway =
+  gateway.provider === 'mercadopago'
+    ? 'mercadopago'
+    : gateway.paypalCurrency === 'EUR'
+      ? 'paypal-eur'
+      : 'paypal-usd';
+
+const gatewayName =
+  gateway.provider === 'mercadopago' ? 'MercadoPago (COP)' : `PayPal (${gateway.paypalCurrency})`;
+
+const gatewayHint =
+  gateway.provider === 'mercadopago'
+    ? isES
+      ? 'Pasarela de pago: MercadoPago (COP, Colombia)'
+      : 'Payment gateway: MercadoPago (COP, Colombia)'
+    : isES
+      ? `Pasarela de pago: PayPal (${gateway.paypalCurrency}, internacional)`
+      : `Payment gateway: PayPal (${gateway.paypalCurrency}, international)`;
+
+// El checkout de PayPal responde 302: la navegación es real, no un fetch.
+const paypalCheckoutUrl = (plan: 'lector' | 'colaborador') =>
+  `/api/suscripcion/paypal?plan=${plan}&currency=${gateway.paypalCurrency ?? 'USD'}&locale=${locale}`;
+
+// Mensajes según el estado que devuelve el checkout (`?status=…`).
+const STATUS_TITLES: Record<string, string> = {
+  pending: isES ? 'Pago en revisión' : 'Payment under review',
+  error: isES ? 'Pago no confirmado' : 'Payment not confirmed',
+  success: isES ? 'Pago recibido' : 'Payment received',
+  activated: isES ? 'Suscripción activa' : 'Subscription active',
+};
+const STATUS_MESSAGES: Record<string, string> = {
+  pending: isES
+    ? 'Pago recibido: estamos confirmando tu pago con la pasarela. Te escribimos por correo en cuanto tu suscripción quede activa.'
+    : 'Payment received: we are confirming your payment with the gateway. We will email you as soon as your subscription is active.',
+  error: isES
+    ? 'No pudimos confirmar tu pago y no se realizó ningún cobro. Revisá tu cuenta y volvé a intentarlo, o escribinos para ayudarte.'
+    : 'We could not confirm your payment and nothing was charged. Please check your account and try again, or write to us for help.',
+  success: isES
+    ? 'Pago recibido: estamos verificando tu pago para activar tu suscripción.'
+    : 'Payment received: we are verifying your payment to activate your subscription.',
+  activated: isES
+    ? 'Tu suscripción está activa. Ya podés entrar a la plataforma con tu cuenta.'
+    : 'Your subscription is active. You can now sign in to the platform.',
+};
+const status = Astro.url.searchParams.get('status');
+const statusTitle = status ? STATUS_TITLES[status] ?? null : null;
+const statusMessage = status ? STATUS_MESSAGES[status] ?? null : null;
+
+// Botones: mismas clases de siempre (el `!text-surface-base` ya existía).
+const lectorButtonClass =
+  'block w-full text-center rounded-full bg-text-secondary/30 px-5 py-3 text-sm font-semibold uppercase tracking-widest !text-surface-base transition-colors duration-200 hover:bg-text-primary';
+const colaboradorButtonClass =
+  'block w-full text-center rounded-full bg-accent px-5 py-3 text-sm font-semibold uppercase tracking-widest !text-surface-base shadow-md transition-colors duration-200 hover:bg-text-primary';
 ---
 <BaseLayout
   title={isES ? 'Suscripción · Plocos' : 'Subscription · Plocos'}
@@ -35,6 +114,59 @@ const isES = locale === 'es';
           : 'Two tiers. The same work. Different levels of intellectual combat. Your subscription funds the editing of each iteration and the maintenance of the public Repository.'}
       </p>
     </header>
+
+    {statusMessage && (
+      <div
+        class="rounded-3xl border border-border-subtle bg-surface-muted p-6 space-y-1"
+        role="status"
+        aria-live="polite"
+      >
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-text-primary">
+          {statusTitle}
+        </h2>
+        <p class="text-sm leading-relaxed text-text-secondary/90">
+          {statusMessage}
+        </p>
+      </div>
+    )}
+
+    {route.warnColombia && (
+      <aside class="rounded-3xl border border-accent-muted bg-surface-muted p-6 space-y-3">
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-text-primary">
+          {isES ? 'Aviso sobre la pasarela' : 'Notice about the payment gateway'}
+        </h2>
+        <p class="text-sm leading-relaxed text-text-secondary/90">
+          {isES
+            ? 'Desde Colombia el pago es con MercadoPago (COP): PayPal no permite pagos entre cuentas colombianas. Si tu cuenta PayPal es de otro país, puedes continuar.'
+            : 'From Colombia the payment goes through MercadoPago (COP): PayPal does not allow payments between Colombian accounts. If your PayPal account belongs to another country, you can continue.'}
+        </p>
+        <a
+          href="?gateway=mercadopago"
+          class="inline-block rounded-full border border-accent px-5 py-2 text-sm font-semibold uppercase tracking-widest"
+        >
+          {isES ? 'Volver a MercadoPago' : 'Back to MercadoPago'}
+        </a>
+      </aside>
+    )}
+
+    {route.warnOutsideColombia && (
+      <aside class="rounded-3xl border border-accent-muted bg-surface-muted p-6 space-y-3">
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-text-primary">
+          {isES ? 'Aviso sobre la pasarela' : 'Notice about the payment gateway'}
+        </h2>
+        <p class="text-sm leading-relaxed text-text-secondary/90">
+          {isES
+            ? 'MercadoPago solo cobra en Colombia: si estás fuera del país, elegí PayPal y pagarás en USD o EUR.'
+            : 'MercadoPago only charges in Colombia: if you are outside the country, choose PayPal and you will pay in USD or EUR.'}
+        </p>
+        <a
+          href={Astro.url.pathname}
+          class="inline-block rounded-full border border-accent px-5 py-2 text-sm font-semibold uppercase tracking-widest"
+        >
+          {isES ? 'Volver a PayPal' : 'Back to PayPal'}
+        </a>
+      </aside>
+    )}
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Plan Lector -->
@@ -73,13 +205,23 @@ const isES = locale === 'es';
             <span>{isES ? 'Sin ascenso a Auditor' : 'No ascent to Auditor'}</span>
           </li>
         </ul>
-        <button
-          type="button"
-          data-mp-subscribe="lector"
-          class="block w-full text-center rounded-full bg-text-secondary/30 px-5 py-3 text-sm font-semibold uppercase tracking-widest !text-surface-base transition-colors duration-200 hover:bg-text-primary"
-        >
-          {isES ? 'Suscribirme al plan Lector' : 'Subscribe to the Reader plan'}
-        </button>
+        {gateway.provider === 'mercadopago' ? (
+          <button type="button" data-mp-subscribe="lector" class={lectorButtonClass}>
+            {isES ? 'Suscribirme al plan Lector' : 'Subscribe to the Reader plan'}
+          </button>
+        ) : (
+          <button
+            type="button"
+            data-pp-subscribe="lector"
+            data-paypal-url={paypalCheckoutUrl('lector')}
+            class={lectorButtonClass}
+          >
+            {isES ? 'Suscribirme al plan Lector' : 'Subscribe to the Reader plan'}
+          </button>
+        )}
+        <p class="text-center text-xs text-text-secondary/70">
+          {isES ? `Pago con ${gatewayName}` : `Payment with ${gatewayName}`}
+        </p>
       </section>
 
       <!-- Plan Colaborador -->
@@ -106,7 +248,7 @@ const isES = locale === 'es';
         <ul class="space-y-2 text-sm leading-relaxed">
           <li class="flex gap-2">
             <span class="text-accent">✓</span>
-            <span>{isES ? 'Todo del plan Lector' : 'Everything from the Reader tier'}</span>
+            <span>{isES ? 'Todo del plan Lector' : 'Everything from the Reader plan'}</span>
           </li>
           <li class="flex gap-2">
             <span class="text-accent">✓</span>
@@ -121,13 +263,23 @@ const isES = locale === 'es';
             <span>{isES ? 'Posibilidad de ascender a Auditor (rango honorífico)' : 'Possibility of ascending to Auditor (honorific rank)'}</span>
           </li>
         </ul>
-        <button
-          type="button"
-          data-mp-subscribe="colaborador"
-          class="block w-full text-center rounded-full bg-accent px-5 py-3 text-sm font-semibold uppercase tracking-widest !text-surface-base shadow-md transition-colors duration-200 hover:bg-text-primary"
-        >
-          {isES ? 'Suscribirme como Colaborador' : 'Subscribe as Collaborator'}
-        </button>
+        {gateway.provider === 'mercadopago' ? (
+          <button type="button" data-mp-subscribe="colaborador" class={colaboradorButtonClass}>
+            {isES ? 'Suscribirme como Colaborador' : 'Subscribe as Collaborator'}
+          </button>
+        ) : (
+          <button
+            type="button"
+            data-pp-subscribe="colaborador"
+            data-paypal-url={paypalCheckoutUrl('colaborador')}
+            class={colaboradorButtonClass}
+          >
+            {isES ? 'Suscribirme como Colaborador' : 'Subscribe as Collaborator'}
+          </button>
+        )}
+        <p class="text-center text-xs text-text-secondary/70">
+          {isES ? `Pago con ${gatewayName}` : `Payment with ${gatewayName}`}
+        </p>
       </section>
     </div>
 
@@ -141,25 +293,23 @@ const isES = locale === 'es';
           ? 'Elegimos la pasarela de pago según tu geografía. MercadoPago para Colombia (COP). PayPal para el resto del mundo (USD/EUR).'
           : 'We pick the payment gateway based on your geography. MercadoPago for Colombia (COP). PayPal for the rest of the world (USD/EUR).'}
       </p>
-      <label for="country" class="block text-xs font-semibold uppercase tracking-widest text-text-secondary/80">
-        {isES ? 'País' : 'Country'}
+      <label for="gateway" class="block text-xs font-semibold uppercase tracking-widest text-text-secondary/80">
+        {isES ? 'Pasarela de pago' : 'Payment gateway'}
       </label>
       <select
-        id="country"
-        name="country"
+        id="gateway"
+        name="gateway"
         class="block w-full rounded-2xl border border-border-subtle bg-surface-base px-4 py-3 text-base text-text-primary focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
-        {COUNTRIES.map((country) => (
-          <option value={country.code} data-provider={country.provider} data-currency={country.currency}>
-            {country.label}
+        {GATEWAY_OPTIONS.map((option) => (
+          <option value={option.value} selected={option.value === selectedGateway}>
+            {option.label}
           </option>
         ))}
       </select>
       <p class="text-xs text-text-secondary/70">
         <span id="payment-provider-hint">
-          {isES
-            ? 'Pasarela de pago: MercadoPago (COP, Colombia)'
-            : 'Payment gateway: MercadoPago (COP, Colombia)'}
+          {gatewayHint}
         </span>
       </p>
     </section>
@@ -196,26 +346,14 @@ const isES = locale === 'es';
 
 <script is:inline>
   (function () {
-    var select = document.getElementById('country');
-    var hint = document.getElementById('payment-provider-hint');
-    if (!select || !hint) return;
-    var HINTS_ES = {
-      mercadopago: 'Pasarela de pago: MercadoPago (COP, Colombia)',
-      paypal: 'Pasarela de pago: PayPal (internacional, USD/EUR)',
-    };
-    var HINTS_EN = {
-      mercadopago: 'Payment gateway: MercadoPago (COP, Colombia)',
-      paypal: 'Payment gateway: PayPal (international, USD/EUR)',
-    };
-    var isES = (document.documentElement.lang || 'es').startsWith('es');
-    var HINTS = isES ? HINTS_ES : HINTS_EN;
-    function update() {
-      var opt = select.options[select.selectedIndex];
-      var provider = opt.getAttribute('data-provider') || 'mercadopago';
-      hint.textContent = HINTS[provider] || '';
-    }
-    select.addEventListener('change', update);
-    update();
+    var select = document.getElementById('gateway');
+    if (!select) return;
+    // La elección manual viaja por la URL: el servidor vuelve a rutear la
+    // pasarela y recalcula los avisos.
+    select.addEventListener('change', function () {
+      var value = select.options[select.selectedIndex].value;
+      window.location.assign(window.location.pathname + '?gateway=' + encodeURIComponent(value));
+    });
   })();
 </script>
 
@@ -278,6 +416,17 @@ const isES = locale === 'es';
         btn.disabled = false;
         btn.textContent = original;
       }
+    });
+  });
+
+  // PayPal checkout: the endpoint answers 302 with the approval link, so the
+  // button navigates for real (location.assign). Never a fetch: the answer
+  // is a redirect, not a JSON body.
+  document.querySelectorAll<HTMLButtonElement>('[data-pp-subscribe]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const url = btn.dataset.paypalUrl;
+      if (!url) return;
+      window.location.assign(url);
     });
   });
 </script>

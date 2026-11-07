@@ -38,6 +38,43 @@ export interface PaymentRouteInput {
   manualChoice?: ManualChoice | null;
 }
 
+/** The checkout endpoint and currency a resolved route points to (T10d.5). */
+export interface GatewayForRoute {
+  provider: RoutedProvider;
+  currency: RoutedCurrency;
+  endpoint: '/api/suscripcion/paypal' | '/api/suscripcion/mercadopago';
+  /** The PayPal currency (USD/EUR), or null for the MercadoPago route. */
+  paypalCurrency: 'USD' | 'EUR' | null;
+}
+
+/**
+ * The checkout endpoint for a resolved route: PayPal with its USD/EUR
+ * currency, or MercadoPago in COP.
+ *
+ * The route already carries the provider and the currency, so the gateway is
+ * a pure projection of it: PayPal keeps its currency (USD/EUR) and points to
+ * the PayPal checkout; MercadoPago always charges in COP and points to the
+ * MercadoPago checkout.
+ */
+export function gatewayForRoute(route: PaymentRoute): GatewayForRoute {
+  if (route.provider === 'mercadopago') {
+    return {
+      provider: 'mercadopago',
+      currency: 'COP',
+      endpoint: '/api/suscripcion/mercadopago',
+      paypalCurrency: null,
+    };
+  }
+
+  const paypalCurrency = route.currency === 'EUR' ? 'EUR' : 'USD';
+  return {
+    provider: 'paypal',
+    currency: paypalCurrency,
+    endpoint: '/api/suscripcion/paypal',
+    paypalCurrency,
+  };
+}
+
 /** Euro-area members as of 2026-01-01 (Bulgaria joined that day). */
 export const EUROZONE_COUNTRIES: readonly string[] = [
   'AT', 'BE', 'BG', 'CY', 'DE', 'EE', 'ES', 'FI', 'FR', 'GR', 'HR',

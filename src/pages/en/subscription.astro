@@ -2,17 +2,97 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { defaultLocale, getTranslations, type Locale } from '../../lib/i18n';
 import { createLocaleHref } from '../../lib/routes';
+import { gatewayForRoute, resolvePaymentRoute, type ManualChoice } from '../../lib/payment-routing';
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
 const translations = getTranslations(locale);
 
-const COUNTRIES = [
-  { code: 'CO', label: 'Colombia (COP)', currency: 'COP', provider: 'mercadopago' },
-  { code: 'US', label: 'United States (USD)', currency: 'USD', provider: 'paypal' },
-  { code: 'OTHER', label: 'Otro / Other (USD)', currency: 'USD', provider: 'paypal' },
-];
-
 const isES = locale === 'es';
+
+/**
+ * T10d.5 — Payment gateway routing (T10a), resolved on the server.
+ *
+ * The country comes from the Netlify geo; without it, from the region of the
+ * `Accept-Language`; without either, the default route (PayPal in USD). The
+ * manual choice of the selector arrives in the URL (`?gateway=…`) and always
+ * wins, but it raises a notice when it contradicts the detected country.
+ */
+interface NetlifyGeoLocals {
+  netlify?: {
+    context?: {
+      geo?: { country?: { code?: string | null } | null } | null;
+    } | null;
+  } | null;
+}
+
+const geoCountry =
+  (Astro.locals as unknown as NetlifyGeoLocals)?.netlify?.context?.geo?.country?.code ?? null;
+const acceptLanguage = Astro.request.headers.get('accept-language');
+const manualChoice = Astro.url.searchParams.get('gateway') as ManualChoice | null;
+
+const route = resolvePaymentRoute({ geoCountry, acceptLanguage, manualChoice });
+const gateway = gatewayForRoute(route);
+
+// Manual selector: the choice travels in the URL (`?gateway=…`).
+const GATEWAY_OPTIONS = [
+  { value: 'mercadopago', label: 'MercadoPago (COP)' },
+  { value: 'paypal-usd', label: 'PayPal (USD)' },
+  { value: 'paypal-eur', label: 'PayPal (EUR)' },
+] as const;
+
+const selectedGateway =
+  gateway.provider === 'mercadopago'
+    ? 'mercadopago'
+    : gateway.paypalCurrency === 'EUR'
+      ? 'paypal-eur'
+      : 'paypal-usd';
+
+const gatewayName =
+  gateway.provider === 'mercadopago' ? 'MercadoPago (COP)' : `PayPal (${gateway.paypalCurrency})`;
+
+const gatewayHint =
+  gateway.provider === 'mercadopago'
+    ? isES
+      ? 'Pasarela de pago: MercadoPago (COP, Colombia)'
+      : 'Payment gateway: MercadoPago (COP, Colombia)'
+    : isES
+      ? `Pasarela de pago: PayPal (${gateway.paypalCurrency}, internacional)`
+      : `Payment gateway: PayPal (${gateway.paypalCurrency}, international)`;
+
+// The PayPal checkout answers 302: the navigation is real, not a fetch.
+const paypalCheckoutUrl = (plan: 'lector' | 'colaborador') =>
+  `/api/suscripcion/paypal?plan=${plan}&currency=${gateway.paypalCurrency ?? 'USD'}&locale=${locale}`;
+
+// Messages for the state the checkout returns (`?status=…`).
+const STATUS_TITLES: Record<string, string> = {
+  pending: isES ? 'Pago en revisión' : 'Payment under review',
+  error: isES ? 'Pago no confirmado' : 'Payment not confirmed',
+  success: isES ? 'Pago recibido' : 'Payment received',
+  activated: isES ? 'Suscripción activa' : 'Subscription active',
+};
+const STATUS_MESSAGES: Record<string, string> = {
+  pending: isES
+    ? 'Pago recibido: estamos confirmando tu pago con la pasarela. Te escribimos por correo en cuanto tu suscripción quede activa.'
+    : 'Payment received: we are confirming your payment with the gateway. We will email you as soon as your subscription is active.',
+  error: isES
+    ? 'No pudimos confirmar tu pago y no se realizó ningún cobro. Revisá tu cuenta y volvé a intentarlo, o escribinos para ayudarte.'
+    : 'We could not confirm your payment and nothing was charged. Please check your account and try again, or write to us for help.',
+  success: isES
+    ? 'Pago recibido: estamos verificando tu pago para activar tu suscripción.'
+    : 'Payment received: we are verifying your payment to activate your subscription.',
+  activated: isES
+    ? 'Tu suscripción está activa. Ya podés entrar a la plataforma con tu cuenta.'
+    : 'Your subscription is active. You can now sign in to the platform.',
+};
+const status = Astro.url.searchParams.get('status');
+const statusTitle = status ? STATUS_TITLES[status] ?? null : null;
+const statusMessage = status ? STATUS_MESSAGES[status] ?? null : null;
+
+// Buttons: same classes as before (the `!text-surface-base` already existed).
+const lectorButtonClass =
+  'block w-full text-center rounded-full bg-text-secondary/30 px-5 py-3 text-sm font-semibold uppercase tracking-widest text-surface-base transition-colors duration-200 hover:bg-text-primary';
+const colaboradorButtonClass =
+  'block w-full text-center rounded-full bg-accent px-5 py-3 text-sm font-semibold uppercase tracking-widest !text-surface-base shadow-md transition-colors duration-200 hover:bg-text-primary';
 ---
 <BaseLayout
   title={isES ? 'Suscripción · Plocos' : 'Subscription · Plocos'}
@@ -34,6 +114,59 @@ const isES = locale === 'es';
           : 'Two tiers. The same work. Different levels of intellectual combat. Your subscription funds the editing of each iteration and the maintenance of the public Repository.'}
       </p>
     </header>
+
+    {statusMessage && (
+      <div
+        class="rounded-3xl border border-border-subtle bg-surface-muted p-6 space-y-1"
+        role="status"
+        aria-live="polite"
+      >
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-text-primary">
+          {statusTitle}
+        </h2>
+        <p class="text-sm leading-relaxed text-text-secondary/90">
+          {statusMessage}
+        </p>
+      </div>
+    )}
+
+    {route.warnColombia && (
+      <aside class="rounded-3xl border border-accent-muted bg-surface-muted p-6 space-y-3">
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-text-primary">
+          {isES ? 'Aviso sobre la pasarela' : 'Notice about the payment gateway'}
+        </h2>
+        <p class="text-sm leading-relaxed text-text-secondary/90">
+          {isES
+            ? 'Desde Colombia el pago es con MercadoPago (COP): PayPal no permite pagos entre cuentas colombianas. Si tu cuenta PayPal es de otro país, puedes continuar.'
+            : 'From Colombia the payment goes through MercadoPago (COP): PayPal does not allow payments between Colombian accounts. If your PayPal account belongs to another country, you can continue.'}
+        </p>
+        <a
+          href="?gateway=mercadopago"
+          class="inline-block rounded-full border border-accent px-5 py-2 text-sm font-semibold uppercase tracking-widest"
+        >
+          {isES ? 'Volver a MercadoPago' : 'Back to MercadoPago'}
+        </a>
+      </aside>
+    )}
+
+    {route.warnOutsideColombia && (
+      <aside class="rounded-3xl border border-accent-muted bg-surface-muted p-6 space-y-3">
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-text-primary">
+          {isES ? 'Aviso sobre la pasarela' : 'Notice about the payment gateway'}
+        </h2>
+        <p class="text-sm leading-relaxed text-text-secondary/90">
+          {isES
+            ? 'MercadoPago solo cobra en Colombia: si estás fuera del país, elegí PayPal y pagarás en USD o EUR.'
+            : 'MercadoPago only charges in Colombia: if you are outside the country, choose PayPal and you will pay in USD or EUR.'}
+        </p>
+        <a
+          href={Astro.url.pathname}
+          class="inline-block rounded-full border border-accent px-5 py-2 text-sm font-semibold uppercase tracking-widest"
+        >
+          {isES ? 'Volver a PayPal' : 'Back to PayPal'}
+        </a>
+      </aside>
+    )}
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <section class="rounded-3xl border border-border-subtle bg-surface-elevated p-8 shadow-contemplation space-y-4">
@@ -59,9 +192,23 @@ const isES = locale === 'es';
           <li class="flex flex-row items-start gap-2 text-text-secondary/60"><span>—</span><span>{isES ? 'No puedes enviar aportes' : 'You cannot submit contributions'}</span></li>
           <li class="flex flex-row items-start gap-2 text-text-secondary/60"><span>—</span><span>{isES ? 'Sin ascenso a Auditor' : 'No ascent to Auditor'}</span></li>
         </ul>
-        <button type="button" disabled class="block w-full text-center rounded-full bg-text-secondary/30 px-5 py-3 text-sm font-semibold uppercase tracking-widest text-text-secondary/60 cursor-not-allowed">
-          {isES ? 'Pago disponible pronto' : 'Checkout coming soon'}
-        </button>
+        {gateway.provider === 'mercadopago' ? (
+          <button type="button" data-mp-subscribe="lector" class={lectorButtonClass}>
+            {isES ? 'Suscribirme al plan Lector' : 'Subscribe to the Reader plan'}
+          </button>
+        ) : (
+          <button
+            type="button"
+            data-pp-subscribe="lector"
+            data-paypal-url={paypalCheckoutUrl('lector')}
+            class={lectorButtonClass}
+          >
+            {isES ? 'Suscribirme al plan Lector' : 'Subscribe to the Reader plan'}
+          </button>
+        )}
+        <p class="text-center text-xs text-text-secondary/70">
+          {isES ? `Pago con ${gatewayName}` : `Payment with ${gatewayName}`}
+        </p>
       </section>
 
       <section class="rounded-3xl border-2 border-accent bg-surface-elevated p-8 shadow-contemplation space-y-4 relative">
@@ -85,14 +232,28 @@ const isES = locale === 'es';
             : 'Everything in the Reader tier plus the ability to submit contributions to the Repository. By accepting this tier you digitally sign the Habeas Scriptum. Your contributions, once approved, are published in the public Repository with date, user, and reference chapter.'}
         </p>
         <ul class="space-y-2 text-sm leading-relaxed">
-          <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Todo del plan Lector' : 'Everything from the Reader tier'}</span></li>
+          <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Todo del plan Lector' : 'Everything from the Reader plan'}</span></li>
           <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Habilita la interfaz para enviar aportes' : 'Enables the contribution interface'}</span></li>
           <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Firma digital del Habeas Scriptum' : 'Digital signature of the Habeas Scriptum'}</span></li>
           <li class="flex gap-2"><span class="text-accent">✓</span><span>{isES ? 'Posibilidad de ascender a Auditor (rango honorífico)' : 'Possibility of ascending to Auditor (honorific rank)'}</span></li>
         </ul>
-          <button type="button" disabled class="block w-full text-center rounded-full bg-accent/40 px-5 py-3 text-sm font-semibold uppercase tracking-widest !text-surface-base cursor-not-allowed">
-          {isES ? 'Habeas Scriptum + pago disponibles pronto' : 'Habeas Scriptum + checkout coming soon'}
-        </button>
+        {gateway.provider === 'mercadopago' ? (
+          <button type="button" data-mp-subscribe="colaborador" class={colaboradorButtonClass}>
+            {isES ? 'Suscribirme como Colaborador' : 'Subscribe as Collaborator'}
+          </button>
+        ) : (
+          <button
+            type="button"
+            data-pp-subscribe="colaborador"
+            data-paypal-url={paypalCheckoutUrl('colaborador')}
+            class={colaboradorButtonClass}
+          >
+            {isES ? 'Suscribirme como Colaborador' : 'Subscribe as Collaborator'}
+          </button>
+        )}
+        <p class="text-center text-xs text-text-secondary/70">
+          {isES ? `Pago con ${gatewayName}` : `Payment with ${gatewayName}`}
+        </p>
       </section>
     </div>
 
@@ -105,25 +266,23 @@ const isES = locale === 'es';
           ? 'Elegimos la pasarela de pago según tu geografía. MercadoPago para Colombia (COP). PayPal para el resto del mundo (USD/EUR).'
           : 'We pick the payment gateway based on your geography. MercadoPago for Colombia (COP). PayPal for the rest of the world (USD/EUR).'}
       </p>
-      <label for="country-en" class="block text-xs font-semibold uppercase tracking-widest text-text-secondary/80">
-        {isES ? 'País' : 'Country'}
+      <label for="gateway-en" class="block text-xs font-semibold uppercase tracking-widest text-text-secondary/80">
+        {isES ? 'Pasarela de pago' : 'Payment gateway'}
       </label>
       <select
-        id="country-en"
-        name="country"
+        id="gateway-en"
+        name="gateway"
         class="block w-full rounded-2xl border border-border-subtle bg-surface-base px-4 py-3 text-base text-text-primary focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
-        {COUNTRIES.map((country) => (
-          <option value={country.code} data-provider={country.provider} data-currency={country.currency}>
-            {country.label}
+        {GATEWAY_OPTIONS.map((option) => (
+          <option value={option.value} selected={option.value === selectedGateway}>
+            {option.label}
           </option>
         ))}
       </select>
       <p class="text-xs text-text-secondary/70">
         <span id="payment-provider-hint-en">
-          {isES
-            ? 'Pasarela de pago: MercadoPago (COP, Colombia)'
-            : 'Payment gateway: MercadoPago (COP, Colombia)'}
+          {gatewayHint}
         </span>
       </p>
     </section>
@@ -144,19 +303,87 @@ const isES = locale === 'es';
 
 <script is:inline>
   (function () {
-    var select = document.getElementById('country-en');
-    var hint = document.getElementById('payment-provider-hint-en');
-    if (!select || !hint) return;
-    var HINTS = {
-      mercadopago: 'Payment gateway: MercadoPago (COP, Colombia)',
-      paypal: 'Payment gateway: PayPal (international, USD/EUR)',
-    };
-    function update() {
-      var opt = select.options[select.selectedIndex];
-      var provider = opt.getAttribute('data-provider') || 'mercadopago';
-      hint.textContent = HINTS[provider] || '';
-    }
-    select.addEventListener('change', update);
-    update();
+    var select = document.getElementById('gateway-en');
+    if (!select) return;
+    // The manual choice travels in the URL: the server routes the gateway
+    // again and recomputes the notices.
+    select.addEventListener('change', function () {
+      var value = select.options[select.selectedIndex].value;
+      window.location.assign(window.location.pathname + '?gateway=' + encodeURIComponent(value));
+    });
   })();
+</script>
+
+<script>
+  // Reconciliation after returning from the MP checkout: if the back_url
+  // carried ?status=success, ask the server to verify the subscription
+  // server-side (webhook may have missed). On success, reload so the
+  // fresh session JWT carries the upgraded role.
+  (async () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('status') !== 'success') return;
+    try {
+      const res = await fetch('/api/suscripcion/verify', { method: 'POST' });
+      if (!res.ok) return;
+      const json = (await res.json()) as { activated?: boolean };
+      if (json.activated) {
+        window.location.replace('/en/subscription?status=activated');
+      }
+    } catch (err) {
+      console.error('[subscription] reconciliation failed:', err);
+    }
+  })();
+
+  // MercadoPago subscription flow: click -> POST /api/suscripcion/mercadopago
+  // -> redirect to the MP-hosted checkout (init_point). Requires a signed-in
+  // session (the endpoint returns 401 otherwise, which we surface as a
+  // sign-in redirect).
+  document.querySelectorAll<HTMLButtonElement>('[data-mp-subscribe]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const plan = btn.dataset.mpSubscribe;
+      if (!plan) return;
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = btn.getAttribute('data-busy-label') ?? '...';
+      try {
+        const res = await fetch('/api/suscripcion/mercadopago', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ plan }),
+        });
+        // The Clerk middleware redirects an unauthenticated POST to
+        // /sign-in (302 -> fetch follows -> HTML 200). Detect the
+        // session loss either way and send the user to sign in.
+        const contentType = res.headers.get('content-type') || '';
+        if (res.status === 401 || res.redirected || !contentType.includes('application/json')) {
+          window.location.href = '/sign-in';
+          return;
+        }
+        if (!res.ok) {
+          const text = await res.text();
+          alert(text || 'Error');
+          return;
+        }
+        const { init_point: initPoint } = (await res.json()) as { init_point: string };
+        window.location.href = initPoint;
+      } catch (err) {
+        console.error('[subscription] checkout failed:', err);
+        alert('Unexpected error; check the console');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    });
+  });
+
+  // PayPal checkout: the endpoint answers 302 with the approval link, so the
+  // button navigates for real (location.assign). Never a fetch: the answer
+  // is a redirect, not a JSON body.
+  document.querySelectorAll<HTMLButtonElement>('[data-pp-subscribe]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const url = btn.dataset.paypalUrl;
+      if (!url) return;
+      window.location.assign(url);
+    });
+  });
 </script>
